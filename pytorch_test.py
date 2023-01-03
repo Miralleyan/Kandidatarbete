@@ -1,7 +1,6 @@
 import torch
 import math
 
-
 dtype = torch.float
 device = torch.device("cpu")
 # device = torch.device("cuda:0") # Uncomment this to run on GPU
