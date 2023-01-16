@@ -1,4 +1,4 @@
-import numpy as np
+#import numpy as np
 
 import torch
 from torch.autograd import Variable
@@ -8,14 +8,19 @@ import matplotlib.pyplot as plt
 # create dummy data for training
 x_values = [i for i in range(11)]
 #print(x_values)
-x_train = np.array(x_values, dtype=np.float32)
+x_train=torch.Tensor(x_values)
+#x_train = np.array(x_values, dtype=np.float32)
 #print(x_train)
-x_train = x_train.reshape(-1, 1)
+x_train=x_train.unsqueeze(-1)
+#x_train = x_train.reshape(-1, 1)
 #print(x_train)
 
 y_values = [2*i + 1 for i in x_values]
-y_train = np.array(y_values, dtype=np.float32)
-y_train = y_train.reshape(-1, 1)
+#y_train = np.array(y_values, dtype=np.float32)
+#y_train = y_train.reshape(-1, 1)
+y_train=torch.Tensor(y_values)
+y_train=y_train.unsqueeze(-1)
+
 
 class linearRegression(torch.nn.Module):
     def __init__(self, inputSize, outputSize):
@@ -29,7 +34,7 @@ class linearRegression(torch.nn.Module):
 inputDim = 1        # takes variable 'x' 
 outputDim = 1       # takes variable 'y'
 learningRate = 0.01 
-epochs = 100
+epochs = 1000
 
 model = linearRegression(inputDim, outputDim)
 ##### For GPU #######
@@ -45,8 +50,10 @@ for epoch in range(epochs):
         inputs = torch.from_numpy(x_train).cuda()
         labels = torch.from_numpy(y_train).cuda()
     else:
-        inputs = torch.from_numpy(x_train)
-        labels = torch.from_numpy(y_train)
+        #inputs = torch.from_numpy(x_train)
+        #labels = torch.from_numpy(y_train)
+        inputs=x_train
+        labels=y_train
 
     # Clear gradient buffers because we don't want any gradient from previous epoch to carry forward, dont want to cummulate gradients
     optimizer.zero_grad()
@@ -69,7 +76,8 @@ with torch.no_grad(): # we don't need gradients in the testing phase
     if torch.cuda.is_available():
         predicted = model(torch.from_numpy(x_train).cuda()).cpu().data.numpy()
     else:
-        predicted = model(torch.from_numpy(x_train)).data.numpy()
+        #predicted = model(torch.from_numpy(x_train)).data.numpy()
+        predicted=model(x_train)
     print(predicted)
 
 plt.clf()

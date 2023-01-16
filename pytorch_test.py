@@ -1,6 +1,7 @@
 import torch
 import math
 
+
 dtype = torch.float
 device = torch.device("cpu")
 # device = torch.device("cuda:0") # Uncomment this to run on GPU
@@ -39,7 +40,5 @@ for t in range(2000):
     d -= learning_rate * grad_d
 
 
-print(f'Result: y = {a.item()} + {b.item()} x + {c.item()} x^2 + {d.item()} x^3')
-
-
-
+print(
+    f'Result: y = {a.item()} + {b.item()} x + {c.item()} x^2 + {d.item()} x^3')
