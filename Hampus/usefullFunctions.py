@@ -30,6 +30,7 @@ y = x.squeeze()                                                     # removes al
 x.mm(y)                                                             # Matrix multiplication
 
 # GPU
+# Note: I had to install torch from commandline to access gpu
 x = x.to(device)                                                    # Copy tensor to a device (gpu, cpu)
 
 
