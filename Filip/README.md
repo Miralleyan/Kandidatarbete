@@ -1,3 +1,7 @@
+# Creating enviorenment
+```
+conda create -n local python=2.7
+```
 # Activating enviorenment
 ```
 conda activate local
