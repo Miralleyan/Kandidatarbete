@@ -7,14 +7,14 @@ $$\textrm{Maximize }L(p,q,u) = pq + u(p+q-1)$$
 The problem is to minimize the Lagrangian of the form
 $$\textrm{Maximize }L(p,q,u) = pq + u_1(p+q-1) + u_2(-p) + u_3(p-1) + u_4(-q) + u_5(q-1)$$
 Which is a relaxation of the constrained minimization problem
-$$\begin{align}
+$$\begin{aligned}
 \textrm{Maximize } f(x) &= pq\\
 p + q &= 1\\
 p &\geq 0\\
 p &\leq 1\\
 q &\geq 0\\
 p &\leq 1
-\end{align}$$
+\end{aligned}$$
 which is equivalent to
 $$\begin{align}
 \textrm{Maximize } f(x) &= pq\\
