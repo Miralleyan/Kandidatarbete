@@ -1,9 +1,7 @@
 import torch
-import numpy as np
-from scipy.optimize import minimize_scalar
-from scipy.optimize import Bounds
+#Får olika svar med den här beroende på startvärdet
 '''
-p0 = torch.tensor(0.4, requires_grad=True)
+p0 = torch.tensor(0.6, requires_grad=True)
 p = p0
 opt = torch.optim.Adam([p], lr=0.1)
 steps = 100
@@ -20,8 +18,20 @@ for step in range(steps):
 
 '''
 
+
+#Får bara ena lösningen med den här då jag inte själv väljer startvärde
 def var(p):
     return p*(1-p)
+from scipy.optimize import minimize_scalar
+'''
 res = minimize_scalar(var,bounds=(0,1), method="bounded")
 print(res.x,res.fun)
 print(res)
+
+'''
+#Gives different answers depending on startvalues
+from torchmin import minimize_constr
+
+x0=torch.tensor(0.6)
+res=minimize_constr(var, x0,bounds={"lb":0,"ub":1},tol=1e-9)
+print(res.x,res.fun)
