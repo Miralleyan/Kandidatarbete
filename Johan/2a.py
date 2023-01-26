@@ -13,7 +13,7 @@ optimizer=torch.optim.Adam([p],lr=0.1)
 steps=200
 mu=20
 
-for st in range(9):
+for st in range(9):#Bäst vid 9 men också bra med över 100
     for step in range(steps):
         optimizer.zero_grad() # otherwise, the grads on steps will sum up
         var = p*(1-p) +mu*max(0,p-1)**2+mu*max(0,-p)**2 # the minus so that to minimise var
