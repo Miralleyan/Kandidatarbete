@@ -1,6 +1,5 @@
 import torch
 
-
 p = torch.tensor(0.2, requires_grad=True)
 q = torch.tensor(0.2, requires_grad=True)
 u = torch.tensor(0.2, requires_grad=True)
