@@ -8,7 +8,7 @@ max(0,1)
 p0=torch.tensor(0.2,requires_grad=True)
 p=p0
 optimizer=torch.optim.SGD([p],lr=0.01)
-steps=10
+steps=20
 mu=2
 
 for st in range(5):
