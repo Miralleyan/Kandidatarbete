@@ -29,7 +29,7 @@ print(pars)
 plt.plot(np.linspace(0,1), np.ones(50)-np.linspace(0,1))
 plt.show()
 
-
+'''
 # 2nd attempt
 pars = torch.nn.Parameter(torch.randn(11))
 
@@ -64,3 +64,4 @@ print(pars)
 
 plt.plot(np.linspace(0,1), np.ones(50)-np.linspace(0,1))
 plt.show()
+'''
