@@ -1,6 +1,6 @@
 # Creating enviorenment
 ```
-conda create -n local python=2.7
+conda create -n local python=3.9
 ```
 # Activating enviorenment
 ```
