@@ -5,7 +5,6 @@
 
 import torch
 from torch import nn
-'''
 
 p0=torch.tensor(-10.1,requires_grad=True)
 p=p0
@@ -26,5 +25,5 @@ for st in range(9):#Bäst vid 9 men också bra med över 100
         if step == steps-1:
             print(f'Step {step+1: 2}: p={p.item(): 0.4f} and variance is {var.item(): 1.4f}')
     mu=mu*2
-    print(mu)'''
+    print(mu)
 

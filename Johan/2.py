@@ -4,7 +4,7 @@
 
 import torch
 from torch import nn
-max(0,1)
+
 p0=torch.tensor(0.2,requires_grad=True)
 p=p0
 optimizer=torch.optim.SGD([p],lr=0.01)
