@@ -36,7 +36,7 @@ class pytorch_measure:
 
     def negative_part(self):
         """
-        Responsibility:
+        Responsibility: Johan
         """
         pass
 
