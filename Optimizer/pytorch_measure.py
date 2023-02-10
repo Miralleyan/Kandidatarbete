@@ -1,7 +1,8 @@
 import torch
 
-class pytorch_measure():
-    def __init__(self,locations,weights):
+
+class PytorchMeasure:
+    def __init__(self, locations, weights):
         """
         Group 1: 
         Group 2: 
