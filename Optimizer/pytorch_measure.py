@@ -24,7 +24,7 @@ class pytorch_measure:
 
     def support(self):
         """
-        Responsibility:
+        Responsibility: Johan
         """
         pass
 
