@@ -21,13 +21,16 @@ class pytorch_measure:
         """
         return sum(abs(self.weights)).item()
 
+    # Samuel: "Unsure if support, positive_part and negative_part should return only weights or
+    # locations as well"
+    # Return support of measure
     def support(self):
         """
         Responsibility: Johan
         """
         return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item()!=0])
 
-
+    # Return support of measure with positive mass
     def positive_part(self):
         """
         Responsibility: Samuel
@@ -35,28 +38,39 @@ class pytorch_measure:
         return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item() > 0]), \
             torch.tensor([weight.item() for weight in self.weights if weight.item() > 0])
 
+    # Return support of measure with negative mass
     def negative_part(self):
         """
         Responsibility: Johan
         """
         return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item()<0])
 
-    def put_mass(self,epsilon) -> bool:
+    def put_mass(self, mass, location_index) -> bool:
         """
-        :param:
-        :returns: True if all mass could be placed, False otherwise
-        Responsibility: Johan (Inte färdig)
+        In current form, this method puts mass at a specified location, s.t. the location still
+        has mass less at most 1 and returns how much mass is left to distribute.
+        :param: mass to put, index of location to put at
+        :returns: mass left to add to measure after adding at specified location
+        Responsibility: Johan, Samuel (Inte färdig)
         """
-        dic={self.weights[i].item() :i for i in range(len(self.weights))}
-        i=dic[min(dic)]
-        if (self.weights[i]).item()+epsilon > 1:
-            epsilon-=(1-self.weights[i].item())
-            self.weights[i]+=(1-self.weights[i].item())
-            return epsilon
-        else:
-            self.weights[i]+epsilon
-            return 0,dic
-        
+        # Johan's implementation
+        # dic={self.weights[i].item() :i for i in range(len(self.weights))}
+        # i=dic[min(dic)]
+        # if (self.weights[i]).item()+epsilon > 1:
+        #     epsilon-=(1-self.weights[i].item())
+        #     self.weights[i]+=(1-self.weights[i].item())
+        #     return epsilon
+        # else:
+        #     self.weights[i]+epsilon
+        #     return 0,dic
+        with torch.no_grad():
+            if self.weights[location_index].item() + mass > 1:
+                mass -= self.weights[location_index].item()
+                self.weights[location_index] = 1
+            else:
+                self.weights[location_index] += mass
+                mass = 0
+        return mass
 
     def take_mass(self, mass, location_index) -> float:
         """
@@ -66,17 +80,14 @@ class pytorch_measure:
         :param: mass left to take, index of location to take at
         :returns: mass left to remove from measure after removing from specified location
         """
-        mass_left = mass
-        self.weights[location_index] = max(self.weights[location_index] - mass, 0)
-        if mass > self.weights[location_index]:
-            mass_left -= self.weights[location_index]
-            self.weights[location_index] == 0
-        else:
-            mass_left = 0
-            self.weights[location_index] -= mass
-        return mass_left
-            
-            
+        with torch.no_grad():
+            if mass > self.weights[location_index].item():
+                mass -= self.weights[location_index].item()
+                self.weights[location_index] = 0
+            else:
+                self.weights[location_index] -= mass
+                mass = 0
+        return mass
 
     def sample(self):
         """
@@ -92,9 +103,10 @@ class pytorch_measure:
         pass
 
 
-a=torch.tensor([0.1,0.,0.3,0.,0.4])
+a=torch.tensor([0.1,0.1,0.3,0.1,0.4])
 b=torch.tensor([1.,2.,3.,4.,5.])
 
 c=pytorch_measure(b,a)
 
-print(c.put_mass(0.2))
+print(c.put_mass(0.2, 1))
+print(c)
