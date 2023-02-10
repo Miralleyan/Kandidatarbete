@@ -25,7 +25,8 @@ class pytorch_measure:
         """
         Responsibility: Johan
         """
-        pass
+        return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item()!=0])
+
 
     def positive_part(self):
         """
@@ -36,9 +37,9 @@ class pytorch_measure:
 
     def negative_part(self):
         """
-        Responsibility:
+        Responsibility: Johan
         """
-        pass
+        return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item()<0])
 
     def put_mass(self) -> bool:
         """
@@ -70,3 +71,9 @@ class pytorch_measure:
         """
         pass
 
+a=torch.tensor([-1.,0.,-2.,0.,10.])
+b=torch.tensor([1.,2.,3.,4.,5.])
+
+c=pytorch_measure(b,a)
+
+print(c.negative_part())
