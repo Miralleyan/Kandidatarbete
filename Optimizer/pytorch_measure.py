@@ -19,7 +19,7 @@ class pytorch_measure(locations, weights):
         """
         Responsibility: Samuel
         """
-        pass
+        return sum(abs(self.weights)).item()
 
     def support(self):
         """
