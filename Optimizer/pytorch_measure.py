@@ -1,6 +1,6 @@
 import torch
 
-class pytorch_measure:
+class pytorch_measure(locations, weights):
     def __init__(self,locations,weights):
         """
         Group 1: 
@@ -17,7 +17,7 @@ class pytorch_measure:
 
     def total_variation(self):
         """
-        Responsibility:
+        Responsibility: Samuel
         """
         pass
 
