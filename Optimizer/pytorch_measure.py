@@ -7,25 +7,49 @@ class pytorch_measure():
         pass
 
     def total_mass(self):
+        """
+        Responsibility:
+        """
         pass
 
     def total_variation(self):
+        """
+        Responsibility:
+        """
         pass
 
     def support(self):
+        """
+        Responsibility:
+        """
         pass
 
     def positive_part(self):
+        """
+        Responsibility:
+        """
         pass
 
     def negative_part(self):
+        """
+        Responsibility:
+        """
         pass
 
     def put_mass(self):
+        """
+        Responsibility:
+        """
         pass
 
     def take_mass(self):
+        """
+        Responsibility:
+        """
         pass
 
     def sample(self):
+        """
+        Responsibility:
+        """
         pass
