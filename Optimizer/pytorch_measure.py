@@ -39,15 +39,20 @@ class pytorch_measure():
         """
         pass
 
-    def put_mass(self):
+    def put_mass(self) -> bool:
         """
+        
+        :param:
+        :returns: True if all mass could be placed, False otherwise
         Responsibility:
         """
         pass
 
-    def take_mass(self):
+    def take_mass(self) -> bool:
         """
         Responsibility:
+        :param:
+        :returns: True if all mass could be taken, False otherwise
         """
         pass
 
