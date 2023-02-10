@@ -13,7 +13,7 @@ class Pytorch_measure:
         """
         Responsibilty: Filip
         """
-        return self.locations.__str__() + self.weights.__str__()
+        return "Locations: " + self.locations.__str__() + ". Weights: " + self.weights.__str__()
 
     def __repr__(self) -> str:
         """
