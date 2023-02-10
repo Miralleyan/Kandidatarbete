@@ -9,17 +9,17 @@ class pytorch_measure:
         self.locations = torch.nn.parameter.Parameter(locations)#Input must be tensors
         self.weights = torch.nn.parameter.Parameter(weights)
     
-    def __str__(self):
+    def __str__(self) -> str:
         """
-        Responsibilty:
+        Responsibilty: Filip
         """
-        pass
+        return self.locations.__str__() + self.weights.__str__()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """
-        Responsibilty:
+        Responsibilty: Filip
         """
-        pass
+        return self.__str__()
 
     def total_mass(self):
         """
