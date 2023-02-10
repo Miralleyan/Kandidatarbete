@@ -77,12 +77,12 @@ class pytorch_measure:
         #     return 0,dic
         with torch.no_grad():
             if self.weights[location_index].item() + mass > 1:
-                mass -= self.weights[location_index].item()
+                mass_distributed = 1 - self.weights[location_index].item()
                 self.weights[location_index] = 1
             else:
                 self.weights[location_index] += mass
-                mass = 0
-        return mass
+                mass_distributed = mass
+        return mass_distributed
 
     def take_mass(self, mass, location_index) -> float:
         """
@@ -94,12 +94,12 @@ class pytorch_measure:
         """
         with torch.no_grad():
             if mass > self.weights[location_index].item():
-                mass -= self.weights[location_index].item()
+                mass_removed = self.weights[location_index].item()
                 self.weights[location_index] = 0
             else:
                 self.weights[location_index] -= mass
-                mass = 0
-        return mass
+                mass_removed = mass
+        return mass_removed
 
     def sample(self):
         """
