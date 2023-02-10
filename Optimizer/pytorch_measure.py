@@ -45,7 +45,7 @@ class pytorch_measure:
         
         :param:
         :returns: True if all mass could be placed, False otherwise
-        Responsibility:
+        Responsibility: Johan
         """
         pass
 
