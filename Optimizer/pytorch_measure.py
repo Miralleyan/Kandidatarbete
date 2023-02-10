@@ -58,13 +58,25 @@ class pytorch_measure:
             return 0,dic
         
 
-    def take_mass(self) -> bool:
+    def take_mass(self, mass, location_index) -> float:
         """
-        Responsibility:
-        :param:
-        :returns: True if all mass could be taken, False otherwise
+        Responsibility: Samuel
+        In current form, this method takes mass from a specified location, s.t. the location still
+        has non-negative mass and returns how much mass is left to take.
+        :param: mass left to take, index of location to take at
+        :returns: mass left to remove from measure after removing from specified location
         """
-        pass
+        mass_left = mass
+        self.weights[location_index] = max(self.weights[location_index] - mass, 0)
+        if mass > self.weights[location_index]:
+            mass_left -= self.weights[location_index]
+            self.weights[location_index] == 0
+        else:
+            mass_left = 0
+            self.weights[location_index] -= mass
+        return mass_left
+            
+            
 
     def sample(self):
         """
