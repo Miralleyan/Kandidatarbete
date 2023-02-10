@@ -6,14 +6,14 @@ class pytorch_measure:
         Group 1: 
         Group 2: 
         """
-        self.locations = torch.nn.Parameter(locations)
-        self.weights = torch.nn.Parameter(weights)
+        self.locations = torch.nn.parameter.Parameter(locations)#Input must be tensors
+        self.weights = torch.nn.parameter.Parameter(weights)
 
     def total_mass(self):
         """
         Responsibility: Johan
         """
-        pass
+        return sum(self.weights).item()
 
     def total_variation(self):
         """
@@ -23,7 +23,7 @@ class pytorch_measure:
 
     def support(self):
         """
-        Responsibility:
+        Responsibility: Johan
         """
         pass
 
@@ -68,3 +68,4 @@ class pytorch_measure:
         Takes one optimization step with algoritm
         """
         pass
+
