@@ -45,13 +45,17 @@ class pytorch_measure:
         """
         :param:
         :returns: True if all mass could be placed, False otherwise
-        Responsibility: Johan
+        Responsibility: Johan (Inte färdig)
         """
         dic={self.weights[i].item() :i for i in range(len(self.weights))}
         i=dic[min(dic)]
-        if (self.weights[i]).item() > 1:
-            pass
-        return dic
+        if (self.weights[i]).item()+epsilon > 1:
+            epsilon-=(1-self.weights[i].item())
+            self.weights[i]+=(1-self.weights[i].item())
+            return epsilon
+        else:
+            self.weights[i]+epsilon
+            return 0,dic
         
 
     def take_mass(self) -> bool:
@@ -75,3 +79,10 @@ class pytorch_measure:
         """
         pass
 
+
+a=torch.tensor([0.1,0.,0.3,0.,0.4])
+b=torch.tensor([1.,2.,3.,4.,5.])
+
+c=pytorch_measure(b,a)
+
+print(c.put_mass(0.2))
