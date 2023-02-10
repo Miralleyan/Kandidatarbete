@@ -98,11 +98,21 @@ class Pytorch_measure:
                 mass_removed = mass
         return mass_removed
 
-    def sample(self):
+    def sample(self, size):
         """
         Responsibility: Samuel
         """
-        pass
+        sampling = torch.rand(size).sort(key = lambda x: x.item())
+        cur_sample = []
+        i = 0
+        for j in range(len(self.weights)):
+            count = 0
+            while i < len(self.weights) and sampling[i] < self.weights[j].item():
+                i += 1
+                count += 1
+            cur_sample.append([location[j].item()]*count)
+        return torch.tensor(cur_sample)
+            
 
     def step(self):
         """
