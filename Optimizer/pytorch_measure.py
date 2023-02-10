@@ -8,6 +8,18 @@ class pytorch_measure:
         """
         self.locations = torch.nn.parameter.Parameter(locations)#Input must be tensors
         self.weights = torch.nn.parameter.Parameter(weights)
+    
+    def __str__(self):
+        """
+        Responsibilty:
+        """
+        pass
+
+    def __repr__(self):
+        """
+        Responsibilty:
+        """
+        pass
 
     def total_mass(self):
         """
