@@ -26,7 +26,8 @@ class pytorch_measure:
         """
         Responsibility: Johan
         """
-        pass
+        return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item()!=0])
+
 
     def positive_part(self):
         """
@@ -69,4 +70,3 @@ class pytorch_measure:
         Takes one optimization step with algoritm
         """
         pass
-
