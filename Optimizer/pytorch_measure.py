@@ -52,7 +52,7 @@ class pytorch_measure:
 
     def take_mass(self) -> bool:
         """
-        Responsibility:
+        Responsibility: Samuel
         :param:
         :returns: True if all mass could be taken, False otherwise
         """
