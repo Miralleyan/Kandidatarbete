@@ -57,7 +57,7 @@ class pytorch_measure:
         """
         return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item()<0])
 
-    def put_mass(self, mass, location_index) -> bool:
+    def put_mass(self, mass, location_index) -> float:
         """
         In current form, this method puts mass at a specified location, s.t. the location still
         has mass less at most 1 and returns how much mass is left to distribute.
