@@ -31,7 +31,8 @@ class pytorch_measure:
         """
         Responsibility: Samuel
         """
-        pass
+        return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item() > 0]), \
+            torch.tensor([weight.item() for weight in self.weights if weight.item() > 0])
 
     def negative_part(self):
         """
