@@ -1,6 +1,6 @@
 import torch
 
-class pytorch_measure():
+class pytorch_measure:
     def __init__(self,locations,weights):
         """
         Group 1: 
@@ -59,5 +59,12 @@ class pytorch_measure():
     def sample(self):
         """
         Responsibility:
+        """
+        pass
+
+    def step(self):
+        """
+        Responsibility
+        Takes one optimization step with algoritm
         """
         pass
