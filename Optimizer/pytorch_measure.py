@@ -14,8 +14,7 @@ class pytorch_measure:
         """
         Responsibility: Johan
         """
-        
-        
+        return sum(self.weights).item()
 
     def total_variation(self):
         """
@@ -70,3 +69,4 @@ class pytorch_measure:
         Takes one optimization step with algoritm
         """
         pass
+
