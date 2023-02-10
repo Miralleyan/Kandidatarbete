@@ -11,7 +11,7 @@ class pytorch_measure:
 
     def total_mass(self):
         """
-        Responsibility:
+        Responsibility: Johan
         """
         pass
 
