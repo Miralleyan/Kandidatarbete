@@ -19,9 +19,9 @@ class pytorch_measure:
 
     def total_variation(self):
         """
-        Responsibility:
+        Responsibility: Samuel
         """
-        pass
+        return sum(abs(self.weights)).item()
 
     def support(self):
         """
