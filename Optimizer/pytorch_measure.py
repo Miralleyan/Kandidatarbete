@@ -1,6 +1,6 @@
 import torch
 
-class pytorch_measure:
+class Pytorch_measure:
     def __init__(self,locations,weights):
         """
         Group 1: 
@@ -118,7 +118,7 @@ class pytorch_measure:
 a=torch.tensor([0.1,0.1,0.3,0.1,0.4])
 b=torch.tensor([1.,2.,3.,4.,5.])
 
-c=pytorch_measure(b,a)
+    c=Pytorch_measure(b,a)
 
 print(c.put_mass(0.2, 1))
 print(c)
