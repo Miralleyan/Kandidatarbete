@@ -33,8 +33,6 @@ class Pytorch_measure:
         """
         return sum(abs(self.weights)).item()
 
-    # Samuel: "Unsure if support, positive_part and negative_part should return only weights or
-    # locations as well"
     # Return support of measure
     def support(self):
         """
@@ -47,8 +45,7 @@ class Pytorch_measure:
         """
         Responsibility: Samuel
         """
-        return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item() > 0]), \
-            torch.tensor([weight.item() for weight in self.weights if weight.item() > 0])
+        return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item() > 0])
 
     # Return support of measure with negative mass
     def negative_part(self):
@@ -77,12 +74,12 @@ class Pytorch_measure:
         #     return 0,dic
         with torch.no_grad():
             if self.weights[location_index].item() + mass > 1:
-                mass -= self.weights[location_index].item()
+                mass_distributed = 1 - self.weights[location_index].item()
                 self.weights[location_index] = 1
             else:
                 self.weights[location_index] += mass
-                mass = 0
-        return mass
+                mass_distributed = mass
+        return mass_distributed
 
     def take_mass(self, mass, location_index) -> float:
         """
@@ -94,16 +91,16 @@ class Pytorch_measure:
         """
         with torch.no_grad():
             if mass > self.weights[location_index].item():
-                mass -= self.weights[location_index].item()
+                mass_removed = self.weights[location_index].item()
                 self.weights[location_index] = 0
             else:
                 self.weights[location_index] -= mass
-                mass = 0
-        return mass
+                mass_removed = mass
+        return mass_removed
 
     def sample(self):
         """
-        Responsibility:
+        Responsibility: Samuel
         """
         pass
 
