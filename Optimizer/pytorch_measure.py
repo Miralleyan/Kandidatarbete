@@ -29,7 +29,7 @@ class pytorch_measure:
 
     def positive_part(self):
         """
-        Responsibility:
+        Responsibility: Samuel
         """
         pass
 
