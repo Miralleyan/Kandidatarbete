@@ -33,8 +33,6 @@ class pytorch_measure:
         """
         return sum(abs(self.weights)).item()
 
-    # Samuel: "Unsure if support, positive_part and negative_part should return only weights or
-    # locations as well"
     # Return support of measure
     def support(self):
         """
@@ -47,8 +45,7 @@ class pytorch_measure:
         """
         Responsibility: Samuel
         """
-        return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item() > 0]), \
-            torch.tensor([weight.item() for weight in self.weights if weight.item() > 0])
+        return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item() > 0])
 
     # Return support of measure with negative mass
     def negative_part(self):
@@ -103,7 +100,7 @@ class pytorch_measure:
 
     def sample(self):
         """
-        Responsibility:
+        Responsibility: Samuel
         """
         pass
 
