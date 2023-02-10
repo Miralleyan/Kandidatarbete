@@ -1,6 +1,5 @@
 import torch
 
-
 class pytorch_measure:
     def __init__(self,locations,weights):
         """
@@ -31,7 +30,7 @@ class pytorch_measure:
 
     def positive_part(self):
         """
-        Responsibility:
+        Responsibility: Samuel
         """
         pass
 
