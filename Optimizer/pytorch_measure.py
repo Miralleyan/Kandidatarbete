@@ -8,7 +8,6 @@ class pytorch_measure():
         """
         self.locations = torch.nn.Parameter(locations)
         self.weights = torch.nn.Parameter(weights)
-        pass
 
     def total_mass(self):
         """
