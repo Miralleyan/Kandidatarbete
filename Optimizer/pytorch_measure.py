@@ -64,7 +64,7 @@ class pytorch_measure:
 
     def step(self):
         """
-        Responsibility
+        Responsibility: Hampus
         Takes one optimization step with algoritm
         """
         pass
