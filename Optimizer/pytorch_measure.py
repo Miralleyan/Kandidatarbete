@@ -1,13 +1,13 @@
 import torch
 
 class pytorch_measure():
-    def __init__(self):
+    def __init__(self,locations,weights):
         """
         Group 1: 
         Group 2: 
         """
-        self.locations = torch.nn.Parameter()
-        self.weights = torch.nn.Parameter()
+        self.locations = torch.nn.Parameter(locations)
+        self.weights = torch.nn.Parameter(weights)
         pass
 
     def total_mass(self):
