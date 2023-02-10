@@ -1,19 +1,21 @@
 import torch
 
+
 class pytorch_measure:
     def __init__(self,locations,weights):
         """
         Group 1: 
         Group 2: 
         """
-        self.locations = torch.nn.Parameter(locations)
-        self.weights = torch.nn.Parameter(weights)
+        self.locations = torch.nn.parameter.Parameter(locations)#Input must be tensors
+        self.weights = torch.nn.parameter.Parameter(weights)
 
     def total_mass(self):
         """
         Responsibility: Johan
         """
-        pass
+        
+        
 
     def total_variation(self):
         """
