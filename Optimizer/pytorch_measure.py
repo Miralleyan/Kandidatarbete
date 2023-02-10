@@ -102,15 +102,19 @@ class Pytorch_measure:
         """
         Responsibility: Samuel
         """
-        sampling = torch.rand(size).sort(key = lambda x: x.item())
+        sampling, indices = torch.sort(torch.rand(size))
+        print(sampling)
         cur_sample = []
         i = 0
+        past_weights = 0
         for j in range(len(self.weights)):
             count = 0
-            while i < len(self.weights) and sampling[i] < self.weights[j].item():
+            while i < len(sampling) and sampling[i] < self.weights[j].item() + past_weights:
                 i += 1
                 count += 1
-            cur_sample.append([location[j].item()]*count)
+            for k in range(count):
+                cur_sample.append(self.locations[j].item())
+            past_weights += self.weights[j].item()
         return torch.tensor(cur_sample)
             
 
@@ -130,6 +134,14 @@ def main():
 
     print(c.put_mass(0.2, 1))
     print(c)
+
+def test_sample():
+    a=torch.tensor([0.1,0.1,0.3,0.1,0.4])
+    b=torch.tensor([1.,2.,3.,4.,5.])
+
+    c=Pytorch_measure(b,a)
+
+    print(c.sample(10))
 
 if __name__ == "__main__":
     main()
