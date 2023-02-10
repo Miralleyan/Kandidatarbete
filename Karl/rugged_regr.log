@@ -1,0 +1,1799 @@
+------------------------------------------------------------------------------------------------------------------------------
+      name:  rugged
+       log:  rugged_regr.log
+  log type:  text
+ opened on:  13 Sep 2010, 12:12:45
+
+. 
+. use rugged_data, clear
+('Ruggedness: The blessing of bad geography in Africa' by N. Nunn & D. Puga)
+
+. 
+. * log real gdp per person
+. gen ln_rgdppc_2000=ln(rgdppc_2000)
+(64 missing values generated)
+
+. label var ln_rgdppc_2000 "Log real GDP per person 2000 --- World Bank"
+
+. gen ln_rgdppc_1950_m=ln(rgdppc_1950_m)
+(97 missing values generated)
+
+. label var ln_rgdppc_1950_m "Log real GDP per person 1950 --- Maddison"
+
+. gen ln_rgdppc_1975_m=ln(rgdppc_1975_m)
+(97 missing values generated)
+
+. label var ln_rgdppc_1975_m "Log real GDP per person 1975 --- Maddison"
+
+. gen ln_rgdppc_2000_m=ln(rgdppc_2000_m)
+(75 missing values generated)
+
+. label var ln_rgdppc_2000_m "Log real GDP per person 2000 --- Maddison"
+
+. gen ln_rgdppc_1950_2000_m=ln(rgdppc_1950_2000_m)
+(97 missing values generated)
+
+. label var ln_rgdppc_1950_2000_m "Log real GDP per person 1950--2000 average --- Maddison"
+
+. * diamonds
+. gen diamonds = gemstones/(land_area/100)
+(4 missing values generated)
+
+. label var diamonds   "Diamonds"
+
+. * slave exports
+. gen ln_slave_exports_area=ln(1+slave_exports/(land_area/100))
+(4 missing values generated)
+
+. label var ln_slave_exports_area "Slave export intensity"
+
+. * historical population density
+. gen ln_pop_dens1400=ln(1+pop_1400/(land_area/100))
+(33 missing values generated)
+
+. label var ln_pop_dens1400 "Log pop. density 1400"
+
+. * ruggedness - africa interactions
+. gen rugged_x_africa=rugged*cont_africa
+
+. label var rugged_x_africa        "Ruggedness $\cdot I^{\text{Africa}}$"
+
+. for @ in any n s e w c: gen rugged_x_africa_@=rugged*africa_region_@
+
+->  gen rugged_x_africa_n=rugged*africa_region_n
+
+->  gen rugged_x_africa_s=rugged*africa_region_s
+
+->  gen rugged_x_africa_e=rugged*africa_region_e
+
+->  gen rugged_x_africa_w=rugged*africa_region_w
+
+->  gen rugged_x_africa_c=rugged*africa_region_c
+
+. label var rugged_x_africa_n "Ruggedness $\cdot I^{\text{North Africa}}$"
+
+. label var rugged_x_africa_s "Ruggedness $\cdot I^{\text{South Africa}}$"
+
+. label var rugged_x_africa_e "Ruggedness $\cdot I^{\text{East Africa}}$"
+
+. label var rugged_x_africa_w "Ruggedness $\cdot I^{\text{West Africa}}$"
+
+. label var rugged_x_africa_c "Ruggedness $\cdot I^{\text{Central Africa}}$"
+
+. * ruggedness - colonizer interactions
+. for @ in any esp gbr fra prt oeu: gen rugged_x_colony_@=rugged*colony_@
+
+->  gen rugged_x_colony_esp=rugged*colony_esp
+
+->  gen rugged_x_colony_gbr=rugged*colony_gbr
+
+->  gen rugged_x_colony_fra=rugged*colony_fra
+
+->  gen rugged_x_colony_prt=rugged*colony_prt
+
+->  gen rugged_x_colony_oeu=rugged*colony_oeu
+
+. label var rugged_x_colony_esp "Ruggedness $\cdot I^{\text{Spanish col. orig.}}$"
+
+. label var rugged_x_colony_gbr "Ruggedness $\cdot I^{\text{British col. orig.}}$"
+
+. label var rugged_x_colony_fra "Ruggedness $\cdot I^{\text{French col. orig.}}$"
+
+. label var rugged_x_colony_prt "Ruggedness $\cdot I^{\text{Portuguese col. orig.}}$"
+
+. label var rugged_x_colony_oeu "Ruggedness $\cdot I^{\text{Other European col. orig.}}$"
+
+. * ruggedness - legal origin interactions
+. for @ in any gbr fra deu sca soc: gen rugged_x_legor_@=rugged*legor_@
+
+->  gen rugged_x_legor_gbr=rugged*legor_gbr
+(23 missing values generated)
+
+->  gen rugged_x_legor_fra=rugged*legor_fra
+(23 missing values generated)
+
+->  gen rugged_x_legor_deu=rugged*legor_deu
+(23 missing values generated)
+
+->  gen rugged_x_legor_sca=rugged*legor_sca
+(23 missing values generated)
+
+->  gen rugged_x_legor_soc=rugged*legor_soc
+(23 missing values generated)
+
+. label var rugged_x_legor_gbr "Ruggedness $\cdot I^{\text{Common law}}$"
+
+. label var rugged_x_legor_fra "Ruggedness $\cdot I^{\text{French civil law}}$"
+
+. label var rugged_x_legor_deu "Ruggedness $\cdot I^{\text{German civil law}}$"
+
+. label var rugged_x_legor_sca "Ruggedness $\cdot I^{\text{Scandinavian law}}$"
+
+. label var rugged_x_legor_soc "Ruggedness $\cdot I^{\text{Socialist law}}$"
+
+. * ruggedness - geography interactions
+. for @ in any tropical soil: gen rugged_x_@=rugged*@
+
+->  gen rugged_x_tropical=rugged*tropical
+
+->  gen rugged_x_soil=rugged*soil
+(9 missing values generated)
+
+. label var rugged_x_tropical "Ruggedness $\cdot$ \% Tropical cl."
+
+. label var rugged_x_soil     "Ruggedness $\cdot$ \% Fertile soil"
+
+. * africa - geography interactions
+. for @ in any soil tropical dist_coast diamonds: gen @_x_africa=@*cont_africa
+
+->  gen soil_x_africa=soil*cont_africa
+(9 missing values generated)
+
+->  gen tropical_x_africa=tropical*cont_africa
+
+->  gen dist_coast_x_africa=dist_coast*cont_africa
+
+->  gen diamonds_x_africa=diamonds*cont_africa
+(4 missing values generated)
+
+. label var tropical_x_africa    "\% Tropical climate $\cdot I^{\text{Africa}}$"
+
+. label var dist_coast_x_africa  "Distance to coast $\cdot I^{\text{Africa}}$"
+
+. label var soil_x_africa        "\% Fertile soil $\cdot I^{\text{Africa}}$"
+
+. label var diamonds_x_africa    "Diamonds $\cdot I^{\text{Africa}}$"
+
+. * africa - legal origin interactions
+. for @ in any gbr fra: gen legor_@_x_africa=legor_@*cont_africa
+
+->  gen legor_gbr_x_africa=legor_gbr*cont_africa
+(23 missing values generated)
+
+->  gen legor_fra_x_africa=legor_fra*cont_africa
+(23 missing values generated)
+
+. label var legor_gbr_x_africa " $ I^{\text{Common law}} \cdot I^{\text{Africa}}$"
+
+. label var legor_fra_x_africa " $ I^{\text{French civil law}} \cdot I^{\text{Africa}}$"
+
+. * re-label variables for tables
+. label var rugged     "Ruggedness"
+
+. label var tropical   "\% Tropical climate"
+
+. label var dist_coast "Distance to coast"
+
+. label var soil       "\% Fertile soil"
+
+. label var desert     "\% Desert"
+
+. label var dist_slavemkt_saharan  "Dist. Saharan slave market"
+
+. label var dist_slavemkt_atlantic "Dist. Atlantic slave market"
+
+. label var dist_slavemkt_redsea   "Dist. Red Sea slave market"
+
+. label var dist_slavemkt_indian   "Dist. Indian slave market"
+
+. label var rugged_popw "Ruggedness (pop. weighted)"
+
+. label var africa_region_n " $ I^{\text{North Africa}}$"
+
+. label var africa_region_s " $ I^{\text{South Africa}}$"
+
+. label var africa_region_e " $ I^{\text{East Africa}}$"
+
+. label var africa_region_w " $ I^{\text{West Africa}}$"
+
+. label var africa_region_c " $ I^{\text{Central Africa}}$"
+
+. label var cont_africa        " $ I^{\text{Africa}}$"
+
+. label var colony_esp " $ I^{\text{Spanish col. orig.}}$"
+
+. label var colony_gbr " $ I^{\text{British col. orig.}}$"
+
+. label var colony_fra " $ I^{\text{French col. orig.}}$"
+
+. label var colony_prt " $ I^{\text{Portuguese col. orig.}}$"
+
+. label var colony_oeu " $ I^{\text{Other European col. orig.}}$"
+
+. label var legor_gbr " $ I^{\text{Common law}}$"
+
+. label var legor_fra " $ I^{\text{French civil law}}$"
+
+. label var legor_deu " $ I^{\text{German civil law}}$"
+
+. label var legor_sca " $ I^{\text{Scandinavian law}}$"
+
+. label var legor_soc " $ I^{\text{Socialist law}}$"
+
+. 
+. * define standard set of controls
+. local stdcontrols "diamonds diamonds_x_africa soil soil_x_africa tropical tropical_x_africa dist_coast dist_coast_x_africa"
+
+. 
+. /* table 1: the differential effects of ruggedness in africa */
+. * table 1, column (1)
+. reg ln_rgdppc_2000 rugged rugged_x_africa cont_africa, robust
+
+Linear regression                                      Number of obs =     170
+                                                       F(  3,   166) =   34.65
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.3569
+                                                       Root MSE      =  .94386
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      rugged |  -.2028463   .0926359    -2.19   0.030    -.3857426   -.0199499
+rugged_x_a~a |   .3933425   .1444245     2.72   0.007     .1081968    .6784881
+ cont_africa |  -1.948002   .2202433    -8.84   0.000    -2.382842   -1.513163
+       _cons |   9.223215   .1431983    64.41   0.000      8.94049     9.50594
+------------------------------------------------------------------------------
+
+. * table 1, column (2)
+. reg ln_rgdppc_2000 rugged rugged_x_africa cont_africa diamonds diamonds_x_africa, robust
+
+Linear regression                                      Number of obs =     170
+                                                       F(  5,   164) =   25.58
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.3665
+                                                       Root MSE      =  .94249
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      rugged |  -.1956096   .0944429    -2.07   0.040    -.3820902   -.0091289
+rugged_x_a~a |   .4041101    .146053     2.77   0.006     .1157234    .6924967
+ cont_africa |  -2.013983   .2222114    -9.06   0.000    -2.452747   -1.575219
+    diamonds |   .0171752   .0118227     1.45   0.148    -.0061692    .0405196
+diamonds_x~a |  -.0141163   .0120847    -1.17   0.244     -.037978    .0097455
+       _cons |   9.204291   .1481116    62.14   0.000     8.911839    9.496742
+------------------------------------------------------------------------------
+
+. * table 1, column (3)
+. reg ln_rgdppc_2000 rugged rugged_x_africa cont_africa soil soil_x_africa, robust
+
+Linear regression                                      Number of obs =     170
+                                                       F(  5,   164) =   25.52
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.3629
+                                                       Root MSE      =  .94515
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      rugged |  -.2028933   .0935328    -2.17   0.032     -.387577   -.0182095
+rugged_x_a~a |   .4064127   .1379626     2.95   0.004     .1340008    .6788246
+ cont_africa |  -1.707305   .3252117    -5.25   0.000    -2.349447   -1.065163
+        soil |   .0000498   .0031398     0.02   0.987    -.0061498    .0062493
+soil_x_afr~a |  -.0080438   .0061231    -1.31   0.191    -.0201341    .0040465
+       _cons |   9.221153   .1995052    46.22   0.000     8.827223    9.615083
+------------------------------------------------------------------------------
+
+. * table 1, column (4)
+. reg ln_rgdppc_2000 rugged rugged_x_africa cont_africa tropical tropical_x_africa, robust
+
+Linear regression                                      Number of obs =     170
+                                                       F(  5,   164) =   23.22
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.4050
+                                                       Root MSE      =   .9134
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      rugged |  -.2429051   .0924044    -2.63   0.009    -.4253607   -.0604495
+rugged_x_a~a |    .413693    .157352     2.63   0.009     .1029961    .7243899
+ cont_africa |  -2.065988   .3243587    -6.37   0.000    -2.706446   -1.425531
+    tropical |  -.0065133   .0016559    -3.93   0.000    -.0097829   -.0032437
+tropical_x~a |   .0036196   .0038385     0.94   0.347    -.0039596    .0111989
+       _cons |    9.51383   .1641698    57.95   0.000     9.189671    9.837989
+------------------------------------------------------------------------------
+
+. * table 1, column (5)
+. reg ln_rgdppc_2000 rugged rugged_x_africa cont_africa dist_coast dist_coast_x_africa, robust
+
+Linear regression                                      Number of obs =     170
+                                                       F(  5,   164) =   35.53
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.4207
+                                                       Root MSE      =  .90124
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      rugged |  -.1927016   .0808531    -2.38   0.018    -.3523489   -.0330544
+rugged_x_a~a |   .3017507   .1299593     2.32   0.021     .0451416    .5583598
+ cont_africa |  -1.615071   .2946951    -5.48   0.000    -2.196956   -1.033185
+  dist_coast |  -.6567046   .1765435    -3.72   0.000    -1.005296   -.3081134
+dist_coast~a |  -.2911175   .3596848    -0.81   0.419    -1.001328    .4190926
+       _cons |   9.387979   .1340808    70.02   0.000     9.123232    9.652726
+------------------------------------------------------------------------------
+
+. * table 1, column (6)
+. reg ln_rgdppc_2000 rugged rugged_x_africa cont_africa `stdcontrols', robust
+
+Linear regression                                      Number of obs =     170
+                                                       F( 11,   158) =   36.87
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.5368
+                                                       Root MSE      =  .82108
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      rugged |  -.2310554   .0772368    -2.99   0.003    -.3836051   -.0785057
+rugged_x_a~a |    .320598   .1266583     2.53   0.012     .0704363    .5707598
+ cont_africa |  -1.562171    .414853    -3.77   0.000    -2.381543   -.7427977
+    diamonds |   .0276889   .0102096     2.71   0.007     .0075241    .0478538
+diamonds_x~a |  -.0255785     .01066    -2.40   0.018    -.0466329   -.0045241
+        soil |   -.002083   .0030437    -0.68   0.495    -.0080946    .0039286
+soil_x_afr~a |  -.0085254   .0069267    -1.23   0.220    -.0222062    .0051554
+    tropical |  -.0094119   .0015949    -5.90   0.000     -.012562   -.0062618
+tropical_x~a |   .0057751   .0036308     1.59   0.114    -.0013962    .0129463
+  dist_coast |  -1.038521   .1934561    -5.37   0.000    -1.420614   -.6564269
+dist_coast~a |  -.1937278   .3863702    -0.50   0.617    -.9568445     .569389
+       _cons |   9.959492   .1947472    51.14   0.000     9.574849    10.34414
+------------------------------------------------------------------------------
+
+. 
+. /* table 2: robustness with respect to influential observations */
+. * table 2, column (1), ommit 10 most rugged
+. preserve
+
+. drop if missing(ln_rgdppc_2000)
+(64 observations deleted)
+
+. sort rugged
+
+. gen rank = _n
+
+. gen mostrugged = 0
+
+. replace mostrugged = 1 if rank <= 10
+(10 real changes made)
+
+. drop rank
+
+. reg ln_rgdppc_2000 rugged rugged_x_africa cont_africa `stdcontrols' if mostrugged == 0, robust
+
+Linear regression                                      Number of obs =     160
+                                                       F( 11,   148) =   28.50
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.5199
+                                                       Root MSE      =  .83454
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      rugged |  -.2024253   .0831492    -2.43   0.016    -.3667383   -.0381124
+rugged_x_a~a |   .2859952   .1331277     2.15   0.033     .0229185    .5490719
+ cont_africa |  -1.447743   .4541157    -3.19   0.002    -2.345131    -.550355
+    diamonds |   .0734158   .0306426     2.40   0.018     .0128623    .1339693
+diamonds_x~a |   -.071397   .0307982    -2.32   0.022     -.132258    -.010536
+        soil |  -.0015206   .0033162    -0.46   0.647    -.0080737    .0050326
+soil_x_afr~a |  -.0097049   .0075738    -1.28   0.202    -.0246717     .005262
+    tropical |  -.0102917   .0017179    -5.99   0.000    -.0136865    -.006897
+tropical_x~a |   .0064053   .0037608     1.70   0.091    -.0010266    .0138372
+  dist_coast |  -1.063789     .20797    -5.12   0.000    -1.474764   -.6528151
+dist_coast~a |  -.1846881   .3998316    -0.46   0.645    -.9748042    .6054281
+       _cons |     9.8985   .2058754    48.08   0.000     9.491665    10.30533
+------------------------------------------------------------------------------
+
+. restore
+
+. * table 2, column (2), ommit 10 smallest
+. preserve
+
+. drop if missing(ln_rgdppc_2000)
+(64 observations deleted)
+
+. sort land_area
+
+. gen rank = _n
+
+. gen small = 0
+
+. replace small = 1 if rank <= 10
+(10 real changes made)
+
+. reg ln_rgdppc_2000 rugged rugged_x_africa cont_africa `stdcontrols' if small == 0, robust
+
+Linear regression                                      Number of obs =     160
+                                                       F( 11,   148) =   34.30
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.5450
+                                                       Root MSE      =  .82138
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      rugged |  -.2205395   .0826864    -2.67   0.009     -.383938    -.057141
+rugged_x_a~a |   .1883912   .0986846     1.91   0.058    -.0066216     .383404
+ cont_africa |  -1.465205   .4053036    -3.62   0.000    -2.266135   -.6642753
+    diamonds |   .0292355   .0103933     2.81   0.006     .0086971    .0497739
+diamonds_x~a |  -.0270992   .0107582    -2.52   0.013    -.0483586   -.0058397
+        soil |  -.0022003   .0035695    -0.62   0.539     -.009254    .0048534
+soil_x_afr~a |  -.0046962   .0072054    -0.65   0.516     -.018935    .0095426
+    tropical |  -.0104557   .0017305    -6.04   0.000    -.0138754   -.0070359
+tropical_x~a |   .0045808   .0035611     1.29   0.200    -.0024564     .011618
+  dist_coast |  -1.014767   .1974787    -5.14   0.000    -1.405009   -.6245249
+dist_coast~a |  -.1798206   .3950113    -0.46   0.650    -.9604114    .6007702
+       _cons |   9.935842   .2116518    46.94   0.000     9.517592    10.35409
+------------------------------------------------------------------------------
+
+. restore
+
+. * table 2, column (3), ommit influential observations
+. preserve
+
+. reg ln_rgdppc_2000 rugged rugged_x_africa cont_africa `stdcontrols'
+
+      Source |       SS       df       MS              Number of obs =     170
+-------------+------------------------------           F( 11,   158) =   16.65
+       Model |   123.44182    11  11.2219836           Prob > F      =  0.0000
+    Residual |  106.518109   158  .674165247           R-squared     =  0.5368
+-------------+------------------------------           Adj R-squared =  0.5045
+       Total |  229.959929   169  1.36070964           Root MSE      =  .82108
+
+------------------------------------------------------------------------------
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      rugged |  -.2310554   .0688978    -3.35   0.001    -.3671349   -.0949759
+rugged_x_a~a |    .320598    .123263     2.60   0.010     .0771423    .5640538
+ cont_africa |  -1.562171   .4438955    -3.52   0.001    -2.438905   -.6854361
+    diamonds |   .0276889   .0227312     1.22   0.225    -.0172072    .0725851
+diamonds_x~a |  -.0255785    .022811    -1.12   0.264    -.0706324    .0194754
+        soil |   -.002083    .002992    -0.70   0.487    -.0079924    .0038264
+soil_x_afr~a |  -.0085254   .0066905    -1.27   0.204    -.0217396    .0046889
+    tropical |  -.0094119   .0017583    -5.35   0.000    -.0128848    -.005939
+tropical_x~a |   .0057751   .0034463     1.68   0.096    -.0010318    .0125819
+  dist_coast |  -1.038521   .1908139    -5.44   0.000    -1.415395   -.6616456
+dist_coast~a |  -.1937278   .4162085    -0.47   0.642    -1.015778    .6283223
+       _cons |   9.959492   .2086394    47.74   0.000      9.54741    10.37157
+------------------------------------------------------------------------------
+
+. predict dfbeta3, dfbeta(rugged_x_africa)
+(64 missing values generated)
+
+. reg ln_rgdppc_2000 rugged rugged_x_africa cont_africa `stdcontrols' if abs(dfbeta3)<(2/sqrt(170)), robust
+
+Linear regression                                      Number of obs =     164
+                                                       F( 11,   152) =   36.47
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.5639
+                                                       Root MSE      =  .79179
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      rugged |  -.2614434   .0679462    -3.85   0.000    -.3956843   -.1272025
+rugged_x_a~a |   .2231554   .1162194     1.92   0.057    -.0064587    .4527694
+ cont_africa |  -1.509587   .4056242    -3.72   0.000    -2.310976   -.7081979
+    diamonds |   .0264158   .0098751     2.67   0.008     .0069056     .045926
+diamonds_x~a |  -.0242898   .0102577    -2.37   0.019    -.0445559   -.0040237
+        soil |   -.002314   .0030345    -0.76   0.447    -.0083093    .0036813
+soil_x_afr~a |  -.0046225   .0070322    -0.66   0.512     -.018516    .0092711
+    tropical |  -.0092235   .0015957    -5.78   0.000    -.0123762   -.0060709
+tropical_x~a |   .0033391    .003469     0.96   0.337    -.0035146    .0101927
+  dist_coast |  -1.022505    .192216    -5.32   0.000    -1.402265   -.6427447
+dist_coast~a |  -.1759199   .3970067    -0.44   0.658    -.9602836    .6084439
+       _cons |   9.988744   .1877276    53.21   0.000     9.617851    10.35964
+------------------------------------------------------------------------------
+
+. restore
+
+. * table 2, column (4), using ln(ruggedness)
+. preserve
+
+. replace rugged=ln(rugged)
+(234 real changes made, 1 to missing)
+
+. replace rugged_x_africa=rugged*cont_africa
+(58 real changes made, 1 to missing)
+
+. reg ln_rgdppc_2000 rugged rugged_x_africa cont_africa `stdcontrols', robust
+
+Linear regression                                      Number of obs =     170
+                                                       F( 11,   158) =   35.06
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.5275
+                                                       Root MSE      =  .82928
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      rugged |  -.1713579   .0509376    -3.36   0.001    -.2719644   -.0707514
+rugged_x_a~a |   .2340519   .1185589     1.97   0.050    -.0001128    .4682166
+ cont_africa |  -1.083156   .3944972    -2.75   0.007    -1.862325   -.3039879
+    diamonds |   .0290526   .0118645     2.45   0.015     .0056191    .0524861
+diamonds_x~a |  -.0270064   .0122675    -2.20   0.029    -.0512358   -.0027769
+        soil |  -.0025706   .0029649    -0.87   0.387    -.0084265    .0032853
+soil_x_afr~a |  -.0078231    .006903    -1.13   0.259    -.0214571    .0058109
+    tropical |  -.0093818   .0015959    -5.88   0.000    -.0125339   -.0062297
+tropical_x~a |   .0054533   .0036359     1.50   0.136    -.0017279    .0126345
+  dist_coast |  -1.052496   .2056024    -5.12   0.000    -1.458579   -.6464118
+dist_coast~a |  -.2156412   .3827556    -0.56   0.574    -.9716189    .5403364
+       _cons |   9.631219   .1974723    48.77   0.000     9.241193    10.02124
+------------------------------------------------------------------------------
+
+. restore
+
+. * table 2, column (5), box-cox transformation of ruggedness
+. preserve
+
+. bcskew0 trans_rugged=rugged
+
+       Transform |         L     [95% Conf. Interval]       Skewness
+-----------------+--------------------------------------------------
+  (rugged^L-1)/L |   .3378132      (not calculated)         .0000289
+(1 missing value generated)
+
+. replace rugged=trans_rugged
+(234 real changes made, 1 to missing)
+
+. replace rugged_x_africa=trans_rugged*cont_africa
+(58 real changes made, 1 to missing)
+
+. reg ln_rgdppc_2000 rugged rugged_x_africa cont_africa `stdcontrols', robust
+
+Linear regression                                      Number of obs =     170
+                                                       F( 11,   158) =   35.91
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.5335
+                                                       Root MSE      =  .82402
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      rugged |  -.2488481   .0747763    -3.33   0.001    -.3965382    -.101158
+rugged_x_a~a |   .3329588   .1420025     2.34   0.020     .0524908    .6134269
+ cont_africa |  -1.139101   .3912232    -2.91   0.004    -1.911803    -.366399
+    diamonds |   .0266107   .0115073     2.31   0.022     .0038827    .0493388
+diamonds_x~a |  -.0245253   .0119175    -2.06   0.041    -.0480636   -.0009871
+        soil |  -.0022382   .0029781    -0.75   0.453    -.0081202    .0036439
+soil_x_afr~a |   -.008197   .0069041    -1.19   0.237    -.0218331    .0054392
+    tropical |  -.0093469   .0015902    -5.88   0.000    -.0124877   -.0062061
+tropical_x~a |   .0055687   .0036497     1.53   0.129    -.0016397    .0127771
+  dist_coast |  -1.057538   .1986601    -5.32   0.000     -1.44991    -.665166
+dist_coast~a |  -.1914595   .3829615    -0.50   0.618    -.9478437    .5649248
+       _cons |   9.664815   .1925076    50.20   0.000     9.284595    10.04503
+------------------------------------------------------------------------------
+
+. restore
+
+. 
+. /* table 3: considering differential effects of ruggedness by characteristics prevalent in africa */
+. * table 3, column (1)
+. reg ln_rgdppc_2000 rugged rugged_x_africa cont_africa rugged_x_tropical tropical, robust
+
+Linear regression                                      Number of obs =     170
+                                                       F(  5,   164) =   22.45
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.4039
+                                                       Root MSE      =  .91423
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      rugged |     -.2593   .1011918    -2.56   0.011    -.4591068   -.0594932
+rugged_x_a~a |   .3572588   .1302698     2.74   0.007     .1000366     .614481
+ cont_africa |   -1.81394   .2129347    -8.52   0.000    -2.234386   -1.393493
+rugged_x_t~l |    .001265   .0016268     0.78   0.438    -.0019472    .0044772
+    tropical |  -.0071469    .002395    -2.98   0.003     -.011876   -.0024178
+       _cons |   9.504869     .16813    56.53   0.000     9.172891    9.836847
+------------------------------------------------------------------------------
+
+. * table 3, column (2)
+. reg ln_rgdppc_2000 rugged rugged_x_africa cont_africa rugged_x_soil soil, robust
+
+Linear regression                                      Number of obs =     170
+                                                       F(  5,   164) =   22.09
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.3628
+                                                       Root MSE      =  .94521
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      rugged |  -.3216751   .1601991    -2.01   0.046    -.6379938   -.0053564
+rugged_x_a~a |   .4000437    .155093     2.58   0.011     .0938072    .7062803
+ cont_africa |   -1.97682   .2229366    -8.87   0.000    -2.417016   -1.536624
+rugged_x_s~l |   .0030348   .0029101     1.04   0.299    -.0027113     .008781
+        soil |  -.0052061   .0035476    -1.47   0.144    -.0122109    .0017987
+       _cons |   9.426736     .21252    44.36   0.000     9.007107    9.846364
+------------------------------------------------------------------------------
+
+. * table 3, column (3)
+. reg ln_rgdppc_2000 rugged rugged_x_africa cont_africa rugged_x_soil soil rugged_x_tropical tropical, robust
+
+Linear regression                                      Number of obs =     170
+                                                       F(  7,   162) =   16.93
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.4081
+                                                       Root MSE      =  .91662
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      rugged |  -.3737877   .1608304    -2.32   0.021     -.691382   -.0561934
+rugged_x_a~a |   .3599447   .1404547     2.56   0.011     .0825866    .6373028
+ cont_africa |  -1.818358   .2184284    -8.32   0.000    -2.249692   -1.387024
+rugged_x_s~l |   .0028468    .002919     0.98   0.331    -.0029173     .008611
+        soil |  -.0032065   .0038099    -0.84   0.401      -.01073    .0043169
+rugged_x_t~l |   .0013618   .0017385     0.78   0.435    -.0020712    .0047948
+    tropical |  -.0072251   .0025024    -2.89   0.004    -.0121665   -.0022836
+       _cons |   9.626951   .2227105    43.23   0.000     9.187161    10.06674
+------------------------------------------------------------------------------
+
+. * table 3, column (4)
+. reg ln_rgdppc_2000 rugged rugged_x_africa cont_africa rugged_x_soil soil rugged_x_tropical tropical rugged_x_colony* colony*
+> , robust
+
+Linear regression                                      Number of obs =     170
+                                                       F( 17,   152) =   23.26
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.4302
+                                                       Root MSE      =  .92848
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      rugged |  -.3862809   .1756792    -2.20   0.029    -.7333693   -.0391926
+rugged_x_a~a |   .3994944   .2032432     1.97   0.051    -.0020518    .8010407
+ cont_africa |  -1.740387   .3369263    -5.17   0.000     -2.40605   -1.074724
+rugged_x_s~l |   .0037487    .002971     1.26   0.209    -.0021212    .0096186
+        soil |  -.0048119   .0040891    -1.18   0.241    -.0128908    .0032669
+rugged_x_t~l |   .0022673   .0020019     1.13   0.259    -.0016879    .0062224
+    tropical |   -.007009   .0029931    -2.34   0.020    -.0129225   -.0010955
+rugged_x_c~p |  -.1046515    .334459    -0.31   0.755    -.7654401    .5561371
+rugged_x_c~r |  -.0885414   .2438481    -0.36   0.717    -.5703107    .3932278
+rugged_x_c~a |  -.1079647   .2440656    -0.44   0.659    -.5901636    .3742343
+rugged_x_c~t |   .3611389   .2592277     1.39   0.166    -.1510157    .8732935
+rugged_x_c~u |  -.2335295   .3283224    -0.71   0.478    -.8821942    .4151351
+  colony_esp |   .0041448    .537994     0.01   0.994    -1.058767    1.067056
+  colony_gbr |   .0624365   .3794589     0.16   0.870    -.6872582    .8121312
+  colony_fra |  -.1750312   .5105927    -0.34   0.732    -1.183806    .8337438
+  colony_prt |  -.3934048   .4672875    -0.84   0.401    -1.316622    .5298122
+  colony_oeu |  -.7034628   .5190464    -1.36   0.177     -1.72894    .3220141
+       _cons |   9.681035   .3058265    31.66   0.000     9.076815    10.28525
+------------------------------------------------------------------------------
+
+. * table 3, column (5)
+. reg ln_rgdppc_2000 rugged rugged_x_africa cont_africa rugged_x_soil soil rugged_x_tropical tropical legor_fra rugged_x_legor
+> _fra legor_soc rugged_x_legor_soc legor_deu rugged_x_legor_deu legor_sca rugged_x_legor_sca, robust
+
+Linear regression                                      Number of obs =     170
+                                                       F( 15,   154) =   66.88
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.5590
+                                                       Root MSE      =  .81148
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      rugged |  -.5434789   .1785595    -3.04   0.003     -.896221   -.1907368
+rugged_x_a~a |    .434875   .1353449     3.21   0.002     .1675027    .7022473
+ cont_africa |  -1.994365   .2158287    -9.24   0.000    -2.420732   -1.567998
+rugged_x_s~l |   .0022677   .0026087     0.87   0.386    -.0028858    .0074211
+        soil |   .0006691   .0032786     0.20   0.839    -.0058076    .0071459
+rugged_x_t~l |   .0020448   .0016492     1.24   0.217    -.0012132    .0053028
+    tropical |  -.0101826   .0025786    -3.95   0.000    -.0152766   -.0050886
+   legor_fra |  -.1541326   .2220364    -0.69   0.489    -.5927628    .2844976
+rugged~r_fra |   .1204144   .1271458     0.95   0.345    -.1307607    .3715895
+   legor_soc |  -1.181479   .2779888    -4.25   0.000    -1.730643   -.6323156
+rugged_x_l~c |   .1936643   .1502216     1.29   0.199    -.1030968    .4904253
+   legor_deu |  -.0872343   .3017269    -0.29   0.773    -.6832921    .5088235
+rugged_x_l~u |   .5277317   .1329576     3.97   0.000     .2650755    .7903878
+   legor_sca |   .1637711   .2207961     0.74   0.459     -.272409    .5999513
+rugged_x~sca |   .6657887   .1739367     3.83   0.000     .3221789    1.009399
+       _cons |    9.94611   .2321593    42.84   0.000     9.487482    10.40474
+------------------------------------------------------------------------------
+
+. 
+. /* table 4: differential effects of ruggedness across regions within africa */
+. * table 4, column (1)
+. reg ln_rgdppc_2000 rugged rugged_x_africa cont_africa rugged_x_africa_w africa_region_w, robust
+
+Linear regression                                      Number of obs =     170
+                                                       F(  5,   164) =   42.31
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.3674
+                                                       Root MSE      =  .94184
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      rugged |  -.2028463    .093199    -2.18   0.031    -.3868709   -.0188216
+rugged_x_a~a |   .3120409   .1587939     1.97   0.051     -.001503    .6255849
+ cont_africa |  -1.734691   .2910358    -5.96   0.000    -2.309352   -1.160031
+rugged_x_a~w |   .5323595   .1543492     3.45   0.001     .2275917    .8371274
+africa_reg~w |   -.634711   .2831501    -2.24   0.026    -1.193801   -.0756215
+       _cons |   9.223215   .1440688    64.02   0.000     8.938746    9.507684
+------------------------------------------------------------------------------
+
+. * table 4, column (2)
+. reg ln_rgdppc_2000 rugged rugged_x_africa cont_africa rugged_x_africa_e africa_region_e, robust
+
+Linear regression                                      Number of obs =     170
+                                                       F(  5,   164) =   21.35
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.3678
+                                                       Root MSE      =  .94153
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      rugged |  -.2028463    .093199    -2.18   0.031    -.3868709   -.0188216
+rugged_x_a~a |   .4081772   .1613099     2.53   0.012     .0896652    .7266892
+ cont_africa |  -1.844263   .2294859    -8.04   0.000     -2.29739   -1.391135
+rugged_x_a~e |    .162294   .2736883     0.59   0.554     -.378113    .7027009
+africa_reg~e |   -.760252   .5323234    -1.43   0.155    -1.811343    .2908391
+       _cons |   9.223215   .1440688    64.02   0.000     8.938746    9.507684
+------------------------------------------------------------------------------
+
+. * table 4, column (3)
+. reg ln_rgdppc_2000 rugged rugged_x_africa cont_africa rugged_x_africa_c africa_region_c, robust
+
+Linear regression                                      Number of obs =     170
+                                                       F(  5,   164) =   21.78
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.3594
+                                                       Root MSE      =  .94778
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      rugged |  -.2028463    .093199    -2.18   0.031    -.3868709   -.0188216
+rugged_x_a~a |   .4088942   .1473182     2.78   0.006     .1180095     .699779
+ cont_africa |  -2.007951   .2299428    -8.73   0.000    -2.461981   -1.553921
+rugged_x_a~c |   .5745998   1.197153     0.48   0.632    -1.789221     2.93842
+africa_reg~c |   .0200212    .597453     0.03   0.973     -1.15967    1.199713
+       _cons |   9.223215   .1440688    64.02   0.000     8.938746    9.507684
+------------------------------------------------------------------------------
+
+. * table 4, column (4)
+. reg ln_rgdppc_2000 rugged rugged_x_africa cont_africa rugged_x_africa_n africa_region_n, robust
+
+Linear regression                                      Number of obs =     170
+                                                       F(  5,   164) =   29.85
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.3752
+                                                       Root MSE      =  .93596
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      rugged |  -.2028463    .093199    -2.18   0.031    -.3868709   -.0188216
+rugged_x_a~a |   .4063262    .147358     2.76   0.006     .1153628    .6972896
+ cont_africa |  -2.045922   .2217572    -9.23   0.000    -2.483789   -1.608055
+rugged_x_a~n |   -.404313   .1311445    -3.08   0.002    -.6632623   -.1453637
+africa_reg~n |   1.464889   .2405612     6.09   0.000     .9898931    1.939886
+       _cons |   9.223215   .1440688    64.02   0.000     8.938746    9.507684
+------------------------------------------------------------------------------
+
+. * table 4, column (5)
+. reg ln_rgdppc_2000 rugged rugged_x_africa cont_africa rugged_x_africa_s africa_region_s, robust
+
+Linear regression                                      Number of obs =     170
+                                                       F(  5,   164) =   22.61
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.3628
+                                                       Root MSE      =  .94525
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      rugged |  -.2028463    .093199    -2.18   0.031    -.3868709   -.0188216
+rugged_x_a~a |   .4482137   .1788879     2.51   0.013     .0949934     .801434
+ cont_africa |  -2.054334   .2319882    -8.86   0.000    -2.512403   -1.596265
+rugged_x_a~s |    -.20036   .1949248    -1.03   0.306    -.5852458    .1845257
+africa_reg~s |   .5921277   .5189042     1.14   0.255    -.4324665    1.616722
+       _cons |   9.223215   .1440688    64.02   0.000     8.938746    9.507684
+------------------------------------------------------------------------------
+
+. 
+. /* table 5: the impact and determinants of slave exports */
+. * table 5, column (1)
+. reg ln_rgdppc_2000 rugged rugged_x_africa ln_slave_exports_area cont_africa, robust
+
+Linear regression                                      Number of obs =     170
+                                                       F(  4,   165) =   54.54
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.4179
+                                                       Root MSE      =  .90069
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      rugged |  -.2028463   .0929162    -2.18   0.030    -.3863042   -.0193884
+rugged_x_a~a |   .1237355   .1522148     0.81   0.417    -.1768043    .4242753
+ln_slave_e~a |  -.2026437   .0374458    -5.41   0.000    -.2765785    -.128709
+ cont_africa |  -.8189191   .3167634    -2.59   0.011    -1.444351   -.1934869
+       _cons |   9.223215   .1436316    64.21   0.000     8.939622    9.506808
+------------------------------------------------------------------------------
+
+. * table 5, column (2)
+. reg ln_rgdppc_2000 rugged ln_slave_exports_area cont_africa, robust
+
+Linear regression                                      Number of obs =     170
+                                                       F(  3,   166) =   72.07
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.4152
+                                                       Root MSE      =  .90006
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      rugged |  -.1690696   .0768832    -2.20   0.029    -.3208645   -.0172747
+ln_slave_e~a |  -.2222082   .0352044    -6.31   0.000    -.2917143   -.1527021
+ cont_africa |  -.5908749   .2220541    -2.66   0.009    -1.029289   -.1524606
+       _cons |   9.175127   .1272971    72.08   0.000     8.923797    9.426457
+------------------------------------------------------------------------------
+
+. * table 5, column (3)
+. reg ln_rgdppc_2000 rugged rugged_x_africa ln_slave_exports_area cont_africa `stdcontrols', robust
+
+Linear regression                                      Number of obs =     170
+                                                       F( 12,   157) =   36.25
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.5857
+                                                       Root MSE      =  .77895
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      rugged |  -.2310554   .0774823    -2.98   0.003    -.3840976   -.0780131
+rugged_x_a~a |   .0474656   .1429089     0.33   0.740    -.2348065    .3297376
+ln_slave_e~a |  -.2060417    .035661    -5.78   0.000     -.276479   -.1356045
+ cont_africa |  -.8254711    .356085    -2.32   0.022    -1.528806   -.1221358
+    diamonds |   .0276889    .010242     2.70   0.008      .007459    .0479189
+diamonds_x~a |  -.0266847   .0104492    -2.55   0.012    -.0473238   -.0060455
+        soil |   -.002083   .0030534    -0.68   0.496     -.008114     .003948
+soil_x_afr~a |   .0001665   .0063905     0.03   0.979    -.0124559    .0127889
+    tropical |  -.0094119      .0016    -5.88   0.000    -.0125722   -.0062516
+tropical_x~a |   .0085556   .0031075     2.75   0.007     .0024177    .0146934
+  dist_coast |  -1.038521   .1940712    -5.35   0.000    -1.421848   -.6551932
+dist_coast~a |   -.161972   .3209516    -0.50   0.615    -.7959122    .4719681
+       _cons |   9.959492   .1953664    50.98   0.000     9.573607    10.34538
+------------------------------------------------------------------------------
+
+. * table 5, column (4)
+. reg ln_rgdppc_2000 rugged ln_slave_exports_area cont_africa `stdcontrols', robust
+
+Linear regression                                      Number of obs =     170
+                                                       F( 11,   158) =   39.79
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.5854
+                                                       Root MSE      =  .77679
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      rugged |  -.2195957   .0659586    -3.33   0.001      -.34987   -.0893215
+ln_slave_e~a |  -.2141782   .0344331    -6.22   0.000    -.2821868   -.1461696
+ cont_africa |  -.7279033   .3536092    -2.06   0.041    -1.426314   -.0294926
+    diamonds |   .0282102   .0101553     2.78   0.006     .0081524    .0482679
+diamonds_x~a |   -.027314   .0102923    -2.65   0.009    -.0476422   -.0069857
+        soil |  -.0021066   .0030399    -0.69   0.489    -.0081108    .0038975
+soil_x_afr~a |   .0005882   .0058519     0.10   0.920    -.0109699    .0121463
+    tropical |   -.009369   .0016007    -5.85   0.000    -.0125305   -.0062075
+tropical_x~a |    .008415   .0029494     2.85   0.005     .0025898    .0142403
+  dist_coast |  -1.039213    .193745    -5.36   0.000    -1.421877    -.656549
+dist_coast~a |  -.1905841   .3432443    -0.56   0.580    -.8685232     .487355
+       _cons |   9.942577   .1951317    50.95   0.000     9.557174    10.32798
+------------------------------------------------------------------------------
+
+. * table 5, column (5)
+. reg ln_slave_exports_area rugged if cont_africa == 1 & !missing(ln_rgdppc_2000), robust
+
+Linear regression                                      Number of obs =      49
+                                                       F(  1,    47) =   25.70
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.2893
+                                                       Root MSE      =  2.6959
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_slave_e~a |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      rugged |  -1.330448   .2624178    -5.07   0.000    -1.858365   -.8025313
+       _cons |   5.571765   .5032943    11.07   0.000     4.559268    6.584263
+------------------------------------------------------------------------------
+
+. * table 5, column (6)
+. reg ln_slave_exports_area rugged diamonds soil tropical dist_coast if cont_africa == 1 & !missing(ln_rgdppc_2000), robust
+
+Linear regression                                      Number of obs =      49
+                                                       F(  5,    43) =    9.67
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.4484
+                                                       Root MSE      =  2.4832
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_slave_e~a |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      rugged |  -1.325617    .273696    -4.84   0.000    -1.877578   -.7736567
+    diamonds |  -.0053686   .0061368    -0.87   0.387    -.0177446    .0070075
+        soil |   .0421851   .0152476     2.77   0.008     .0114355    .0729347
+    tropical |   .0134948    .009465     1.43   0.161    -.0055931    .0325828
+  dist_coast |   .1541229    1.17358     0.13   0.896    -2.212628    2.520873
+       _cons |   3.575487   1.250542     2.86   0.007     1.053528    6.097445
+------------------------------------------------------------------------------
+
+. * table 5, column (7)
+. reg ln_slave_exports_area rugged diamonds soil tropical dist_coast ln_pop_dens1400 dist_slavemkt* if cont_africa == 1 & !mis
+> sing(ln_rgdppc_2000), robust
+
+Linear regression                                      Number of obs =      49
+                                                       F( 10,    38) =   10.93
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.5872
+                                                       Root MSE      =  2.2851
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_slave_e~a |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      rugged |  -.9893856   .3581095    -2.76   0.009     -1.71434   -.2644308
+    diamonds |  -.0014787   .0051457    -0.29   0.775    -.0118957    .0089382
+        soil |   .0311314   .0189306     1.64   0.108    -.0071915    .0694544
+    tropical |    .003335   .0101617     0.33   0.745    -.0172362    .0239063
+  dist_coast |  -1.938559   1.693642    -1.14   0.260    -5.367159     1.49004
+ln_pop_~1400 |   .3255498   .1794274     1.81   0.078    -.0376819    .6887816
+dist_slave~c |  -.9734011   .4796304    -2.03   0.049    -1.944362   -.0024401
+dist_sla~ian |  -.9247222   .4855058    -1.90   0.064    -1.907577     .058133
+dist_sla~ran |  -1.669887   .9138247    -1.83   0.076    -3.519829    .1800544
+dist_slave~a |  -.0818051   .6354782    -0.13   0.898    -1.368263    1.204653
+       _cons |   22.35868   10.00802     2.23   0.031     2.098498    42.61887
+------------------------------------------------------------------------------
+
+. 
+. /* table 6: the effect of slave exports on income through rule of law */
+. * table 6, column (1)
+. preserve
+
+. drop if missing(ln_rgdppc_2000)
+(64 observations deleted)
+
+. drop if missing(q_rule_law)
+(1 observation deleted)
+
+. reg ln_rgdppc_2000 q_rule_law rugged cont_africa, robust
+
+Linear regression                                      Number of obs =     169
+                                                       F(  3,   165) =  206.84
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.7462
+                                                       Root MSE      =  .59143
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  q_rule_law |   .8714721   .0443291    19.66   0.000     .7839468    .9589974
+      rugged |  -.0338294   .0414805    -0.82   0.416    -.1157305    .0480716
+ cont_africa |  -.6987083   .1305888    -5.35   0.000    -.9565488   -.4408678
+       _cons |   8.782693   .0757564   115.93   0.000     8.633116     8.93227
+------------------------------------------------------------------------------
+
+. * table 6, column (2)
+. reg ln_rgdppc_2000 q_rule_law rugged cont_africa `stdcontrols', robust
+
+Linear regression                                      Number of obs =     169
+                                                       F( 11,   157) =   73.01
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.7763
+                                                       Root MSE      =  .56919
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  q_rule_law |   .8128387   .0591145    13.75   0.000     .6960764     .929601
+      rugged |  -.0514157    .039117    -1.31   0.191    -.1286793    .0258478
+ cont_africa |  -.1087382   .3516221    -0.31   0.758    -.8032585     .585782
+    diamonds |   .0089717   .0144529     0.62   0.536    -.0195756    .0375189
+diamonds_x~a |  -.0088327   .0145409    -0.61   0.544    -.0375538    .0198885
+        soil |   .0002749   .0016651     0.17   0.869     -.003014    .0035638
+soil_x_afr~a |  -.0147445   .0059111    -2.49   0.014      -.02642   -.0030689
+    tropical |  -.0016168   .0011219    -1.44   0.152    -.0038328    .0005991
+tropical_x~a |   .0025834   .0028625     0.90   0.368    -.0030706    .0082374
+  dist_coast |  -.2210448   .1740385    -1.27   0.206    -.5648038    .1227141
+dist_coast~a |  -.5763027   .3472634    -1.66   0.099    -1.262214    .1096082
+       _cons |   8.922016   .1588629    56.16   0.000     8.608232    9.235801
+------------------------------------------------------------------------------
+
+. * table 6, column (3)
+. reg q_rule_law ln_slave_exports_area cont_africa, robust
+
+Linear regression                                      Number of obs =     169
+                                                       F(  2,   166) =   32.06
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.1910
+                                                       Root MSE      =  .86457
+
+------------------------------------------------------------------------------
+             |               Robust
+  q_rule_law |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+ln_slave_e~a |  -.0858961   .0307464    -2.79   0.006    -.1466006   -.0251917
+ cont_africa |  -.5085597   .1879973    -2.71   0.008    -.8797338   -.1373857
+       _cons |   .2179444   .0867341     2.51   0.013     .0467004    .3891885
+------------------------------------------------------------------------------
+
+. * table 6, column (4)
+. reg q_rule_law ln_slave_exports_area rugged cont_africa `stdcontrols', robust
+
+Linear regression                                      Number of obs =     169
+                                                       F( 11,   157) =   20.73
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.4494
+                                                       Root MSE      =  .73341
+
+------------------------------------------------------------------------------
+             |               Robust
+  q_rule_law |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+ln_slave_e~a |  -.0979777    .034056    -2.88   0.005    -.1652447   -.0307107
+      rugged |  -.1472006   .0667201    -2.21   0.029    -.2789855   -.0154157
+ cont_africa |  -.8848779   .3055092    -2.90   0.004    -1.488316   -.2814394
+    diamonds |   .0277895   .0090573     3.07   0.003     .0098996    .0456795
+diamonds_x~a |   -.026377   .0090652    -2.91   0.004    -.0442825   -.0084716
+        soil |  -.0019378   .0029597    -0.65   0.514    -.0077838    .0039082
+soil_x_afr~a |   .0112359   .0051807     2.17   0.032     .0010031    .0214688
+    tropical |  -.0098009    .001566    -6.26   0.000    -.0128939   -.0067078
+tropical_x~a |   .0038907   .0027122     1.43   0.153    -.0014664    .0092478
+  dist_coast |  -.9841189   .1889121    -5.21   0.000    -1.357256   -.6109817
+dist_coast~a |     .23307   .2958979     0.79   0.432    -.3513843    .8175242
+       _cons |   1.113403   .1982896     5.62   0.000     .7217434    1.505063
+------------------------------------------------------------------------------
+
+. * table 6, column (5)
+. reg q_rule_law ln_slave_exports_area rugged cont_africa `stdcontrols' legor_fra legor_fra_x_africa legor_soc legor_deu legor
+> _sca, robust
+
+Linear regression                                      Number of obs =     169
+                                                       F( 16,   152) =   44.19
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.6444
+                                                       Root MSE      =  .59899
+
+------------------------------------------------------------------------------
+             |               Robust
+  q_rule_law |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+ln_slave_e~a |   -.099809   .0327848    -3.04   0.003    -.1645816   -.0350363
+      rugged |  -.1555319   .0486037    -3.20   0.002    -.2515579   -.0595058
+ cont_africa |  -.9354623     .34397    -2.72   0.007    -1.615042   -.2558828
+    diamonds |   .0185966   .0082285     2.26   0.025     .0023396    .0348536
+diamonds_x~a |  -.0174141    .008273    -2.10   0.037     -.033759   -.0010691
+        soil |   .0030399   .0025153     1.21   0.229    -.0019295    .0080093
+soil_x_afr~a |   .0058531   .0051944     1.13   0.262    -.0044095    .0161157
+    tropical |  -.0113418   .0015142    -7.49   0.000    -.0143333   -.0083503
+tropical_x~a |   .0055271   .0027212     2.03   0.044     .0001508    .0109034
+  dist_coast |  -.4271038   .1620305    -2.64   0.009    -.7472264   -.1069812
+dist_coast~a |   -.339607   .2697727    -1.26   0.210    -.8725953    .1933812
+   legor_fra |  -.5280081   .1573074    -3.36   0.001    -.8387994   -.2172168
+legor_fra_~a |   .4631144   .2299204     2.01   0.046     .0088621    .9173666
+   legor_soc |  -1.183475   .1920994    -6.16   0.000    -1.563005   -.8039455
+   legor_deu |   .6397662   .3308016     1.93   0.055    -.0137965    1.293329
+   legor_sca |   .7744068    .209174     3.70   0.000     .3611429    1.187671
+       _cons |   1.243902   .2262383     5.50   0.000     .7969246     1.69088
+------------------------------------------------------------------------------
+
+. restore
+
+. 
+. /* web appendix table: summary statistics */
+. * africa
+. sum rugged ln_rgdppc_2000 diamonds soil tropical dist_coast ln_slave_exports_area if cont_africa==1 & missing(ln_rgdppc_2000
+> )!=1
+
+    Variable |       Obs        Mean    Std. Dev.       Min        Max
+-------------+--------------------------------------------------------
+      rugged |        49    1.109792     1.27945   .1149095   6.202062
+ln_rgdp~2000 |        49    7.486624    .9349048   6.145574   9.795761
+    diamonds |        49    21.22446      63.875          0     368.23
+        soil |        49    31.65979    21.31846          0   81.69929
+    tropical |        49    52.09846    42.98542          0        100
+-------------+--------------------------------------------------------
+  dist_coast |        49    .4297285    .3573654   .0003211   1.254394
+ln_slave_e~a |        49    4.095245     3.16454          0   8.867532
+
+. for @ in any ln_rgdppc_2000 diamonds soil tropical dist_coast ln_slave_exports_area: pwcorr rugged @ if cont_africa==1 & mis
+> sing(ln_rgdppc_2000)!=1, sig star(.10)
+
+->  pwcorr rugged ln_rgdppc_2000 if cont_africa==1 & missing(ln_rgdppc_2000)!=1, sig star(.10)
+
+             |   rugged ln_~2000
+-------------+------------------
+      rugged |   1.0000 
+             |
+             |
+ln_rgdp~2000 |   0.2607*  1.0000 
+             |   0.0704
+             |
+
+->  pwcorr rugged diamonds if cont_africa==1 & missing(ln_rgdppc_2000)!=1, sig star(.10)
+
+             |   rugged diamonds
+-------------+------------------
+      rugged |   1.0000 
+             |
+             |
+    diamonds |  -0.1179   1.0000 
+             |   0.4198
+             |
+
+->  pwcorr rugged soil if cont_africa==1 & missing(ln_rgdppc_2000)!=1, sig star(.10)
+
+             |   rugged     soil
+-------------+------------------
+      rugged |   1.0000 
+             |
+             |
+        soil |   0.0978   1.0000 
+             |   0.5039
+             |
+
+->  pwcorr rugged tropical if cont_africa==1 & missing(ln_rgdppc_2000)!=1, sig star(.10)
+
+             |   rugged tropical
+-------------+------------------
+      rugged |   1.0000 
+             |
+             |
+    tropical |  -0.2027   1.0000 
+             |   0.1624
+             |
+
+->  pwcorr rugged dist_coast if cont_africa==1 & missing(ln_rgdppc_2000)!=1, sig star(.10)
+
+             |   rugged dist_c~t
+-------------+------------------
+      rugged |   1.0000 
+             |
+             |
+  dist_coast |  -0.3077*  1.0000 
+             |   0.0315
+             |
+
+->  pwcorr rugged ln_slave_exports_area if cont_africa==1 & missing(ln_rgdppc_2000)!=1, sig star(.10)
+
+             |   rugged ln_sla~a
+-------------+------------------
+      rugged |   1.0000 
+             |
+             |
+ln_slave_e~a |  -0.5379*  1.0000 
+             |   0.0001
+             |
+
+. * non-africa
+. sum rugged ln_rgdppc_2000 diamonds soil tropical dist_coast if cont_africa==0 & missing(ln_rgdppc_2000)!=1
+
+    Variable |       Obs        Mean    Std. Dev.       Min        Max
+-------------+--------------------------------------------------------
+      rugged |       121    1.423689    1.113256   .0028978   5.300787
+ln_rgdp~2000 |       121    8.934425    .9785197   6.666281   10.96461
+    diamonds |       121    .5019813    3.382168          0   34.38475
+        soil |       121     42.7666    26.52663          0        100
+    tropical |       121    35.86235     45.6014          0        100
+-------------+--------------------------------------------------------
+  dist_coast |       121    .2728876    .4330778   .0000276   2.206173
+
+. for @ in any ln_rgdppc_2000 diamonds soil tropical dist_coast: pwcorr rugged @ if cont_africa==0 & missing(ln_rgdppc_2000)!=
+> 1, sig star(.10)
+
+->  pwcorr rugged ln_rgdppc_2000 if cont_africa==0 & missing(ln_rgdppc_2000)!=1, sig star(.10)
+
+             |   rugged ln_~2000
+-------------+------------------
+      rugged |   1.0000 
+             |
+             |
+ln_rgdp~2000 |  -0.2308*  1.0000 
+             |   0.0109
+             |
+
+->  pwcorr rugged diamonds if cont_africa==0 & missing(ln_rgdppc_2000)!=1, sig star(.10)
+
+             |   rugged diamonds
+-------------+------------------
+      rugged |   1.0000 
+             |
+             |
+    diamonds |  -0.1387   1.0000 
+             |   0.1292
+             |
+
+->  pwcorr rugged soil if cont_africa==0 & missing(ln_rgdppc_2000)!=1, sig star(.10)
+
+             |   rugged     soil
+-------------+------------------
+      rugged |   1.0000 
+             |
+             |
+        soil |   0.0396   1.0000 
+             |   0.6660
+             |
+
+->  pwcorr rugged tropical if cont_africa==0 & missing(ln_rgdppc_2000)!=1, sig star(.10)
+
+             |   rugged tropical
+-------------+------------------
+      rugged |   1.0000 
+             |
+             |
+    tropical |  -0.1501   1.0000 
+             |   0.1002
+             |
+
+->  pwcorr rugged dist_coast if cont_africa==0 & missing(ln_rgdppc_2000)!=1, sig star(.10)
+
+             |   rugged dist_c~t
+-------------+------------------
+      rugged |   1.0000 
+             |
+             |
+  dist_coast |   0.0397   1.0000 
+             |   0.6654
+             |
+
+. 
+. /* web appendix table: alternative income and ruggedness measures */
+. * loop through ruggedness measures
+. foreach rv in rugged rugged_slope rugged_lsd rugged_pc rugged_popw {
+  2.   preserve
+  3.   rename `rv' rugged_alt
+  4.   gen rugged_alt_x_africa = rugged_alt * cont_africa
+  5.   if "`rv'" == "rugged"       label var rugged_alt_x_africa "Ruggedness"
+  6.   if "`rv'" == "rugged_slope" label var rugged_alt_x_africa "Average slope"
+  7.   if "`rv'" == "rugged_lsd"   label var rugged_alt_x_africa "Local std. dev. of elevation"
+  8.   if "`rv'" == "rugged_pc"    label var rugged_alt_x_africa "\% highly rugged land"
+  9.   if "`rv'" == "rugged_popw"  label var rugged_alt_x_africa "Pop.-weighted ruggedness"
+ 10.   reg ln_rgdppc_2000 rugged_alt rugged_alt_x_africa cont_africa `stdcontrols', robust
+ 11.   reg ln_rgdppc_2000_m rugged_alt rugged_alt_x_africa cont_africa `stdcontrols', robust
+ 12.   reg ln_rgdppc_1950_m rugged_alt rugged_alt_x_africa cont_africa `stdcontrols', robust
+ 13.   reg ln_rgdppc_1950_2000_m rugged_alt rugged_alt_x_africa cont_africa `stdcontrols', robust
+ 14.   restore
+ 15. }
+
+Linear regression                                      Number of obs =     170
+                                                       F( 11,   158) =   36.87
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.5368
+                                                       Root MSE      =  .82108
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  rugged_alt |  -.2310554   .0772368    -2.99   0.003    -.3836051   -.0785057
+rugged_alt~a |    .320598   .1266583     2.53   0.012     .0704363    .5707598
+ cont_africa |  -1.562171    .414853    -3.77   0.000    -2.381543   -.7427977
+    diamonds |   .0276889   .0102096     2.71   0.007     .0075241    .0478538
+diamonds_x~a |  -.0255785     .01066    -2.40   0.018    -.0466329   -.0045241
+        soil |   -.002083   .0030437    -0.68   0.495    -.0080946    .0039286
+soil_x_afr~a |  -.0085254   .0069267    -1.23   0.220    -.0222062    .0051554
+    tropical |  -.0094119   .0015949    -5.90   0.000     -.012562   -.0062618
+tropical_x~a |   .0057751   .0036308     1.59   0.114    -.0013962    .0129463
+  dist_coast |  -1.038521   .1934561    -5.37   0.000    -1.420614   -.6564269
+dist_coast~a |  -.1937278   .3863702    -0.50   0.617    -.9568445     .569389
+       _cons |   9.959492   .1947472    51.14   0.000     9.574849    10.34414
+------------------------------------------------------------------------------
+
+Linear regression                                      Number of obs =     159
+                                                       F( 11,   147) =   34.16
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.5451
+                                                       Root MSE      =  .81023
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_~c_2000_m |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  rugged_alt |  -.2073148   .0797781    -2.60   0.010    -.3649749   -.0496547
+rugged_alt~a |   .2500225    .113392     2.20   0.029     .0259334    .4741116
+ cont_africa |  -1.418609   .3972637    -3.57   0.000    -2.203695   -.6335228
+    diamonds |   .0374494    .010736     3.49   0.001     .0162325    .0586663
+diamonds_x~a |  -.0364966   .0110398    -3.31   0.001    -.0583139   -.0146794
+        soil |   .0004282   .0036404     0.12   0.907    -.0067661    .0076224
+soil_x_afr~a |  -.0059412   .0061073    -0.97   0.332    -.0180106    .0061282
+    tropical |  -.0098616   .0020147    -4.89   0.000    -.0138431   -.0058801
+tropical_x~a |   .0052346   .0033565     1.56   0.121    -.0013987    .0118679
+  dist_coast |  -.8022221   .2076827    -3.86   0.000    -1.212652   -.3917928
+dist_coast~a |  -.3929932   .3703921    -1.06   0.290    -1.124974     .338988
+       _cons |   9.424258   .2254505    41.80   0.000     8.978715    9.869801
+------------------------------------------------------------------------------
+
+Linear regression                                      Number of obs =     137
+                                                       F( 11,   125) =   20.51
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.4575
+                                                       Root MSE      =  .72076
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~50_m |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  rugged_alt |  -.3167782   .1075058    -2.95   0.004    -.5295456   -.1040109
+rugged_alt~a |   .2841211    .128572     2.21   0.029     .0296612    .5385809
+ cont_africa |  -1.406434   .3910046    -3.60   0.000    -2.180281   -.6325872
+    diamonds |   .0309459   .0121748     2.54   0.012     .0068506    .0550413
+diamonds_x~a |  -.0317509   .0122279    -2.60   0.011    -.0559513   -.0075504
+        soil |  -.0003229   .0041889    -0.08   0.939    -.0086133    .0079676
+soil_x_afr~a |  -.0036937   .0053718    -0.69   0.493    -.0143252    .0069378
+    tropical |  -.0089443   .0017961    -4.98   0.000    -.0124989   -.0053897
+tropical_x~a |   .0080329   .0026418     3.04   0.003     .0028045    .0132613
+  dist_coast |  -.8783224   .3992678    -2.20   0.030    -1.668523   -.0881219
+dist_coast~a |   .1912186   .4439904     0.43   0.667    -.6874935    1.069931
+       _cons |   8.591141    .320047    26.84   0.000     7.957728    9.224553
+------------------------------------------------------------------------------
+
+Linear regression                                      Number of obs =     137
+                                                       F( 11,   125) =   41.87
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.5862
+                                                       Root MSE      =  .69438
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_~0_2000_m |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  rugged_alt |   -.288881   .1038366    -2.78   0.006    -.4943865   -.0833756
+rugged_alt~a |   .2839435   .1227193     2.31   0.022     .0410668    .5268201
+ cont_africa |  -1.529899   .3386068    -4.52   0.000    -2.200044   -.8597539
+    diamonds |   .0282992    .010794     2.62   0.010     .0069365    .0496618
+diamonds_x~a |  -.0276113   .0108463    -2.55   0.012    -.0490774   -.0061452
+        soil |   .0012657   .0035871     0.35   0.725    -.0058336    .0083651
+soil_x_afr~a |  -.0073169   .0049358    -1.48   0.141    -.0170855    .0024516
+    tropical |  -.0115763   .0017319    -6.68   0.000    -.0150038   -.0081487
+tropical_x~a |   .0089018   .0026371     3.38   0.001     .0036828    .0141209
+  dist_coast |  -1.091469   .3891646    -2.80   0.006    -1.861674   -.3212638
+dist_coast~a |   .1400159   .4350706     0.32   0.748    -.7210428    1.001075
+       _cons |   9.329144   .2249485    41.47   0.000     8.883943    9.774346
+------------------------------------------------------------------------------
+
+Linear regression                                      Number of obs =     170
+                                                       F( 11,   158) =   35.99
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.5300
+                                                       Root MSE      =   .8271
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  rugged_alt |  -.0707395   .0271418    -2.61   0.010     -.124347   -.0171319
+rugged_alt~a |    .098286    .044023     2.23   0.027     .0113366    .1852354
+ cont_africa |  -1.501098   .4113625    -3.65   0.000    -2.313576   -.6886187
+    diamonds |    .028884   .0105818     2.73   0.007     .0079839     .049784
+diamonds_x~a |  -.0268224   .0110207    -2.43   0.016    -.0485892   -.0050555
+        soil |  -.0021323   .0030939    -0.69   0.492     -.008243    .0039784
+soil_x_afr~a |  -.0085777   .0070365    -1.22   0.225    -.0224754      .00532
+    tropical |  -.0096151   .0016021    -6.00   0.000    -.0127793   -.0064509
+tropical_x~a |   .0059296    .003678     1.61   0.109    -.0013348    .0131941
+  dist_coast |  -1.033286   .1968588    -5.25   0.000      -1.4221   -.6444715
+dist_coast~a |  -.2200379    .386371    -0.57   0.570    -.9831563    .5430804
+       _cons |   9.931656   .2031576    48.89   0.000     9.530401    10.33291
+------------------------------------------------------------------------------
+
+Linear regression                                      Number of obs =     159
+                                                       F( 11,   147) =   33.81
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.5403
+                                                       Root MSE      =  .81455
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_~c_2000_m |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  rugged_alt |  -.0639412   .0278508    -2.30   0.023    -.1189808   -.0089016
+rugged_alt~a |   .0757846   .0399557     1.90   0.060    -.0031773    .1547464
+ cont_africa |  -1.371806    .396815    -3.46   0.001    -2.156005   -.5876072
+    diamonds |   .0384345   .0109946     3.50   0.001     .0167066    .0601624
+diamonds_x~a |  -.0375137   .0112929    -3.32   0.001    -.0598311   -.0151963
+        soil |    .000413   .0036717     0.11   0.911    -.0068432    .0076692
+soil_x_afr~a |  -.0059179   .0061525    -0.96   0.338    -.0180766    .0062409
+    tropical |  -.0100433   .0020253    -4.96   0.000    -.0140458   -.0060408
+tropical_x~a |   .0053775     .00339     1.59   0.115     -.001322    .0120769
+  dist_coast |  -.7960763   .2098382    -3.79   0.000    -1.210766   -.3813871
+dist_coast~a |   -.413192   .3712705    -1.11   0.268    -1.146909     .320525
+       _cons |   9.397911   .2268784    41.42   0.000     8.949547    9.846276
+------------------------------------------------------------------------------
+
+Linear regression                                      Number of obs =     137
+                                                       F( 11,   125) =   20.05
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.4455
+                                                       Root MSE      =  .72864
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~50_m |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  rugged_alt |  -.0986924   .0398137    -2.48   0.015    -.1774888   -.0198961
+rugged_alt~a |   .0832775   .0473584     1.76   0.081    -.0104507    .1770057
+ cont_africa |  -1.356795   .3989166    -3.40   0.001    -2.146301   -.5672898
+    diamonds |   .0319357   .0124445     2.57   0.011     .0073066    .0565648
+diamonds_x~a |  -.0327585   .0124966    -2.62   0.010    -.0574908   -.0080263
+        soil |  -.0005695   .0042881    -0.13   0.895    -.0090562    .0079173
+soil_x_afr~a |  -.0033505   .0054508    -0.61   0.540    -.0141382    .0074373
+    tropical |  -.0091732   .0018403    -4.98   0.000    -.0128154   -.0055309
+tropical_x~a |   .0081583   .0026665     3.06   0.003     .0028809    .0134357
+  dist_coast |  -.8627972   .4059828    -2.13   0.036    -1.666287    -.059307
+dist_coast~a |   .1656338    .449676     0.37   0.713    -.7243308    1.055598
+       _cons |   8.558183   .3306551    25.88   0.000     7.903775     9.21259
+------------------------------------------------------------------------------
+
+Linear regression                                      Number of obs =     137
+                                                       F( 11,   125) =   41.53
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.5769
+                                                       Root MSE      =  .70219
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_~0_2000_m |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  rugged_alt |  -.0889068    .038061    -2.34   0.021    -.1642343   -.0135792
+rugged_alt~a |   .0838546   .0446832     1.88   0.063    -.0045789    .1722882
+ cont_africa |  -1.479095   .3444073    -4.29   0.000     -2.16072   -.7974703
+    diamonds |    .029319   .0110294     2.66   0.009     .0074905    .0511475
+diamonds_x~a |  -.0286519   .0110806    -2.59   0.011    -.0505818   -.0067221
+        soil |    .001011   .0036733     0.28   0.784     -.006259     .008281
+soil_x_afr~a |  -.0070036   .0050061    -1.40   0.164    -.0169113    .0029041
+    tropical |  -.0117641   .0017554    -6.70   0.000    -.0152383   -.0082898
+tropical_x~a |    .009017   .0026596     3.39   0.001     .0037532    .0142807
+  dist_coast |  -1.076788   .3968706    -2.71   0.008    -1.862245   -.2913322
+dist_coast~a |   .1149102   .4417788     0.26   0.795    -.7594249    .9892452
+       _cons |   9.294697   .2351507    39.53   0.000     8.829304    9.760089
+------------------------------------------------------------------------------
+
+Linear regression                                      Number of obs =     170
+                                                       F( 11,   158) =   36.47
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.5354
+                                                       Root MSE      =  .82228
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  rugged_alt |  -.7857834   .2692962    -2.92   0.004    -1.317668   -.2538987
+rugged_alt~a |   1.105451   .4594026     2.41   0.017     .1980888    2.012814
+ cont_africa |  -1.535627   .4195599    -3.66   0.000    -2.364297    -.706958
+    diamonds |   .0280503   .0101306     2.77   0.006     .0080415    .0480591
+diamonds_x~a |  -.0259378   .0105819    -2.45   0.015     -.046838   -.0050377
+        soil |  -.0020012   .0030666    -0.65   0.515     -.008058    .0040556
+soil_x_afr~a |    -.00853   .0069248    -1.23   0.220    -.0222072    .0051472
+    tropical |  -.0091982   .0016029    -5.74   0.000     -.012364   -.0060323
+tropical_x~a |   .0054542    .003612     1.51   0.133    -.0016798    .0125882
+  dist_coast |  -1.028589   .1944871    -5.29   0.000    -1.412719    -.644459
+dist_coast~a |  -.2043121   .3896872    -0.52   0.601    -.9739803     .565356
+       _cons |   9.938671   .1981583    50.16   0.000      9.54729    10.33005
+------------------------------------------------------------------------------
+
+Linear regression                                      Number of obs =     159
+                                                       F( 11,   147) =   34.07
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.5435
+                                                       Root MSE      =  .81173
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_~c_2000_m |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  rugged_alt |  -.6985201   .2808103    -2.49   0.014    -1.253467   -.1435735
+rugged_alt~a |   .8354606    .414086     2.02   0.045     .0171302    1.653791
+ cont_africa |  -1.389964   .4019429    -3.46   0.001    -2.184297   -.5956312
+    diamonds |   .0378428   .0106971     3.54   0.001     .0167028    .0589828
+diamonds_x~a |  -.0368973   .0110015    -3.35   0.001    -.0586388   -.0151558
+        soil |   .0004678   .0036539     0.13   0.898    -.0067532    .0076889
+soil_x_afr~a |  -.0059206   .0061045    -0.97   0.334    -.0179845    .0061434
+    tropical |  -.0096818   .0020219    -4.79   0.000    -.0136776    -.005686
+tropical_x~a |   .0049791   .0033452     1.49   0.139    -.0016318    .0115899
+  dist_coast |  -.7947119   .2085079    -3.81   0.000    -1.206772   -.3826516
+dist_coast~a |  -.4043935   .3741864    -1.08   0.282    -1.143873    .3350862
+       _cons |   9.404803   .2253953    41.73   0.000      8.95937    9.850237
+------------------------------------------------------------------------------
+
+Linear regression                                      Number of obs =     137
+                                                       F( 11,   125) =   20.25
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.4513
+                                                       Root MSE      =  .72481
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~50_m |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  rugged_alt |  -1.054524   .3790622    -2.78   0.006    -1.804735   -.3043131
+rugged_alt~a |   .9186567    .460341     2.00   0.048     .0075848    1.829729
+ cont_africa |  -1.361405   .3893632    -3.50   0.001    -2.132004   -.5908072
+    diamonds |   .0317817   .0122194     2.60   0.010     .0075981    .0559653
+diamonds_x~a |  -.0326047   .0122717    -2.66   0.009     -.056892   -.0083174
+        soil |  -.0003825   .0042333    -0.09   0.928    -.0087608    .0079957
+soil_x_afr~a |  -.0036484    .005411    -0.67   0.501    -.0143574    .0070607
+    tropical |  -.0086109   .0018028    -4.78   0.000    -.0121789    -.005043
+tropical_x~a |   .0077095   .0026377     2.92   0.004     .0024891    .0129299
+  dist_coast |  -.8601233   .4013178    -2.14   0.034    -1.654381   -.0658656
+dist_coast~a |   .1648662   .4456339     0.37   0.712    -.7170986    1.046831
+       _cons |   8.555343   .3207815    26.67   0.000     7.920477     9.19021
+------------------------------------------------------------------------------
+
+Linear regression                                      Number of obs =     137
+                                                       F( 11,   125) =   41.41
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.5821
+                                                       Root MSE      =  .69783
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_~0_2000_m |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  rugged_alt |  -.9630081   .3688897    -2.61   0.010    -1.693087   -.2329297
+rugged_alt~a |    .921574   .4433076     2.08   0.040     .0442133    1.798935
+ cont_africa |  -1.485459   .3373231    -4.40   0.000    -2.153063   -.8178547
+    diamonds |   .0290476   .0108471     2.68   0.008     .0075799    .0505153
+diamonds_x~a |  -.0283783    .010899    -2.60   0.010    -.0499488   -.0068078
+        soil |    .001215   .0036313     0.33   0.738    -.0059719    .0084019
+soil_x_afr~a |  -.0072471   .0049741    -1.46   0.148    -.0170914    .0025972
+    tropical |   -.011274   .0017451    -6.46   0.000    -.0147278   -.0078202
+tropical_x~a |   .0085688   .0026281     3.26   0.001     .0033674    .0137702
+  dist_coast |  -1.074929   .3910723    -2.75   0.007     -1.84891   -.3009486
+dist_coast~a |   .1147814   .4362975     0.26   0.793    -.7487055    .9782682
+       _cons |   9.297004   .2261871    41.10   0.000     8.849351    9.744656
+------------------------------------------------------------------------------
+
+Linear regression                                      Number of obs =     170
+                                                       F( 11,   158) =   36.22
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.5367
+                                                       Root MSE      =  .82112
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  rugged_alt |  -.0131186   .0042057    -3.12   0.002    -.0214253    -.004812
+rugged_alt~a |   .0172341   .0064315     2.68   0.008     .0045313     .029937
+ cont_africa |  -1.427365   .3955265    -3.61   0.000    -2.208566   -.6461633
+    diamonds |   .0286738   .0100994     2.84   0.005     .0087267     .048621
+diamonds_x~a |  -.0266217   .0105546    -2.52   0.013    -.0474679   -.0057755
+        soil |  -.0021044   .0030769    -0.68   0.495    -.0081817    .0039728
+soil_x_afr~a |  -.0086303   .0070739    -1.22   0.224     -.022602    .0053414
+    tropical |  -.0090905   .0016211    -5.61   0.000    -.0122923   -.0058888
+tropical_x~a |   .0053256   .0036263     1.47   0.144    -.0018367     .012488
+  dist_coast |  -1.051038   .1960727    -5.36   0.000    -1.438299   -.6637759
+dist_coast~a |  -.2193201   .3863885    -0.57   0.571     -.982473    .5438328
+       _cons |   9.894605   .1949797    50.75   0.000     9.509502    10.27971
+------------------------------------------------------------------------------
+
+Linear regression                                      Number of obs =     159
+                                                       F( 11,   147) =   34.38
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.5497
+                                                       Root MSE      =  .80613
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_~c_2000_m |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  rugged_alt |  -.0126792   .0043222    -2.93   0.004    -.0212209   -.0041376
+rugged_alt~a |   .0142745   .0062087     2.30   0.023     .0020047    .0265443
+ cont_africa |  -1.342918   .3799766    -3.53   0.001     -2.09384   -.5919953
+    diamonds |   .0377955   .0105384     3.59   0.000     .0169692    .0586218
+diamonds_x~a |  -.0368854   .0108479    -3.40   0.001    -.0583234   -.0154473
+        soil |   .0006327   .0036756     0.17   0.864    -.0066311    .0078964
+soil_x_afr~a |  -.0061413    .006176    -0.99   0.322    -.0183465    .0060638
+    tropical |  -.0097013   .0020004    -4.85   0.000    -.0136546   -.0057479
+tropical_x~a |   .0049798   .0033406     1.49   0.138    -.0016221    .0115817
+  dist_coast |  -.8190823   .2095796    -3.91   0.000    -1.233261   -.4049041
+dist_coast~a |  -.3993474    .369048    -1.08   0.281    -1.128672    .3299774
+       _cons |   9.388453   .2173468    43.20   0.000     8.958925    9.817981
+------------------------------------------------------------------------------
+
+Linear regression                                      Number of obs =     137
+                                                       F( 11,   125) =   21.63
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.4746
+                                                       Root MSE      =   .7093
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~50_m |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  rugged_alt |  -.0195183   .0048801    -4.00   0.000    -.0291765   -.0098601
+rugged_alt~a |   .0173018   .0062027     2.79   0.006     .0050259    .0295776
+ cont_africa |  -1.352858   .3664966    -3.69   0.000    -2.078201   -.6275158
+    diamonds |   .0316146   .0115947     2.73   0.007     .0086671     .054562
+diamonds_x~a |  -.0324296   .0116497    -2.78   0.006    -.0554858   -.0093733
+        soil |   .0002495   .0041305     0.06   0.952    -.0079252    .0084242
+soil_x_afr~a |  -.0041473   .0053385    -0.78   0.439    -.0147129    .0064182
+    tropical |  -.0087093   .0017658    -4.93   0.000    -.0122041   -.0052146
+tropical_x~a |   .0077499   .0025976     2.98   0.003     .0026089     .012891
+  dist_coast |  -.9247844   .4020496    -2.30   0.023     -1.72049   -.1290784
+dist_coast~a |   .2369458   .4447622     0.53   0.595    -.6432937    1.117185
+       _cons |   8.532537   .3009657    28.35   0.000     7.936888    9.128185
+------------------------------------------------------------------------------
+
+Linear regression                                      Number of obs =     137
+                                                       F( 11,   125) =   42.64
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.5986
+                                                       Root MSE      =  .68392
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_~0_2000_m |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  rugged_alt |  -.0179093   .0048893    -3.66   0.000    -.0275859   -.0082327
+rugged_alt~a |   .0171894   .0060405     2.85   0.005     .0052345    .0291444
+ cont_africa |  -1.469469   .3157349    -4.65   0.000    -2.094348   -.8445908
+    diamonds |   .0288476    .010272     2.81   0.006     .0085179    .0491772
+diamonds_x~a |  -.0281777   .0103267    -2.73   0.007    -.0486155   -.0077399
+        soil |   .0018075   .0035957     0.50   0.616    -.0053089    .0089239
+soil_x_afr~a |  -.0077936    .004954    -1.57   0.118    -.0175982     .002011
+    tropical |    -.01137   .0017146    -6.63   0.000    -.0147634   -.0079766
+tropical_x~a |   .0086418   .0026045     3.32   0.001     .0034871    .0137965
+  dist_coast |  -1.134453   .3928209    -2.89   0.005    -1.911895   -.3570121
+dist_coast~a |   .1757532   .4368824     0.40   0.688    -.6888914    1.040398
+       _cons |   9.277788   .2070262    44.81   0.000     8.868057    9.687518
+------------------------------------------------------------------------------
+
+Linear regression                                      Number of obs =     170
+                                                       F( 11,   158) =   37.66
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.5416
+                                                       Root MSE      =   .8168
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~2000 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  rugged_alt |  -.5842314   .1918916    -3.04   0.003    -.9632351   -.2052278
+rugged_alt~a |   .7256281   .2198555     3.30   0.001     .2913932    1.159863
+ cont_africa |  -1.633636   .3639032    -4.49   0.000    -2.352379   -.9148941
+    diamonds |   .0288133   .0108897     2.65   0.009     .0073051    .0503215
+diamonds_x~a |   -.026787    .011315    -2.37   0.019    -.0491351   -.0044389
+        soil |  -.0022116   .0029558    -0.75   0.455    -.0080495    .0036263
+soil_x_afr~a |  -.0086742   .0069192    -1.25   0.212    -.0223404    .0049919
+    tropical |  -.0089557   .0015843    -5.65   0.000    -.0120849   -.0058265
+tropical_x~a |   .0052014   .0035408     1.47   0.144    -.0017919    .0121947
+  dist_coast |  -1.132107   .1979712    -5.72   0.000    -1.523119   -.7410959
+dist_coast~a |  -.1427613   .3837256    -0.37   0.710    -.9006547    .6151321
+       _cons |   10.04232   .1853192    54.19   0.000     9.676295    10.40834
+------------------------------------------------------------------------------
+
+Linear regression                                      Number of obs =     159
+                                                       F( 11,   147) =   33.58
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.5511
+                                                       Root MSE      =   .8049
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_~c_2000_m |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  rugged_alt |  -.5776507   .1785331    -3.24   0.002    -.9304736   -.2248277
+rugged_alt~a |   .6639207   .2064487     3.22   0.002     .2559299    1.071912
+ cont_africa |  -1.493617   .3795677    -3.94   0.000    -2.243732    -.743503
+    diamonds |   .0387426   .0114368     3.39   0.001     .0161408    .0613444
+diamonds_x~a |  -.0378355   .0117236    -3.23   0.002     -.061004   -.0146671
+        soil |    .001024   .0035732     0.29   0.775    -.0060375    .0080855
+soil_x_afr~a |  -.0067299   .0061138    -1.10   0.273    -.0188122    .0053524
+    tropical |  -.0095905   .0020047    -4.78   0.000    -.0135522   -.0056288
+tropical_x~a |   .0049594   .0033606     1.48   0.142    -.0016819    .0116007
+  dist_coast |  -.8638845   .2068342    -4.18   0.000    -1.272637   -.4551319
+dist_coast~a |  -.3551327   .3555738    -1.00   0.320    -1.057829     .347564
+       _cons |   9.494239   .2396672    39.61   0.000     9.020601    9.967877
+------------------------------------------------------------------------------
+
+Linear regression                                      Number of obs =     137
+                                                       F( 11,   125) =   17.79
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.4322
+                                                       Root MSE      =  .73732
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_rgdp~50_m |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  rugged_alt |  -.5393665   .1728405    -3.12   0.002    -.8814393   -.1972937
+rugged_alt~a |   .3930316   .1917806     2.05   0.043      .013474    .7725891
+ cont_africa |  -1.221036    .385162    -3.17   0.002    -1.983319   -.4587525
+    diamonds |   .0355914   .0129257     2.75   0.007     .0100099     .061173
+diamonds_x~a |  -.0364221    .012976    -2.81   0.006    -.0621033    -.010741
+        soil |  -.0009283   .0042985    -0.22   0.829    -.0094356    .0075789
+soil_x_afr~a |   -.002575   .0054053    -0.48   0.635    -.0132727    .0081227
+    tropical |  -.0081513   .0019218    -4.24   0.000    -.0119548   -.0043478
+tropical_x~a |   .0069795   .0027219     2.56   0.012     .0015925    .0123664
+  dist_coast |  -.8396194   .4061482    -2.07   0.041    -1.643437   -.0358017
+dist_coast~a |   .1436983   .4463222     0.32   0.748    -.7396287    1.027025
+       _cons |   8.489409   .3264625    26.00   0.000       7.8433    9.135519
+------------------------------------------------------------------------------
+
+Linear regression                                      Number of obs =     137
+                                                       F( 11,   125) =   38.53
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.5774
+                                                       Root MSE      =  .70178
+
+------------------------------------------------------------------------------
+             |               Robust
+ln_~0_2000_m |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  rugged_alt |  -.5752942   .1735493    -3.31   0.001    -.9187699   -.2318185
+rugged_alt~a |   .5310544   .1902045     2.79   0.006     .1546162    .9074927
+ cont_africa |  -1.453148   .3290232    -4.42   0.000    -2.104326   -.8019705
+    diamonds |   .0314662   .0116139     2.71   0.008      .008481    .0544515
+diamonds_x~a |  -.0307989   .0116615    -2.64   0.009    -.0538784   -.0077194
+        soil |   .0010745   .0035392     0.30   0.762    -.0059301    .0080791
+soil_x_afr~a |  -.0069474   .0049095    -1.42   0.160    -.0166639     .002769
+    tropical |  -.0109869   .0018118    -6.06   0.000    -.0145728   -.0074011
+tropical_x~a |   .0082006   .0026767     3.06   0.003     .0029031     .013498
+  dist_coast |  -1.059876   .3895364    -2.72   0.007    -1.830817   -.2889352
+dist_coast~a |   .0996556   .4342273     0.23   0.819    -.7597341    .9590453
+       _cons |   9.287009   .2291815    40.52   0.000      8.83343    9.740587
+------------------------------------------------------------------------------
+
+. 
+. exit
+
+end of do-file
+
+
+. exit, clear

@@ -44,7 +44,7 @@ def LNorm(pars):
     Lnorm = sum([g**2 for g in grad])
     normGrad = tensor.array.derive_by_array(Lnorm, p)
     return normGrad.subs([(p[i], pars[i]) for i in range(len(p))])
-
+±+
 for epoch in range(1000):
     if epoch%100 == 0:
         print(epoch)
