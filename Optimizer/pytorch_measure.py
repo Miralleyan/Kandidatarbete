@@ -11,24 +11,32 @@ class Pytorch_measure:
     
     def __str__(self) -> str:
         """
+        Returns the locations and weights of the measure as a string.
+        :returns: str
         Responsibilty: Filip
         """
         return "Locations: " + self.locations.__str__() + ". Weights: " + self.weights.__str__()
 
     def __repr__(self) -> str:
         """
+        Returns the locations and weights of the measure as a string.
+        :returns: str
         Responsibilty: Filip
         """
         return self.__str__()
 
-    def total_mass(self):
+    def total_mass(self) -> float:
         """
+        Returns the sum of all weights in the measure: \sum_{i=1}^n w_i
+        :returns: float
         Responsibility: Johan
         """
         return sum(self.weights).item()
 
-    def total_variation(self):
+    def total_variation(self) -> float:
         """
+        Returns the sum of the absolute value of all weights in the measure: \sum_{i=1}^n |w_i|
+        :returns: float
         Responsibility: Samuel
         """
         return sum(abs(self.weights)).item()
