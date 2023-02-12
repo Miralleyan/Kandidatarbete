@@ -1,18 +1,20 @@
 import torch
 
-p = torch.nn.Parameter(torch.randn(7))
 
-opt = torch.optim.Adam(params=[p], lr=0.1)
+torch.manual_seed(1)
 
-for epoch in range(1000):
-    opt.zero_grad()
-    loss = p[0]*p[1] + p[2]*(p[0] + p[1] - 1) -p[3]*p[0] + p[4]*(p[0]-1) - p[5]*p[1] + p[6]*(p[1]-1)
-    loss.backward()
-    loss
-    opt.step()
-    with torch.no_grad():
-        p[2:].clamp_(0)
+p = torch.tensor([0.1, 0.2, 0.3], requires_grad=True)
 
-print(p.detach())
+optimizer = torch.optim.Adam([p], lr=0.1)
+epochs = 100
 
-    # pq + u1(p+q-1) + u2 (-p) + u3(p-1) + u4 (-q) + u5(q-1)
+for epoch in range(epochs):
+    grad = torch.autograd.grad(-p[0]*p[1]+p[2]*(p[0]+p[1]-1), p)
+    grad = grad[0].requires_grad_()
+    loss = torch.sum(torch.square(grad))
+    grad2 = torch.autograd.grad(loss, grad)
+    p.grad = grad2[0]
+    optimizer.step()
+    optimizer.zero_grad()
+    if epoch % 10 == 0:
+        print(f'Epoch: {epoch}\tP = {p.tolist()}')
