@@ -136,7 +136,7 @@ class Pytorch_measure:
         """
         # if lr is too high, adjust to the highest possible value
         if lr/2 >= len(self.weights) - 1:
-            lr = len(self.weights) - 1.01
+            lr = 2 * len(self.weights) - 2.01
 
         # Zero gradient
         self.weights.grad = torch.zeros(len(self.weights))
