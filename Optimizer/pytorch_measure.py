@@ -131,9 +131,6 @@ class Pytorch_measure:
         Responsibility: Hampus
         Stepest decent with fixed total mas using provided loss function and learning rate
 
-        (currently, autograd is used instead of backward because I couldn't set reset gradient.
-        autograd does not accumilate grad but does not store in tensor.grad either)
-
         :param loss_fn: reference to loss function using model weights as input, ex. loss_fn(weights)
         :param lr: learning rate
         """
@@ -141,9 +138,12 @@ class Pytorch_measure:
         if lr/2 >= len(self.weights) - 1:
             lr = len(self.weights) - 1.01
 
+        # Zero gradient
+        self.weights.grad = torch.zeros(len(self.weights))
+
         # Compute gradient
-        grad = torch.autograd.grad(loss_fn(self.weights), self.weights)
-        grad_abs = torch.argsort(grad[0])
+        loss_fn(self.weights).backward()
+        grad_abs = torch.argsort(self.weights.grad)
 
         # Distribute positive mass
         mass_pos = lr/2
