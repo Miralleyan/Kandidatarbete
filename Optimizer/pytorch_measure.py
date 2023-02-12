@@ -47,21 +47,30 @@ class Pytorch_measure:
         """
         Responsibility: Johan
         """
-        return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item()!=0])
+        return self.locations[self.weights != 0] # locations where weight is non-zero
+        # add `.detach()` if dependency on self.locations and self.weights should be ignored when computing gradients
+        # built-in torch functions are probably faster than python list comprehensions.
+
+        # return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item()!=0])
 
     # Return support of measure with positive mass
     def positive_part(self):
         """
         Responsibility: Samuel
         """
-        return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item() > 0])
+        return self.locations[self.weight > 0]
+        # again `.detach()` if we don't want dependence on locations and weight when computing gradient on things depending
+        # on `positive_part()`
+
+        # return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item() > 0])
 
     # Return support of measure with negative mass
     def negative_part(self):
         """
         Responsibility: Johan
         """
-        return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item()<0])
+        return self.locations[self.weight < 0]
+        # return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item()<0])
 
     def put_mass(self, mass, location_index) -> float:
         """
