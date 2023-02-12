@@ -1,7 +1,8 @@
 import torch
 
+
 class Pytorch_measure:
-    def __init__(self,locations,weights):
+    def __init__(self, locations: torch.Tensor, weights: torch.Tensor):
         """
         Group 1: 
         Group 2: 
@@ -15,7 +16,7 @@ class Pytorch_measure:
         :returns: str
         Responsibilty: Filip
         """
-        return "Locations: " + self.locations.__str__() + ". Weights: " + self.weights.__str__()
+        return "Locations: " + self.locations.tolist().__str__() + "\nWeights: " + self.weights.tolist().__str__()
 
     def __repr__(self) -> str:
         """
@@ -124,15 +125,41 @@ class Pytorch_measure:
                 cur_sample.append(self.locations[j].item())
             past_weights += self.weights[j].item()
         return torch.tensor(cur_sample)
-            
 
-    def step(self):
+    def step(self, loss_fn, lr):
         """
         Responsibility: Hampus
-        Takes one optimization step with algoritm
-        """
-        pass
+        Stepest decent with fixed total mas using provided loss function and learning rate
 
+        (currently, autograd is used instead of backward because I couldn't set reset gradient.
+        autograd does not accumilate grad but does not store in tensor.grad either)
+
+        :param loss_fn: reference to loss function using model weights as input, ex. loss_fn(weights)
+        :param lr: learning rate
+        """
+        # if lr is too high, adjust to the highest possible value
+        if lr/2 >= len(self.weights) - 1:
+            lr = len(self.weights) - 1.01
+
+        # Compute gradient
+        grad = torch.autograd.grad(loss_fn(self.weights), self.weights)
+        grad_abs = torch.argsort(grad[0])
+
+        # Distribute positive mass
+        mass_pos = lr/2
+        i = 0
+        while mass_pos != 0:
+            index = grad_abs[i].item()
+            mass_pos -= self.put_mass(mass_pos, index)
+            i += 1
+
+        # Distribute negative mass
+        mass_neg = lr/2
+        i = -1
+        while mass_neg != 0:
+            index = grad_abs[i].item()
+            mass_neg -= self.take_mass(mass_neg, index)
+            i -= 1
 
 def main():
     a=torch.tensor([0.1,0.1,0.3,0.1,0.4])
@@ -143,6 +170,7 @@ def main():
     print(c.put_mass(0.2, 1))
     print(c)
 
+
 def test_sample():
     a=torch.tensor([0.1,0.1,0.3,0.1,0.4])
     b=torch.tensor([1.,2.,3.,4.,5.])
@@ -150,6 +178,7 @@ def test_sample():
     c=Pytorch_measure(b,a)
 
     print(c.sample(10))
+
 
 if __name__ == "__main__":
     main()

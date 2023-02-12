@@ -10,7 +10,7 @@ opt = optim.Adam([p], lr=LR)
 
 for epoch in range(50):
     opt.zero_grad()
-    loss = p*(1-p)
+    loss = -p*(1-p)
     loss.backward()
     opt.step()
 
