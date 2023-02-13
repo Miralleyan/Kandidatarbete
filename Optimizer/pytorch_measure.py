@@ -80,16 +80,6 @@ class Pytorch_measure:
         :returns: mass left to add to measure after adding at specified location
         Responsibility: Johan, Samuel (Inte färdig)
         """
-        # Johan's implementation
-        # dic={self.weights[i].item() :i for i in range(len(self.weights))}
-        # i=dic[min(dic)]
-        # if (self.weights[i]).item()+epsilon > 1:
-        #     epsilon-=(1-self.weights[i].item())
-        #     self.weights[i]+=(1-self.weights[i].item())
-        #     return epsilon
-        # else:
-        #     self.weights[i]+epsilon
-        #     return 0,dic
         with torch.no_grad():
             if self.weights[location_index].item() + mass > 1:
                 mass_distributed = 1 - self.weights[location_index].item()
