@@ -36,16 +36,16 @@ class Pytorch_measure:
 
     def total_variation(self) -> float:
         """
+        Responsibility: Samuel
         Returns the sum of the absolute value of all weights in the measure: \sum_{i=1}^n |w_i|
         :returns: float
-        Responsibility: Samuel
         """
         return sum(abs(self.weights)).item()
 
-    # Return support of measure
     def support(self):
         """
         Responsibility: Johan
+        Returns all locations where the weights are non-zero
         """
         return self.locations[self.weights != 0] # locations where weight is non-zero
         # add `.detach()` if dependency on self.locations and self.weights should be ignored when computing gradients
@@ -53,10 +53,10 @@ class Pytorch_measure:
 
         # return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item()!=0])
 
-    # Return support of measure with positive mass
     def positive_part(self):
         """
         Responsibility: Samuel
+        Returns all locations where the weights are positive
         """
         return self.locations[self.weight > 0]
         # again `.detach()` if we don't want dependence on locations and weight when computing gradient on things depending
@@ -64,10 +64,10 @@ class Pytorch_measure:
 
         # return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item() > 0])
 
-    # Return support of measure with negative mass
     def negative_part(self):
         """
         Responsibility: Johan
+        Returns all locations where the weights are negative
         """
         return self.locations[self.weight < 0]
         # return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item()<0])
@@ -78,7 +78,7 @@ class Pytorch_measure:
         has mass less at most 1 and returns how much mass is left to distribute.
         :param: mass to put, index of location to put at
         :returns: mass left to add to measure after adding at specified location
-        Responsibility: Johan, Samuel (Inte färdig)
+        Responsibility: Johan, Samuel
         """
         with torch.no_grad():
             if self.weights[location_index].item() + mass > 1:
@@ -109,6 +109,9 @@ class Pytorch_measure:
     def sample(self, size):
         """
         Responsibility: Samuel
+        Returns a sample of numbers from the distribution given by the measure
+        :param: size of wanted sample
+        :returns: sample of random numbers based on measure
         """
         sampling, indices = torch.sort(torch.rand(size))
         print(sampling)
