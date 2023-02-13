@@ -58,7 +58,7 @@ class Pytorch_measure:
         """
         Responsibility: Samuel
         """
-        return self.locations[self.weight > 0]
+        return self.locations[self.weights > 0]
         # again `.detach()` if we don't want dependence on locations and weight when computing gradient on things depending
         # on `positive_part()`
 
@@ -69,8 +69,8 @@ class Pytorch_measure:
         """
         Responsibility: Johan
         """
-        return self.locations[self.weight < 0]
-        # return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item()<0])
+        return self.locations[self.weights < 0]
+        #return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item()<0])
 
     def put_mass(self, mass, location_index) -> float:
         """
@@ -161,13 +161,14 @@ class Pytorch_measure:
             i -= 1
 
 def main():
-    a=torch.tensor([0.1,0.1,0.3,0.1,0.4])
+    a=torch.tensor([-0.1,0.1,0.3,0.1,0.4])
     b=torch.tensor([1.,2.,3.,4.,5.])
 
     c=Pytorch_measure(b,a)
-
-    print(c.put_mass(0.2, 1))
-    print(c)
+    #print(c.negative_part())
+    #print(c.put_mass(0.9, 1))
+    #print(c)
+    test_sample()
 
 
 def test_sample():
