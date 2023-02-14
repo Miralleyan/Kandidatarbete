@@ -120,7 +120,7 @@ class Pytorch_measure:
     def step(self, loss_fn, lr):
         """
         Responsibility: Hampus
-        Stepest decent with fixed total mas using provided loss function and learning rate
+        Steepest decent with fixed total mass using provided loss function and learning rate
 
         :param loss_fn: reference to loss function using model weights as input, ex. loss_fn(weights)
         :param lr: learning rate
