@@ -1,7 +1,7 @@
 import torch
 
 
-class Pytorch_measure:
+class PytorchMeasure:
     def __init__(self, locations: torch.Tensor, weights: torch.Tensor):
         """
         Group 1: 
@@ -178,7 +178,7 @@ def test_sample():
     a=torch.tensor([0.1,0.1,0.3,0.1,0.4])
     b=torch.tensor([1.,2.,3.,4.,5.])
 
-    c=Pytorch_measure(b,a)
+    c=PytorchMeasure(b,a)
 
     print(c.sample(10))
 
