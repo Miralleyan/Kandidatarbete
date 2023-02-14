@@ -164,7 +164,7 @@ class PytorchMeasure:
         Responsibility: Karl
         Visualization of the weights
         """
-        plt.bar(self.locations.tolist(), self.weights.tolist())
+        plt.bar(self.locations.tolist(), self.weights.tolist(), width = 0.1)
         plt.show()
 
 def main():
