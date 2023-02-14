@@ -113,20 +113,9 @@ class PytorchMeasure:
         :param: size of wanted sample
         :returns: sample of random numbers based on measure
         """
-        sampling, indices = torch.sort(torch.rand(size))
-        print(sampling)
-        cur_sample = []
-        i = 0
-        past_weights = 0
-        for j in range(len(self.weights)):
-            count = 0
-            while i < len(sampling) and sampling[i] < self.weights[j].item() + past_weights:
-                i += 1
-                count += 1
-            for k in range(count):
-                cur_sample.append(self.locations[j].item())
-            past_weights += self.weights[j].item()
-        return torch.tensor(cur_sample)
+        sampling = torch.multinomial(self.weights, size, replacement = True)
+        sample = torch.tensor([self.locations[element.item()] for element in sampling])
+        return sample
 
     def step(self, loss_fn, lr):
         """
@@ -180,7 +169,7 @@ def test_sample():
 
     c=PytorchMeasure(b,a)
 
-    print(c.sample(10))
+    print(c.sample(2000))
 
 
 if __name__ == "__main__":
