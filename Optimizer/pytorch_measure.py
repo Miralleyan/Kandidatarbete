@@ -156,7 +156,7 @@ class PytorchMeasure:
             i -= 1
 
         # Ensure sum = 1
-        self.weights = torch.softmax(self.weights, dim=0)
+        self.weights = self.weights / torch.sum(self.weights)
 
 
     def visualize(self):
