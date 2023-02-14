@@ -156,7 +156,7 @@ def main():
     a=torch.tensor([-0.1,0.1,0.3,0.1,0.4])
     b=torch.tensor([1.,2.,3.,4.,5.])
 
-    c=Pytorch_measure(b,a)
+    c=PytorchMeasure(b,a)
     #print(c.negative_part())
     #print(c.put_mass(0.9, 1))
     #print(c)
