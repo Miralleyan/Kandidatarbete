@@ -18,7 +18,7 @@ def loss_fn(w):
     m=mu
     s=sigma
     #return -sum(-1/(2*s**2)*((y_d-torch.mul(x_d,w))**2))
-    return sum((y-w)**2)
+    return sum((y-w)**2)/len(w)
 
 
 
@@ -29,7 +29,10 @@ def test_step():
     for epoch in range(2000):
         measure.step(loss_fn, 0.001)
         #print(measure)
-    plt.scatter(x,y)
+    plt.scatter(x,y,zorder=2)
     measure.visualize()
+    print(measure.total_mass())
+    d=measure.sample(1)
+    print(d)
 
 test_step()
