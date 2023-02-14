@@ -3,13 +3,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 class PytorchMeasure:
-    def __init__(self, locations: torch.Tensor, weights: torch.Tensor):
+    def __init__(self, interval: torch.Tensor, weights: torch.Tensor):
         """
         Group 1: 
         Group 2: 
         """
-        self.locations = torch.nn.parameter.Parameter(locations)#Input must be tensors
+        self.interval = torch.nn.parameter.Parameter(interval)#Input must be tensors
         self.weights = torch.nn.parameter.Parameter(weights)
+        self.mesh = (self.interval[1].item()-self.interval[0].item())/len(self.weights)
     
     def __str__(self) -> str:
         """
@@ -17,7 +18,7 @@ class PytorchMeasure:
         :returns: str
         Responsibilty: Filip
         """
-        return "Locations: " + self.locations.tolist().__str__() + "\nWeights: " + self.weights.tolist().__str__()
+        return "Locations: " + self.interval.tolist().__str__() + "\nWeights: " + self.weights.tolist().__str__()
 
     def __repr__(self) -> str:
         """
@@ -48,7 +49,7 @@ class PytorchMeasure:
         Responsibility: Johan
         Returns all locations where the weights are non-zero
         """
-        return self.locations[self.weights != 0]  # locations where weight is non-zero
+        return torch.tensor(range(self.interval[0].item(), self.interval[1].item()), self.mesh)[self.weights != 0]  # locations where weight is non-zero
         # add `.detach()` if dependency on self.locations and self.weights should be ignored when computing gradients
         # built-in torch functions are probably faster than python list comprehensions.
 
@@ -59,7 +60,7 @@ class PytorchMeasure:
         Responsibility: Samuel
         Returns all locations where the weights are positive
         """
-        return self.locations[self.weights > 0]
+        return torch.tensor(range(self.interval[0].item(), self.interval[1].item()), self.mesh)[self.weights > 0]
         # again `.detach()` if we don't want dependence on locations and weight when computing gradient on things depending
         # on `positive_part()`
 
@@ -70,7 +71,7 @@ class PytorchMeasure:
         Responsibility: Johan
         Returns all locations where the weights are negative
         """
-        return self.locations[self.weights < 0]
+        return torch.tensor(range(self.interval[0].item(), self.interval[1].item()), self.mesh)[self.weights < 0]
         #return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item()<0])
 
     def put_mass(self, mass, location_index) -> float:
@@ -107,8 +108,6 @@ class PytorchMeasure:
                 mass_removed = mass
         return mass_removed
 
-
-
     def sample(self, size):
         """
         Responsibility: Samuel
@@ -117,7 +116,7 @@ class PytorchMeasure:
         :returns: sample of random numbers based on measure
         """
         sampling = torch.multinomial(self.weights, size, replacement = True)
-        sample = torch.tensor([self.locations[element.item()] for element in sampling])
+        sample = torch.tensor([element.item()*self.mesh for element in sampling])
         return sample
 
     def step(self, loss_fn, lr):
@@ -164,7 +163,7 @@ class PytorchMeasure:
         Responsibility: Karl
         Visualization of the weights
         """
-        plt.bar(self.locations.tolist(), self.weights.tolist(), width = 0.1)
+        plt.bar(range(self.interval[0], self.interval[1], self.mesh), self.weights.tolist(), width = 0.1)
         plt.show()
 
 def main():
