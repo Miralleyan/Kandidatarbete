@@ -165,7 +165,7 @@ class PytorchMeasure:
         Visualization of the weights
         """
         plt.bar(self.locations.tolist(), self.weights.tolist(), width = 0.1)
-        plt.show()
+        plt.draw()
 
 def main():
     a = torch.tensor([-0.1, 0.1, 0.3, 0.1, 0.4])
