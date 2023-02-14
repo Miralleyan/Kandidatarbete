@@ -30,9 +30,10 @@ def test_step():
         measure.step(loss_fn, 0.001)
         #print(measure)
     plt.scatter(x,y,zorder=2)
-    measure.visualize()
     print(measure.total_mass())
     d=measure.sample(1)
     print(d)
+    measure.visualize()
+
 
 test_step()
