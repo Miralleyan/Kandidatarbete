@@ -1,5 +1,6 @@
 import torch
-
+import matplotlib.pyplot as plt
+import numpy as np
 
 class PytorchMeasure:
     def __init__(self, locations: torch.Tensor, weights: torch.Tensor):
@@ -106,6 +107,8 @@ class PytorchMeasure:
                 mass_removed = mass
         return mass_removed
 
+
+
     def sample(self, size):
         """
         Responsibility: Samuel
@@ -152,11 +155,19 @@ class PytorchMeasure:
             mass_neg -= self.take_mass(mass_neg, index)
             i -= 1
 
-def main():
-    a=torch.tensor([-0.1,0.1,0.3,0.1,0.4])
-    b=torch.tensor([1.,2.,3.,4.,5.])
+    def vizualize(self):
+        """
+        Responsibility: Karl
+        Visualization of the weights
+        """
+        plt.bar(self.locations.tolist(), self.weights.tolist())
+        plt.show()
 
-    c=PytorchMeasure(b,a)
+def main():
+    a = torch.tensor([-0.1, 0.1, 0.3, 0.1, 0.4])
+    b = torch.tensor([1., 2., 3., 4., 5.])
+
+    c = PytorchMeasure(b, a)
     #print(c.negative_part())
     #print(c.put_mass(0.9, 1))
     #print(c)
@@ -164,10 +175,11 @@ def main():
 
 
 def test_sample():
-    a=torch.tensor([0.1,0.1,0.3,0.1,0.4])
-    b=torch.tensor([1.,2.,3.,4.,5.])
+    a=torch.tensor([0.1, 0.1, 0.3, 0.1, 0.4])
+    b=torch.tensor([1., 2., 3., 4., 5.])
 
-    c=PytorchMeasure(b,a)
+    c=PytorchMeasure(b, a)
+    c.vizualize()
 
     print(c.sample(2000))
 
