@@ -155,6 +155,9 @@ class PytorchMeasure:
             mass_neg -= self.take_mass(mass_neg, index)
             i -= 1
 
+        # Ensure sum = 1
+        torch.softmax(self.weights, dim=0)
+
     def visualize(self):
         """
         Responsibility: Karl
@@ -162,9 +165,6 @@ class PytorchMeasure:
         """
         plt.bar(self.locations.tolist(), self.weights.tolist())
         plt.show()
-
-        # Ensure sum = 1
-        torch.softmax(self.weights, dim=0)
 
 def main():
     a = torch.tensor([-0.1, 0.1, 0.3, 0.1, 0.4])
