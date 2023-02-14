@@ -155,7 +155,7 @@ class PytorchMeasure:
             mass_neg -= self.take_mass(mass_neg, index)
             i -= 1
 
-    def vizualize(self):
+    def visualize(self):
         """
         Responsibility: Karl
         Visualization of the weights
