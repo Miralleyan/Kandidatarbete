@@ -48,7 +48,7 @@ class PytorchMeasure:
         Responsibility: Johan
         Returns all locations where the weights are non-zero
         """
-        return self.locations[self.weights != 0] # locations where weight is non-zero
+        return self.locations[self.weights != 0]  # locations where weight is non-zero
         # add `.detach()` if dependency on self.locations and self.weights should be ignored when computing gradients
         # built-in torch functions are probably faster than python list comprehensions.
 
@@ -162,6 +162,9 @@ class PytorchMeasure:
         """
         plt.bar(self.locations.tolist(), self.weights.tolist())
         plt.show()
+
+        # Ensure sum = 1
+        torch.softmax(self.weights, dim=0)
 
 def main():
     a = torch.tensor([-0.1, 0.1, 0.3, 0.1, 0.4])
