@@ -6,11 +6,9 @@ mu=0
 sigma=1
 N=200
 x=torch.linspace(-10,10,N)
-#print(x)
+y=1/(np.sqrt(2*np.pi)*sigma)*torch.exp(-(x-mu)**2/(2*sigma**2))#"Observed" data
+y/=sum(y) #Normalize
 
-y=1/(np.sqrt(2*np.pi)*sigma)*torch.exp(-(x-mu)**2/(2*sigma**2))
-y/=sum(y)
-#print(y)
 
 def loss_fn(w):
     x_d=torch.nn.parameter.Parameter(x)
