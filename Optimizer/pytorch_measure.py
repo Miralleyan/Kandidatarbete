@@ -2,6 +2,7 @@ import torch
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 class PytorchMeasure:
     def __init__(self, locations: torch.Tensor, weights: torch.Tensor):
         """
@@ -10,6 +11,9 @@ class PytorchMeasure:
         """
         self.locations = torch.nn.parameter.Parameter(locations)#Input must be tensors
         self.weights = torch.nn.parameter.Parameter(weights)
+        self.loss = float('inf')
+        self.learning_rate = None
+        self.count = 0
     
     def __str__(self) -> str:
         """
@@ -128,6 +132,12 @@ class PytorchMeasure:
         :param loss_fn: reference to loss function using model weights as input, ex. loss_fn(weights)
         :param lr: learning rate
         """
+        # set global lr if not already set (lite temp för att testa minskande lr)
+        if not self.learning_rate:
+            self.learning_rate = lr
+        else:
+            lr = self.learning_rate
+
         # if lr is too high, adjust to the highest possible value
         if lr/2 >= len(self.weights) - 1:
             lr = 2 * len(self.weights) - 2.01
@@ -136,8 +146,18 @@ class PytorchMeasure:
         self.weights.grad = torch.zeros(len(self.weights))
 
         # Compute gradient
-        loss_fn(self.weights).backward()
+        new_loss = loss_fn(self.weights)
+        new_loss.backward()
         grad_abs = torch.argsort(self.weights.grad)
+        new_loss = new_loss.item()
+
+        # Reduce lr if no change in loss
+        if new_loss >= self.loss:
+            self.count += 1
+        self.loss = new_loss
+        if self.count > 99:
+            self.count = 0
+            self.learning_rate *= 0.7
 
         # Distribute positive mass
         mass_pos = lr/2
@@ -165,7 +185,7 @@ class PytorchMeasure:
         Visualization of the weights
         """
         plt.bar(self.locations.tolist(), self.weights.tolist(), width = 0.1)
-        plt.draw()
+        plt.show()
 
 def main():
     a = torch.tensor([-0.1, 0.1, 0.3, 0.1, 0.4])
