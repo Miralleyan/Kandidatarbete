@@ -4,12 +4,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 N=200
-x=torch.randn(N)
+data=torch.randn(N)
 
 
 mu=0
 sigma=1
-xt=torch.linspace(-10,10,N)
+xt=torch.linspace(-10*sigma+mu,10*sigma+mu,N)
 yt=1/(np.sqrt(2*np.pi)*sigma)*torch.exp(-(xt-mu)**2/(2*sigma**2))
 yt/=sum(yt) #Normalize
 
@@ -21,7 +21,7 @@ measure = pm.PytorchMeasure(l, w)
 
 def loss_fn(w):
     return sum((yt-w)**2)/len(w)
-    #return -sum([torch.log(w[torch.nonzero(l==x_d[i]).item()]) for i in range(len(x_d))])
+    #return -sum([torch.log(w[torch.nonzero(l==data[i].item()).item()]) for i in range(len(data))])
 
 
 
