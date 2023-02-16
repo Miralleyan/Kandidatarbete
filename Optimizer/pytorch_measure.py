@@ -3,9 +3,11 @@ import matplotlib.pyplot as plt
 
 
 class Measure:
-    def __init__(self, locations: torch.tensor, weights: torch.tensor):
+    def __init__(self, locations: torch.tensor, weights: torch.tensor, device='cpu'):
         self.locations = torch.nn.parameter.Parameter(locations)
         self.weights = torch.nn.parameter.Parameter(weights)
+        self.device = device
+        self.grad_diff = 0.0
 
     def __str__(self) -> str:
         """
@@ -14,7 +16,7 @@ class Measure:
         """
         out = "\033[4mLocations:\033[0m     \033[4mWeights:\033[0m \n"
         for i in range(len(self.weights)):
-            out += f'{self.locations[i].item(): < 10}     {self.weights[i].item(): < 10}\n'
+            out += f'{self.locations[i].item(): < 10.9f}     {self.weights[i].item(): < 10.9f}\n'
         return out
 
     def __repr__(self) -> str:
@@ -52,12 +54,11 @@ class Measure:
     def support(self, tol_supp = 1e-12):
         """
         :param tol_supp: Tolerance for what is considered zero
-        :returns: all locations where the weights are non-zero
+        :returns: all index where the weights are non-zero
         """
         tol = self.total_variation()*tol_supp
-        return self.locations[self.weights > tol]  # locations where weight is non-zero
-        # add `.detach()` if dependency on self.locations and self.weights should be ignored when computing gradients
-        # built-in torch functions are probably faster than python list comprehensions.
+        return (self.weights - tol).clamp(0,).nonzero()  # index where weight is non-zero
+
 
     def positive_part(self):
         """
@@ -85,7 +86,17 @@ class Measure:
         return sample
 
     def zero_gradient(self):
-        self.weights.grad = torch.zeros(len(self.weights))
+        self.weights.grad = torch.zeros(len(self.weights), device=self.device)
+
+    def reduce_lr_criterion(self, tol_supp=1e-6, tol_const=1e-3):
+        """
+        Grad should be minimal and constant on the support of the measure.
+        Consider it to be a constant if it varies by less than tol_const.
+        """
+        new_grad_diff = self.weights.grad[self.support(tol_supp)].max() - self.weights.grad.min()
+        out = abs(self.grad_diff - new_grad_diff) < tol_const
+        self.grad_diff = new_grad_diff
+        return out
 
     def visualize(self):
         """
@@ -136,17 +147,6 @@ class Optimizer:
 
         :param lr: learning rate
         """
-        ''' Gör externt ist
-        # set global lr if not already set (lite temp för att testa minskande lr)
-        if not self.learning_rate:
-            self.learning_rate = lr
-        else:
-            lr = self.learning_rate
-
-        # if lr is too high, adjust to the highest possible value
-        if lr/2 >= len(self.weights) - 1:
-            lr = 2 * len(self.weights) - 2.01
-        '''
 
         # Sort gradient
         grad_sorted = torch.argsort(self.measure.weights.grad)
