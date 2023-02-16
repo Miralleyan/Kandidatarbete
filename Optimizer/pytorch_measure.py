@@ -68,7 +68,6 @@ class Measure:
         """
         return Measure(self.locations, torch.min(self.weights, torch.zeros(self.weights.size)))
 
-
     def sample(self, size):
         """
         Responsibility: Samuel
@@ -85,8 +84,6 @@ class Measure:
 
     def zero_gradient(self):
         self.weights.grad = torch.zeros(len(self.weights))
-
-
 
     def visualize(self):
         """
