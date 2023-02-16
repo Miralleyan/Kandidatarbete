@@ -25,6 +25,10 @@ class Measure:
         return self.__str__()
 
     def is_probability(self, tol=1e-6):
+        """
+        Returns if the measure is a probability measure.
+        :param tol: Tolerance for summing to 1
+        """
         if torch.any(self.weights < 0):
             return False
         if torch.abs(self.weights.sum() - 1) > tol:
@@ -47,7 +51,8 @@ class Measure:
 
     def support(self, tol_supp = 1e-12):
         """
-        Returns all locations where the weights are non-zero
+        :param tol_supp: Tolerance for what is considered zero
+        :returns: all locations where the weights are non-zero
         """
         tol = self.total_variation()*tol_supp
         return self.locations[self.weights > tol]  # locations where weight is non-zero
@@ -64,12 +69,12 @@ class Measure:
         """
         Returns the negative part of the Lebesgue decomposition of the measure
         """
-        return Measure(self.locations, torch.min(self.weights, torch.zeros(len(self.weights))))
+        return Measure(self.locations, -torch.min(self.weights, torch.zeros(len(self.weights))))
 
     def sample(self, size):
         """
         Returns a sample of numbers from the distribution given by the measure
-        :param: size of wanted sample
+        :param size: Number of elements to sample
         :returns: sample of random numbers based on measure
         """
         if torch.any(self.weights < 0):
@@ -100,7 +105,8 @@ class Optimizer:
         """
         In current form, this method puts mass at a specified location, s.t. the location still
         has mass less at most 1 and returns how much mass is left to distribute.
-        :param: mass to put, index of location to put at
+        :param mass: Mass left to take
+        :param location_index: Index of location to take mass from
         :returns: mass left to add to measure after adding at specified location
         """
         with torch.no_grad():
@@ -111,7 +117,8 @@ class Optimizer:
         """
         In current form, this method takes mass from a specified location, s.t. the location still
         has non-negative mass and returns how much mass is left to take.
-        :param: mass left to take, index of location to take at
+        :param mass: Mass left to take
+        :param location_index: Index of location to take mass from
         :returns: mass left to remove from measure after removing from specified location
         """
         with torch.no_grad():
