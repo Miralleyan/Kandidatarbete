@@ -160,11 +160,9 @@ class Optimizer:
 
         # Distribute positive mass
         mass_pos = lr
-        i = 0
-        while mass_pos != 0:
-            index = grad_sorted[i].item()
-            mass_pos -= self.put_mass(mass_pos, index)
-            i += 1
+        index = grad_sorted[0].item()
+        self.put_mass(mass_pos, index)
+           
 
         # Distribute negative mass
         mass_neg = lr
