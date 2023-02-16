@@ -76,6 +76,9 @@ class Measure:
         :param: size of wanted sample
         :returns: sample of random numbers based on measure
         """
+        if torch.any(self.weights < 0):
+            assert ValueError("You can't have negative weighs in a probability measure!")
+
         sampling = torch.multinomial(self.weights, size, replacement = True)
         sample = torch.tensor([self.locations[element.item()] for element in sampling])
         return sample
@@ -109,13 +112,8 @@ class Optimizer:
         Responsibility: Johan, Samuel
         """
         with torch.no_grad():
-            if self.weights[location_index].item() + mass > 1:
-                mass_distributed = 1 - self.weights[location_index].item()
-                self.weights[location_index] = 1
-            else:
-                self.weights[location_index] += mass
-                mass_distributed = mass
-        return mass_distributed
+            self.weights[location_index] += mass
+
 
     def take_mass(self, mass, location_index) -> float:
         """

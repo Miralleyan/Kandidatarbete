@@ -16,7 +16,9 @@ yt/=sum(yt) #Normalize
 
 w = torch.tensor([1/N]*N)#Weights
 l = xt#Locations
-measure = pm.PytorchMeasure(l, w)
+measure = pm.Measure(l, w)
+
+pm.Optimizer(measure)
 
 
 def loss_fn(w):
