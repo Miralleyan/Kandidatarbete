@@ -110,13 +110,8 @@ class Optimizer:
         Responsibility: Johan, Samuel
         """
         with torch.no_grad():
-            if self.weights[location_index].item() + mass > 1:
-                mass_distributed = 1 - self.weights[location_index].item()
-                self.weights[location_index] = 1
-            else:
-                self.weights[location_index] += mass
-                mass_distributed = mass
-        return mass_distributed
+            self.weights[location_index] += mass
+
 
     def take_mass(self, mass, location_index) -> float:
         """
