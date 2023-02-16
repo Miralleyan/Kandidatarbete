@@ -26,7 +26,7 @@ class Measure:
         return self.__str__()
 
     def is_probability(self, tol=1e-6):
-        if torch.any(self.weights < -tol):
+        if torch.any(self.weights < 0):
             return False
         if torch.abs(self.weights.sum() - 1) > tol:
             return False
@@ -74,7 +74,7 @@ class Measure:
         :returns: sample of random numbers based on measure
         """
         if torch.any(self.weights < 0):
-            assert ValueError("You can't have negative weighs in a probability measure!")
+            assert ValueError("You can't have negative weights in a probability measure!")
 
         sampling = torch.multinomial(self.weights, size, replacement = True)
         sample = torch.tensor([self.locations[element.item()] for element in sampling])
@@ -105,13 +105,8 @@ class Optimizer:
         :returns: mass left to add to measure after adding at specified location
         """
         with torch.no_grad():
-            if self.measure.weights[location_index].item() + mass > 1:
-                mass_distributed = 1 - self.measure.weights[location_index].item()
-                self.measure.weights[location_index] = 1
-            else:
-                self.measure.weights[location_index] += mass
-                mass_distributed = mass
-        return mass_distributed
+            self.measure.weights[location_index] += mass
+
 
     def take_mass(self, mass, location_index) -> float:
         """
@@ -152,11 +147,9 @@ class Optimizer:
 
         # Distribute positive mass
         mass_pos = lr
-        i = 0
-        while mass_pos != 0:
-            index = grad_sorted[i].item()
-            mass_pos -= self.put_mass(mass_pos, index)
-            i += 1
+        index = grad_sorted[0].item()
+        self.put_mass(mass_pos, index)
+           
 
         # Distribute negative mass
         mass_neg = lr
