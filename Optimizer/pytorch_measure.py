@@ -141,18 +141,6 @@ class Optimizer:
         return mass_removed
 
 
-
-    def sample(self, size):
-        """
-        Responsibility: Samuel
-        Returns a sample of numbers from the distribution given by the measure
-        :param: size of wanted sample
-        :returns: sample of random numbers based on measure
-        """
-        sampling = torch.multinomial(self.weights, size, replacement = True)
-        sample = torch.tensor([self.locations[element.item()] for element in sampling])
-        return sample
-
     def step(self, loss_fn, lr):
         """
         Responsibility: Hampus
