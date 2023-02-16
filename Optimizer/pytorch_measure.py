@@ -12,9 +12,13 @@ class Measure:
         """
         Returns the locations and weights of the measure as a string.
         :returns: str
-        Responsibilty: Filip
+        Responsibilty: Filip, Karl
         """
-        return "Locations: " + self.locations.tolist().__str__() + "\nWeights: " + self.weights.tolist().__str__()
+
+        out = "\033[4mLocations:\033[0m     \033[4mWeights:\033[0m \n"
+        for i in range(len(self.weights)):
+            out += f'{self.locations[i].item(): < 10}     {self.weights[i].item(): < 10}\n'
+        return out
 
     def __repr__(self) -> str:
         """
@@ -194,7 +198,7 @@ def main():
     c = Measure(b, a)
     #print(c.negative_part())
     #print(c.put_mass(0.9, 1))
-    #print(c)
+    print(c)
     test_sample()
 
 
