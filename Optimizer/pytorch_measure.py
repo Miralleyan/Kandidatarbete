@@ -58,21 +58,16 @@ class Measure:
     def positive_part(self):
         """
         Responsibility: Samuel
-        Returns all locations where the weights are positive
+        Returns the positive part of the Lebesgue decomposition of the measure
         """
-        return self.locations[self.weights > 0]
-        # again `.detach()` if we don't want dependence on locations and weight when computing gradient on things depending
-        # on `positive_part()`
-
-        # return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item() > 0])
+        return Measure(self.locations, torch.max(self.weights, torch.zeros(self.weights.size)))
 
     def negative_part(self):
         """
         Responsibility: Johan
-        Returns all locations where the weights are negative
+        Returns the negative part of the Lebesgue decomposition of the measure
         """
-        return self.locations[self.weights < 0]
-        #return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item()<0])
+        return Measure(self.locations, torch.min(self.weights, torch.zeros(self.weights.size)))
 
 
     def sample(self, size):
@@ -88,6 +83,8 @@ class Measure:
 
     def zero_gradient(self):
         self.weights.grad = torch.zeros(len(self.weights))
+
+
 
     def visualize(self):
         """
@@ -191,8 +188,9 @@ def test_sample():
     a=torch.tensor([0.1, 0.1, 0.3, 0.1, 0.4])
     b=torch.tensor([1., 2., 3., 4., 5.])
 
-    c=Measure(b, a)
-    c.visualize()
+    d=Measure(b, a)
+
+    d.visualize()
 
     print(c.sample(2000))
 
