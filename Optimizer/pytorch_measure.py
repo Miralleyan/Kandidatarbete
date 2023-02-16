@@ -1,5 +1,6 @@
 import torch
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 class Measure:
@@ -134,7 +135,20 @@ class Optimizer:
                 mass_removed = mass
         return mass_removed
 
-    def step(self, lr=0.0001):
+
+
+    def sample(self, size):
+        """
+        Responsibility: Samuel
+        Returns a sample of numbers from the distribution given by the measure
+        :param: size of wanted sample
+        :returns: sample of random numbers based on measure
+        """
+        sampling = torch.multinomial(self.weights, size, replacement = True)
+        sample = torch.tensor([self.locations[element.item()] for element in sampling])
+        return sample
+
+    def step(self, loss_fn, lr):
         """
         Responsibility: Hampus
         Steepest decent with fixed total mass
@@ -176,7 +190,7 @@ def main():
     a = torch.tensor([-0.1, 0.1, 0.3, 0.1, 0.4])
     b = torch.tensor([1., 2., 3., 4., 5.])
 
-    c = PytorchMeasure(b, a)
+    c = Measure(b, a)
     #print(c.negative_part())
     #print(c.put_mass(0.9, 1))
     #print(c)
@@ -187,7 +201,7 @@ def test_sample():
     a=torch.tensor([0.1, 0.1, 0.3, 0.1, 0.4])
     b=torch.tensor([1., 2., 3., 4., 5.])
 
-    c=PytorchMeasure(b, a)
+    c=Measure(b, a)
     c.visualize()
 
     print(c.sample(2000))
