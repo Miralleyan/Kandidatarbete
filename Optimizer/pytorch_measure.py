@@ -44,12 +44,13 @@ class Measure:
         """
         return sum(abs(self.weights)).item()
 
-    def support(self):
+    def support(self, tol_supp = 1e-12):
         """
         Responsibility: Johan
         Returns all locations where the weights are non-zero
         """
-        return self.locations[self.weights != 0]  # locations where weight is non-zero
+        tol = total_variation*tol_supp
+        return self.locations[self.weights > tol]  # locations where weight is non-zero
         # add `.detach()` if dependency on self.locations and self.weights should be ignored when computing gradients
         # built-in torch functions are probably faster than python list comprehensions.
 
