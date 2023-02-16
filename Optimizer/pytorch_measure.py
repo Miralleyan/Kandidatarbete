@@ -120,9 +120,14 @@ class PytorchMeasure:
         :param: size of wanted sample
         :returns: sample of random numbers based on measure
         """
-        sampling = torch.multinomial(self.weights, size, replacement = True)
-        sample = torch.tensor([self.locations[element.item()] for element in sampling])
-        return sample
+        if self.total_mass() != 1:
+            raise Exception(f'Measure needs to have total mass 1 to sample. The total mass was: {self.total_mass()}')
+        elif self.total_mass() != self.total_variation():
+            raise Exception(f'Measure needs to have strictly nonnegative weights to sample')
+        else: 
+            sampling = torch.multinomial(self.weights, size, replacement = True)
+            sample = torch.tensor([self.locations[element.item()] for element in sampling])
+            return sample
 
     def step(self, loss_fn, lr):
         """
