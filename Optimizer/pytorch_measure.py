@@ -49,7 +49,7 @@ class Measure:
         Responsibility: Johan
         Returns all locations where the weights are non-zero
         """
-        tol = total_variation*tol_supp
+        tol = self.total_variation*tol_supp
         return self.locations[self.weights > tol]  # locations where weight is non-zero
         # add `.detach()` if dependency on self.locations and self.weights should be ignored when computing gradients
         # built-in torch functions are probably faster than python list comprehensions.
@@ -191,7 +191,7 @@ def test_sample():
 
     d.visualize()
 
-    print(c.sample(2000))
+    print(d.sample(2000))
 
 
 if __name__ == "__main__":
