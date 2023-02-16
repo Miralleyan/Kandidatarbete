@@ -28,6 +28,13 @@ class Measure:
         """
         return self.__str__()
 
+    def is_probability(self):
+        if torch.any(self.weights < 0):
+            return False
+        if torch.abs(self.weights.sum() - 1) >  1e-6:
+            return False
+        return True
+
     def total_mass(self) -> float:
         """
         Returns the sum of all weights in the measure: \sum_{i=1}^n w_i
@@ -49,7 +56,7 @@ class Measure:
         Responsibility: Johan
         Returns all locations where the weights are non-zero
         """
-        tol = self.total_variation*tol_supp
+        tol = self.total_variation()*tol_supp
         return self.locations[self.weights > tol]  # locations where weight is non-zero
         # add `.detach()` if dependency on self.locations and self.weights should be ignored when computing gradients
         # built-in torch functions are probably faster than python list comprehensions.
@@ -59,14 +66,14 @@ class Measure:
         Responsibility: Samuel
         Returns the positive part of the Lebesgue decomposition of the measure
         """
-        return Measure(self.locations, torch.max(self.weights, torch.zeros(self.weights.size)))
+        return Measure(self.locations, torch.max(self.weights, torch.zeros(len(self.weights))))
 
     def negative_part(self):
         """
         Responsibility: Johan
         Returns the negative part of the Lebesgue decomposition of the measure
         """
-        return Measure(self.locations, torch.min(self.weights, torch.zeros(self.weights.size)))
+        return Measure(self.locations, torch.min(self.weights, torch.zeros(len(self.weights))))
 
     def sample(self, size):
         """
