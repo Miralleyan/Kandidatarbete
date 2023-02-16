@@ -60,19 +60,14 @@ class Measure:
         Responsibility: Samuel
         Returns all locations where the weights are positive
         """
-        return self.locations[self.weights > 0]
-        # again `.detach()` if we don't want dependence on locations and weight when computing gradient on things depending
-        # on `positive_part()`
-
-        # return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item() > 0])
+        return Measure(self.locations, torch.max(self.weights, torch.zeros(self.weights.size)))
 
     def negative_part(self):
         """
         Responsibility: Johan
         Returns all locations where the weights are negative
         """
-        return self.locations[self.weights < 0]
-        #return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item()<0])
+        return Measure(self.locations, torch.min(self.weights, torch.zeros(self.weights.size)))
 
 
     def sample(self, size):
