@@ -1,6 +1,5 @@
 import torch
 import matplotlib.pyplot as plt
-import numpy as np
 
 
 class Measure:
@@ -70,7 +69,7 @@ class Measure:
         """
         Returns the negative part of the Lebesgue decomposition of the measure
         """
-        return Measure(self.locations, torch.min(self.weights, torch.zeros(len(self.weights))))
+        return Measure(self.locations, -torch.min(self.weights, torch.zeros(len(self.weights))))
 
     def sample(self, size):
         """
