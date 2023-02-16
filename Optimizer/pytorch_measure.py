@@ -101,7 +101,7 @@ class Optimizer:
     def __init__(self, measure: Measure):
         self.measure = measure
 
-    def put_mass(self, mass, location_index) -> float:
+    def put_mass(self, mass, location_index):
         """
         In current form, this method puts mass at a specified location, s.t. the location still
         has mass less at most 1 and returns how much mass is left to distribute.
@@ -153,17 +153,15 @@ class Optimizer:
 
         # Distribute positive mass
         mass_pos = lr
-        index = grad_sorted[0].item()
-        self.put_mass(mass_pos, index)
+        self.put_mass(mass_pos, grad_sorted[0].item())
            
 
         # Distribute negative mass
         mass_neg = lr
-        i = -1
-        while mass_neg != 0:
-            index = grad_sorted[i].item()
-            mass_neg -= self.take_mass(mass_neg, index)
-            i -= 1
+        for i in torch.flip(grad_sorted, dims=[0]):
+            mass_neg -= self.take_mass(mass_neg, i.item())
+            if mass_neg <= 0:
+                break
 
 def main():
     a = torch.tensor([-0.1, 0.1, 0.3, 0.1, 0.4])
@@ -181,7 +179,8 @@ def test_sample():
     b=torch.tensor([1., 2., 3., 4., 5.])
 
     d=Measure(b, a)
-
+    print(d)
+    print(d.is_probability())
     d.visualize()
 
     print(d.sample(2000))
