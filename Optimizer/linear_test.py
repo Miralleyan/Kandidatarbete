@@ -3,8 +3,9 @@ import pytorch_measure as pm
 import numpy as np
 import matplotlib.pyplot as plt
 
-N=21
+N=100
 data=torch.randn(10000)
+#data=torch.from_numpy(np.random.beta(1,2,1000))
 
 
 w = torch.tensor([1/N]*N)#Weights
@@ -39,8 +40,8 @@ print(1-measure.total_mass())
 measure.visualize()
 
 
-plt.hist(measure.sample(10000),bins=20, density=True, range=[-4,4])
-plt.hist(torch.randn(10000),bins=20, density=True, range=[-4,4], alpha=0.5)
+plt.hist(measure.sample(10000),bins=50, density=True, range=[-4,4])
+plt.hist(torch.randn(10000),bins=50, density=True, range=[-4,4], alpha=0.5)
 plt.legend(['Model','True data'])
 plt.show()
 
