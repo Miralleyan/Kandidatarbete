@@ -206,8 +206,9 @@ def test_sample():
     a=torch.tensor([0.1, 0.1, 0.3, 0.1, 0.4])
     b=torch.tensor([1., 2., 3., 4., 5.])
 
-    c=Measure(b, a)
-    c.visualize()
+    d=Measure(b, a)
+    
+    d.visualize()
 
     print(c.sample(2000))
 
