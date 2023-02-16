@@ -1,6 +1,5 @@
 import torch
 import matplotlib.pyplot as plt
-import numpy as np
 
 
 class Measure:
@@ -29,6 +28,11 @@ class Measure:
         return self.__str__()
 
     def is_probability(self, tol=1e-6):
+        """
+        Returns True if measure is a probability measure
+        :param tol:
+        :return: bool
+        """
         if torch.any(self.weights < -tol):
             return False
         if torch.abs(self.weights.sum() - 1) > tol:
@@ -199,7 +203,6 @@ def test_sample():
     d.visualize()
 
     print(d.sample(2000))
-
 
 if __name__ == "__main__":
     main()
