@@ -28,10 +28,10 @@ class Measure:
         """
         return self.__str__()
 
-    def is_probability(self):
-        if torch.any(self.weights < 0):
+    def is_probability(self, tol=1e-6):
+        if torch.any(self.weights < -tol):
             return False
-        if torch.abs(self.weights.sum() - 1) >  1e-6:
+        if torch.abs(self.weights.sum() - 1) > tol:
             return False
         return True
 
