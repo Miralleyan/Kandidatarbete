@@ -1,20 +1,12 @@
 import torch
 import matplotlib.pyplot as plt
-import numpy as np
 
 
-class PytorchMeasure:
-    def __init__(self, locations: torch.Tensor, weights: torch.Tensor):
-        """
-        Group 1: 
-        Group 2: 
-        """
-        self.locations = torch.nn.parameter.Parameter(locations)#Input must be tensors
-        self.weights = torch.nn.parameter.Parameter(weights)
-        self.loss = float('inf')
-        self.learning_rate = None
-        self.count = 0
-    
+class Measure:
+    def __init__(self, locations: torch.nn.parameter, weights: torch.nn.parameter):
+        self.locations = locations
+        self.weights = weights
+
     def __str__(self) -> str:
         """
         Returns the locations and weights of the measure as a string.
@@ -77,6 +69,37 @@ class PytorchMeasure:
         return self.locations[self.weights < 0]
         #return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item()<0])
 
+
+    def sample(self, size):
+        """
+        Responsibility: Samuel
+        Returns a sample of numbers from the distribution given by the measure
+        :param: size of wanted sample
+        :returns: sample of random numbers based on measure
+        """
+        sampling = torch.multinomial(self.weights, size, replacement = True)
+        sample = torch.tensor([self.locations[element.item()] for element in sampling])
+        return sample
+
+    def zero_gradient(self):
+        self.weights.grad = torch.zeros(len(self.weights))
+
+
+    def visualize(self):
+        """
+        Responsibility: Karl
+        Visualization of the weights
+        """
+        plt.bar(self.locations.tolist(), self.weights.tolist(), width=0.1)
+        plt.axhline(y=0, c="grey", linewidth=0.5)
+        plt.show()
+
+
+class Optimizer:
+
+    def __init__(self, weights: torch.nn.parameter, ):
+        self.weights = weights
+
     def put_mass(self, mass, location_index) -> float:
         """
         In current form, this method puts mass at a specified location, s.t. the location still
@@ -111,27 +134,14 @@ class PytorchMeasure:
                 mass_removed = mass
         return mass_removed
 
-
-
-    def sample(self, size):
-        """
-        Responsibility: Samuel
-        Returns a sample of numbers from the distribution given by the measure
-        :param: size of wanted sample
-        :returns: sample of random numbers based on measure
-        """
-        sampling = torch.multinomial(self.weights, size, replacement = True)
-        sample = torch.tensor([self.locations[element.item()] for element in sampling])
-        return sample
-
-    def step(self, loss_fn, lr):
+    def step(self, lr=0.0001):
         """
         Responsibility: Hampus
-        Steepest decent with fixed total mass using provided loss function and learning rate
+        Steepest decent with fixed total mass
 
-        :param loss_fn: reference to loss function using model weights as input, ex. loss_fn(weights)
         :param lr: learning rate
         """
+        ''' Gör externt ist
         # set global lr if not already set (lite temp för att testa minskande lr)
         if not self.learning_rate:
             self.learning_rate = lr
@@ -141,52 +151,26 @@ class PytorchMeasure:
         # if lr is too high, adjust to the highest possible value
         if lr/2 >= len(self.weights) - 1:
             lr = 2 * len(self.weights) - 2.01
+        '''
 
-        # Zero gradient
-        self.weights.grad = torch.zeros(len(self.weights))
-
-        # Compute gradient
-        new_loss = loss_fn(self.weights)
-        new_loss.backward()
-        grad_abs = torch.argsort(self.weights.grad)
-        new_loss = new_loss.item()
-
-        # Reduce lr if no change in loss
-        if new_loss >= self.loss:
-            self.count += 1
-        self.loss = new_loss
-        if self.count > 99:
-            self.count = 0
-            self.learning_rate *= 0.7
+        # Sort gradient
+        grad_sorted = torch.argsort(self.weights.grad)
 
         # Distribute positive mass
-        mass_pos = lr/2
+        mass_pos = lr
         i = 0
         while mass_pos != 0:
-            index = grad_abs[i].item()
+            index = grad_sorted[i].item()
             mass_pos -= self.put_mass(mass_pos, index)
             i += 1
 
         # Distribute negative mass
-        mass_neg = lr/2
+        mass_neg = lr
         i = -1
         while mass_neg != 0:
-            index = grad_abs[i].item()
+            index = grad_sorted[i].item()
             mass_neg -= self.take_mass(mass_neg, index)
             i -= 1
-
-        # Ensure sum = 1
-        #self.weights = self.weights / torch.sum(self.weights)
-
-
-    def visualize(self):
-        """
-        Responsibility: Karl
-        Visualization of the weights
-        """
-        plt.bar(self.locations.tolist(), self.weights.tolist(), width=0.1)
-        plt.axhline(y=0, c="grey", linewidth=0.5)
-        plt.show()
 
 def main():
     a = torch.tensor([-0.1, 0.1, 0.3, 0.1, 0.4])
