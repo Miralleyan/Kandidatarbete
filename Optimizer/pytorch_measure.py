@@ -86,6 +86,7 @@ class Measure:
         self.weights.grad = torch.zeros(len(self.weights))
 
 
+
     def visualize(self):
         """
         Responsibility: Karl
