@@ -12,9 +12,7 @@ class Measure:
         """
         Returns the locations and weights of the measure as a string.
         :returns: str
-        Responsibilty: Filip, Karl
         """
-
         out = "\033[4mLocations:\033[0m     \033[4mWeights:\033[0m \n"
         for i in range(len(self.weights)):
             out += f'{self.locations[i].item(): < 10}     {self.weights[i].item(): < 10}\n'
@@ -24,7 +22,6 @@ class Measure:
         """
         Returns the locations and weights of the measure as a string.
         :returns: str
-        Responsibilty: Filip
         """
         return self.__str__()
 
@@ -43,13 +40,11 @@ class Measure:
         """
         Returns the sum of all weights in the measure: \sum_{i=1}^n w_i
         :returns: float
-        Responsibility: Johan
         """
         return sum(self.weights).item()
 
     def total_variation(self) -> float:
         """
-        Responsibility: Samuel
         Returns the sum of the absolute value of all weights in the measure: \sum_{i=1}^n |w_i|
         :returns: float
         """
@@ -57,7 +52,6 @@ class Measure:
 
     def support(self, tol_supp = 1e-12):
         """
-        Responsibility: Johan
         :param tol_supp: Tolerance for what is considered zero
         :returns: all locations where the weights are non-zero
         """
@@ -68,27 +62,24 @@ class Measure:
 
     def positive_part(self):
         """
-        Responsibility: Samuel
         Returns the positive part of the Lebesgue decomposition of the measure
         """
         return Measure(self.locations, torch.max(self.weights, torch.zeros(len(self.weights))))
 
     def negative_part(self):
         """
-        Responsibility: Johan
         Returns the negative part of the Lebesgue decomposition of the measure
         """
         return Measure(self.locations, torch.min(self.weights, torch.zeros(len(self.weights))))
 
     def sample(self, size):
         """
-        Responsibility: Samuel
         Returns a sample of numbers from the distribution given by the measure
         :param size: Number of elements to sample
         :returns: sample of random numbers based on measure
         """
         if torch.any(self.weights < 0):
-            assert ValueError("You can't have negative weighs in a probability measure!")
+            assert ValueError("You can't have negative weights in a probability measure!")
 
         sampling = torch.multinomial(self.weights, size, replacement = True)
         sample = torch.tensor([self.locations[element.item()] for element in sampling])
@@ -99,7 +90,6 @@ class Measure:
 
     def visualize(self):
         """
-        Responsibility: Karl
         Visualization of the weights
         """
         plt.bar(self.locations.tolist(), self.weights.tolist(), width=0.1)
@@ -119,7 +109,6 @@ class Optimizer:
         :param mass: Mass left to take
         :param location_index: Index of location to take mass from
         :returns: mass left to add to measure after adding at specified location
-        Responsibility: Johan, Samuel
         """
         with torch.no_grad():
             self.measure.weights[location_index] += mass
@@ -127,7 +116,6 @@ class Optimizer:
 
     def take_mass(self, mass, location_index) -> float:
         """
-        Responsibility: Samuel
         In current form, this method takes mass from a specified location, s.t. the location still
         has non-negative mass and returns how much mass is left to take.
         :param mass: Mass left to take
@@ -145,7 +133,6 @@ class Optimizer:
 
     def step(self, lr):
         """
-        Responsibility: Hampus
         Steepest decent with fixed total mass
 
         :param lr: learning rate
@@ -167,11 +154,9 @@ class Optimizer:
 
         # Distribute positive mass
         mass_pos = lr
-        i = 0
-        while mass_pos != 0:
-            index = grad_sorted[i].item()
-            mass_pos -= self.put_mass(mass_pos, index)
-            i += 1
+        index = grad_sorted[0].item()
+        self.put_mass(mass_pos, index)
+           
 
         # Distribute negative mass
         mass_neg = lr

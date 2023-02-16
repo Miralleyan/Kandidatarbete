@@ -30,8 +30,8 @@ def loss_fn(w):
 
 
 for epoch in range(2000):
-    loss=loss_fn(w)
-    loss.backward
+    loss=loss_fn(measure.weights)
+    loss.backward()
     opt.step(lr=0.001)
     #print(measure)
 plt.scatter(xt,yt,zorder=2)
