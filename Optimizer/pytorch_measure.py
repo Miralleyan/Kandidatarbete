@@ -4,9 +4,9 @@ import numpy as np
 
 
 class Measure:
-    def __init__(self, locations: torch.nn.parameter, weights: torch.nn.parameter):
-        self.locations = locations
-        self.weights = weights
+    def __init__(self, locations: torch.tensor, weights: torch.tensor):
+        self.locations = torch.nn.parameter.Parameter(locations)
+        self.weights = torch.nn.parameter.Parameter(weights)
 
     def __str__(self) -> str:
         """
@@ -68,7 +68,6 @@ class Measure:
         """
         return Measure(self.locations, torch.min(self.weights, torch.zeros(self.weights.size)))
 
-
     def sample(self, size):
         """
         Responsibility: Samuel
@@ -86,8 +85,6 @@ class Measure:
     def zero_gradient(self):
         self.weights.grad = torch.zeros(len(self.weights))
 
-
-
     def visualize(self):
         """
         Responsibility: Karl
@@ -100,8 +97,8 @@ class Measure:
 
 class Optimizer:
 
-    def __init__(self, weights: torch.nn.parameter, ):
-        self.weights = weights
+    def __init__(self, measure: Measure):
+        self.measure = measure
 
     def put_mass(self, mass, location_index) -> float:
         """
@@ -112,8 +109,13 @@ class Optimizer:
         Responsibility: Johan, Samuel
         """
         with torch.no_grad():
-            self.weights[location_index] += mass
-
+            if self.measure.weights[location_index].item() + mass > 1:
+                mass_distributed = 1 - self.measure.weights[location_index].item()
+                self.measure.weights[location_index] = 1
+            else:
+                self.measure.weights[location_index] += mass
+                mass_distributed = mass
+        return mass_distributed
 
     def take_mass(self, mass, location_index) -> float:
         """
@@ -124,16 +126,15 @@ class Optimizer:
         :returns: mass left to remove from measure after removing from specified location
         """
         with torch.no_grad():
-            if mass > self.weights[location_index].item():
-                mass_removed = self.weights[location_index].item()
-                self.weights[location_index] = 0
+            if mass > self.measure.weights[location_index].item():
+                mass_removed = self.measure.weights[location_index].item()
+                self.measure.weights[location_index] = 0
             else:
-                self.weights[location_index] -= mass
+                self.measure.weights[location_index] -= mass
                 mass_removed = mass
         return mass_removed
 
-
-    def step(self, loss_fn, lr):
+    def step(self, lr):
         """
         Responsibility: Hampus
         Steepest decent with fixed total mass
@@ -153,7 +154,7 @@ class Optimizer:
         '''
 
         # Sort gradient
-        grad_sorted = torch.argsort(self.weights.grad)
+        grad_sorted = torch.argsort(self.measure.weights.grad)
 
         # Distribute positive mass
         mass_pos = lr
@@ -187,7 +188,7 @@ def test_sample():
     b=torch.tensor([1., 2., 3., 4., 5.])
 
     d=Measure(b, a)
-    
+
     d.visualize()
 
     print(d.sample(2000))
