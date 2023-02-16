@@ -17,8 +17,7 @@ yt/=sum(yt) #Normalize
 w = torch.tensor([1/N]*N)#Weights
 l = xt#Locations
 measure = pm.Measure(l, w)
-
-pm.Optimizer(measure)
+opt=pm.Optimizer(measure)
 
 
 def loss_fn(w):
@@ -28,7 +27,7 @@ def loss_fn(w):
 
 
 for epoch in range(2000):
-    measure.step(loss_fn, 0.001)
+    opt.step(loss_fn, 0.001)
     #print(measure)
 plt.scatter(xt,yt,zorder=2)
 print(1-measure.total_mass())

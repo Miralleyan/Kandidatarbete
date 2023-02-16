@@ -190,7 +190,7 @@ def test_sample():
     
     d.visualize()
 
-    print(c.sample(2000))
+    print(d.sample(2000))
 
 
 if __name__ == "__main__":
