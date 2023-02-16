@@ -181,7 +181,8 @@ def test_sample():
     b=torch.tensor([1., 2., 3., 4., 5.])
 
     d=Measure(b, a)
-
+    print(d)
+    print(d.is_probability())
     d.visualize()
 
     print(d.sample(2000))
