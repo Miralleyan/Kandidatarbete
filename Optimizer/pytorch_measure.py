@@ -59,14 +59,14 @@ class Measure:
         Responsibility: Samuel
         Returns the positive part of the Lebesgue decomposition of the measure
         """
-        return Measure(self.locations, torch.max(self.weights, torch.zeros(self.weights.size)))
+        return Measure(self.locations, torch.max(self.weights, torch.zeros(len(self.weights))))
 
     def negative_part(self):
         """
         Responsibility: Johan
         Returns the negative part of the Lebesgue decomposition of the measure
         """
-        return Measure(self.locations, torch.min(self.weights, torch.zeros(self.weights.size)))
+        return Measure(self.locations, torch.min(self.weights, torch.zeros(len(self.weights))))
 
     def sample(self, size):
         """
