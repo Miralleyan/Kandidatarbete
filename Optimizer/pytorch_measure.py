@@ -28,6 +28,13 @@ class Measure:
         """
         return self.__str__()
 
+    def is_probability(self):
+        if torch.any(self.weights < 0):
+            return False
+        if torch.abs(self.weights.sum() - 1) >  1e-6:
+            return False
+        return True
+
     def total_mass(self) -> float:
         """
         Returns the sum of all weights in the measure: \sum_{i=1}^n w_i
