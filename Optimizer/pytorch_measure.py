@@ -56,26 +56,21 @@ class PytorchMeasure:
         # add `.detach()` if dependency on self.locations and self.weights should be ignored when computing gradients
         # built-in torch functions are probably faster than python list comprehensions.
 
-        # return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item()!=0])
-
     def positive_part(self):
         """
         Responsibility: Samuel
-        Returns all locations where the weights are positive
+        Returns the positive part of the Lebesgue decomposition of the measure
         """
-        return self.locations[self.weights > 0]
+        return PytorchMeasure(self.locations, torch.clamp(self.weights, 0))
         # again `.detach()` if we don't want dependence on locations and weight when computing gradient on things depending
         # on `positive_part()`
-
-        # return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item() > 0])
 
     def negative_part(self):
         """
         Responsibility: Johan
-        Returns all locations where the weights are negative
+        Returns the negative part of the Lebesgue decomposition of the measure
         """
-        return self.locations[self.weights < 0]
-        #return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item()<0])
+        return PytorchMeasure(self.locations, torch.clamp(self.weights, max=0))
 
     def put_mass(self, mass, location_index) -> float:
         """
@@ -110,8 +105,6 @@ class PytorchMeasure:
                 self.weights[location_index] -= mass
                 mass_removed = mass
         return mass_removed
-
-
 
     def sample(self, size):
         """
