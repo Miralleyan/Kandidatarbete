@@ -44,28 +44,27 @@ class Measure:
         """
         return sum(abs(self.weights)).item()
 
-    def support(self):
+    def support(self, tol_supp = 1e-12):
         """
         Responsibility: Johan
         Returns all locations where the weights are non-zero
         """
-        return self.locations[self.weights != 0]  # locations where weight is non-zero
+        tol = total_variation*tol_supp
+        return self.locations[self.weights > tol]  # locations where weight is non-zero
         # add `.detach()` if dependency on self.locations and self.weights should be ignored when computing gradients
         # built-in torch functions are probably faster than python list comprehensions.
-
-        # return torch.tensor([self.locations[i].item() for i in range(len(self.locations)) if self.weights[i].item()!=0])
 
     def positive_part(self):
         """
         Responsibility: Samuel
-        Returns all locations where the weights are positive
+        Returns the positive part of the Lebesgue decomposition of the measure
         """
         return Measure(self.locations, torch.max(self.weights, torch.zeros(self.weights.size)))
 
     def negative_part(self):
         """
         Responsibility: Johan
-        Returns all locations where the weights are negative
+        Returns the negative part of the Lebesgue decomposition of the measure
         """
         return Measure(self.locations, torch.min(self.weights, torch.zeros(self.weights.size)))
 
@@ -77,6 +76,9 @@ class Measure:
         :param: size of wanted sample
         :returns: sample of random numbers based on measure
         """
+        if torch.any(self.weights < 0):
+            assert ValueError("You can't have negative weighs in a probability measure!")
+
         sampling = torch.multinomial(self.weights, size, replacement = True)
         sample = torch.tensor([self.locations[element.item()] for element in sampling])
         return sample
