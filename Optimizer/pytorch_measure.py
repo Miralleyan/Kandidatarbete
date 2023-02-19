@@ -51,13 +51,15 @@ class Measure:
         """
         return sum(abs(self.weights)).item()
 
-    def support(self, tol_supp = 1e-12):
+    def support(self, tol = 5e-3):
         """
-        :param tol_supp: Tolerance for what is considered zero
+        :param tol: proportion of total variation that can be un-accounted for by the support.
         :returns: all index where the weights are non-zero
         """
-        tol = self.total_variation()*tol_supp
-        return (self.weights - tol).clamp(0,).nonzero()  # index where weight is non-zero
+        sorted_idx = torch.argsort(self.weights.abs())
+        accum_weight = torch.cumsum(self.weights[sorted_idx], dim=0)
+        cutoff = tol * self.total_variation()
+        return sorted_idx[cutoff < accum_weight]
 
 
     def positive_part(self):
