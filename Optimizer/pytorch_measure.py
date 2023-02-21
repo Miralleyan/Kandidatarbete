@@ -28,7 +28,7 @@ class Measure:
 
     def is_probability(self, tol=1e-6):
         """
-        Returns if the measure is a probability measure.
+        Returns True if the measure is a probability measure.
         :param tol: Tolerance for summing to 1
         """
         if torch.any(self.weights < 0):
@@ -51,14 +51,15 @@ class Measure:
         """
         return sum(abs(self.weights)).item()
 
-    def support(self, tol_supp = 1e-12):
+    def support(self, tol=5e-3):
         """
-        :param tol_supp: Tolerance for what is considered zero
+        :param tol: proportion of total variation that can be un-accounted for by the support.
         :returns: all index where the weights are non-zero
         """
-        tol = self.total_variation()*tol_supp
-        return (self.weights - tol).clamp(0,).nonzero()  # index where weight is non-zero
-
+        sorted_idx = torch.argsort(self.weights.abs())
+        accum_weight = torch.cumsum(self.weights[sorted_idx], dim=0)
+        cutoff = tol * self.total_variation()
+        return sorted_idx[cutoff < accum_weight]
 
     def positive_part(self):
         """
@@ -81,7 +82,7 @@ class Measure:
         if torch.any(self.weights < 0):
             assert ValueError("You can't have negative weights in a probability measure!")
 
-        sampling = torch.multinomial(self.weights, size, replacement = True)
+        sampling = torch.multinomial(self.weights, size, replacement=True)
         sample = torch.tensor([self.locations[element.item()] for element in sampling])
         return sample
 
@@ -123,7 +124,6 @@ class Optimizer:
         with torch.no_grad():
             self.measure.weights[location_index] += mass
 
-
     def take_mass(self, mass, location_index) -> float:
         """
         In current form, this method takes mass from a specified location, s.t. the location still
@@ -154,7 +154,6 @@ class Optimizer:
         # Distribute positive mass
         mass_pos = lr
         self.put_mass(mass_pos, grad_sorted[0].item())
-           
 
         # Distribute negative mass
         mass_neg = lr
@@ -163,22 +162,23 @@ class Optimizer:
             if mass_neg <= 0:
                 break
 
+
 def main():
     a = torch.tensor([-0.1, 0.1, 0.3, 0.1, 0.4])
     b = torch.tensor([1., 2., 3., 4., 5.])
 
     c = Measure(b, a)
-    #print(c.negative_part())
-    #print(c.put_mass(0.9, 1))
+    # print(c.negative_part())
+    # print(c.put_mass(0.9, 1))
     print(c)
     test_sample()
 
 
 def test_sample():
-    a=torch.tensor([0.1, 0.1, 0.3, 0.1, 0.4])
-    b=torch.tensor([1., 2., 3., 4., 5.])
+    a = torch.tensor([0.1, 0.1, 0.3, 0.1, 0.4])
+    b = torch.tensor([1., 2., 3., 4., 5.])
 
-    d=Measure(b, a)
+    d = Measure(b, a)
     print(d)
     print(d.is_probability())
     d.visualize()
