@@ -26,15 +26,16 @@ def loss_fn(w):
     #return sum((yt-w)**2)/len(w)
     #return -sum([torch.log(w[torch.nonzero(l==data[i].item()).item()]) for i in range(len(data))])
 
-
+lr=0.0001
 measure = pm.Measure(l, w)
 opt=pm.Optimizer(measure)
 for epoch in range(5000):
     measure.zero_gradient()
     loss=loss_fn(measure.weights)
     loss.backward()
-    opt.step(lr=0.0001)
-    #print(measure)
+    opt.step(lr)
+    if epoch % 100 == 0:
+        print(f'Epoch: {epoch:<10} Loss: {loss:<10.0f} LR: {lr}')
 plt.scatter(x,y,zorder=2)
 print(1-measure.total_mass())
 measure.visualize()
