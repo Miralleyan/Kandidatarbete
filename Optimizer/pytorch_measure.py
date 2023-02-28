@@ -138,7 +138,8 @@ class Optimizer:
         Grad should be minimal and constant on the support of the measure.
         Consider it to be a constant if it varies by less than tol_const.
         """
-        return self.measure.weights.grad[self.support(tol_supp)].max() - self.measure.weights.grad.min() < tol_const
+        print(self.measure.weights.grad)
+        return self.measure.weights.grad[self.measure.support(tol_supp)].max() - self.measure.weights.grad.min() < tol_const
 
     def step(self):
         """
@@ -191,26 +192,30 @@ class Optimizer:
         """
         return loss_fn(self.measure.weights) - loss_fn(measure.weights) < 0
 
-    def minimize(self, loss_fn, tol, max_epochs=1000,smallest_lr=1e-6, silent=False, tol_supp=1e-6, tol_const=1e-3,):
+    def minimize(self, loss_fn, max_epochs=1000,smallest_lr=1e-6, silent=False, tol_supp=1e-6, tol_const=1e-3,):
         for epoch in range(max_epochs):
-            if self.stop_criterion(tol_supp, tol_const):
-                print(f'\nOptimum is attained. Value of the goal function is {self.val}')
-                self.is_optim = True
-                return
             measure=copy.deepcopy(self.measure)
             self.measure.zero_gradient()
             loss=loss_fn(self.measure.weights)
             loss.backward()
             self.step()
+            if self.stop_criterion(tol_supp, tol_const):
+                print(f'\nOptimum is attained. Value of the goal function is {self.val}')
+                self.is_optim = True
+                return
+            
             if self.lr_criterion(loss_fn,measure)==False:
                 self.measure=measure
                 self.update_lr()
 
             if epoch % 100 == 0 and silent==False:
-                print(f'Epoch: {epoch:<10} Loss: {loss:<10.0f} LR: {self.lr}')           
+                print(f'Epoch: {epoch:<10} Loss: {loss:<10.0f} LR: {self.lr}')   
+                
             if self.lr < smallest_lr:
                 print(f'The step size is too small: {self.lr: 0.8f}')
                 return
+            
+
 
 
 

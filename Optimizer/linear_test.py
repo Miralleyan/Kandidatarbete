@@ -31,6 +31,8 @@ def loss_fn(w):
 lr=0.0001
 measure = pm.Measure(l, w)
 opt=pm.Optimizer(measure)
+
+'''
 for epoch in range(5000):
     measure.zero_gradient()
     loss=loss_fn(measure.weights)
@@ -38,6 +40,12 @@ for epoch in range(5000):
     opt.step(lr)
     if epoch % 100 == 0:
         print(f'Epoch: {epoch:<10} Loss: {loss:<10.0f} LR: {lr}')
+'''
+
+opt.minimize(loss_fn)
+
+
+
 plt.scatter(x,y,zorder=2)
 print(1-measure.total_mass())
 measure.visualize()
@@ -47,5 +55,4 @@ plt.hist(measure.sample(10000),bins=50, density=True, range=[-4,4])
 plt.hist(torch.randn(10000),bins=50, density=True, range=[-4,4], alpha=0.5)
 plt.legend(['Model','True data'])
 plt.show()
-
 
