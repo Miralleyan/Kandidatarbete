@@ -138,10 +138,7 @@ class Optimizer:
         Grad should be minimal and constant on the support of the measure.
         Consider it to be a constant if it varies by less than tol_const.
         """
-        new_grad_diff = self.weights.grad[self.support(tol_supp)].max() - self.weights.grad.min()
-        out = abs(self.grad_diff - new_grad_diff) < tol_const
-        self.grad_diff = new_grad_diff
-        return out
+        return self.measure.weights.grad[self.support(tol_supp)].max() - self.measure.weights.grad.min() < tol_const
 
     def step(self):
         """
