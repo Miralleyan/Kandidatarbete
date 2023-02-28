@@ -203,11 +203,15 @@ class Optimizer:
             loss=loss_fn(self.measure.weights)
             loss.backward()
             self.step()
-
-            
-
+            if self.lr_criterion(loss_fn,measure)==False:
+                self.measure=measure
+                self.update_lr()
+                
             if epoch % 100 == 0:
-                print(f'Epoch: {epoch:<10} Loss: {loss:<10.0f} LR: {lr}')
+                print(f'Epoch: {epoch:<10} Loss: {loss:<10.0f} LR: {self.lr}')           
+            if self.lr < smallest_lr:
+                print(f'The step size is too small: {self.lr: 0.8f}')
+                return
 
 
 
