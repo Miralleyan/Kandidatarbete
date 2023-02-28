@@ -199,7 +199,7 @@ class Optimizer:
         for epoch in range(max_epochs):
             measure=copy.deepcopy(self.measure)
             self.measure.zero_grad()
-            loss=loss_fn(self.measure.weights)
+            loss=loss_fn(self.measure)
             loss.backward()
             self.step()
             if self.stop_criterion(tol_supp, tol_const):
@@ -217,7 +217,7 @@ class Optimizer:
             if self.lr < smallest_lr:
                 print(f'The step size is too small: {self.lr: 0.8f}')
                 return
-            
+
 
 
 
