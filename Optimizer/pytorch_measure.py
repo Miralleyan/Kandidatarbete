@@ -101,12 +101,12 @@ class Measure:
 
 class Optimizer:
 
-    def __init__(self, measure: Measure, lr : float = 0.1):
-        self.measure = measure
-        self.lr = lr
+    def __init__(self, measures: list(Measure), lr : float = 0.1):
+        self.measures = measures.tolist()
+        self.lr = [lr]*len(self.measures)
         self.state = {'measure':self.measure, 'lr':self.lr}
 
-    def put_mass(self, mass, location_index):
+    def put_mass(self, meas_index, mass, location_index):
         """
         In current form, this method puts mass at a specified location, s.t. the location still
         has mass less at most 1 and returns how much mass is left to distribute.
@@ -115,9 +115,9 @@ class Optimizer:
         :returns: mass left to add to measure after adding at specified location
         """
         with torch.no_grad():
-            self.measure.weights[location_index] += mass
+            self.measures[meas_index].weights[location_index] += mass
 
-    def take_mass(self, mass, location_index) -> float:
+    def take_mass(self, meas_index, mass, location_index) -> float:
         """
         In current form, this method takes mass from a specified location, s.t. the location still
         has non-negative mass and returns how much mass is left to take.
@@ -126,9 +126,9 @@ class Optimizer:
         :returns: mass left to remove from measure after removing from specified location
         """
         with torch.no_grad():
-            if mass > self.measure.weights[location_index].item():
-                mass_removed = self.measure.weights[location_index].item()
-                self.measure.weights[location_index] = 0
+            if mass > self.measure[meas_index].weights[location_index].item():
+                mass_removed = self.measures[meas_index].weights[location_index].item()
+                self.measures[meas_index].weights[location_index] = 0
             else:
                 self.measure.weights[location_index] -= mass
                 mass_removed = mass
@@ -142,24 +142,24 @@ class Optimizer:
         :param tol_const: stop value, when the maximum difference of gradients
         is smaller than this value the minimization should seize
         """
-        return self.measure.weights.grad[self.measure.support(tol_supp)].max() - self.measure.weights.grad.min() < tol_const
+        return [measure.weights.grad[measure.support(tol_supp)].max() - measure.weights.grad.min() < tol_const for measure in self.measures].min()
 
-    def step(self):
+    def step(self, meas_index):
         """
         Steepest decent with fixed total mass
         """
 
         # Sort gradient
-        grad_sorted = torch.argsort(self.measure.weights.grad)
+        grad_sorted = torch.argsort(self.measures[meas_index].weights.grad)
 
         # Distribute positive mass
         mass_pos = self.lr
-        self.put_mass(mass_pos, grad_sorted[0].item())
+        self.put_mass(meas_index, mass_pos, grad_sorted[0].item())
 
         # Distribute negative mass
         mass_neg = self.lr
         for i in torch.flip(grad_sorted, dims=[0]):
-            mass_neg -= self.take_mass(mass_neg, i.item())
+            mass_neg -= self.take_mass(meas_index, mass_neg, i.item())
             if mass_neg <= 0:
                 break
     
@@ -186,35 +186,41 @@ class Optimizer:
         """
         self.state = state_dict
 
-    def lr_criterion(self, loss_fn, measure):
+    def lr_criterion(self, loss_fn, measure, old_measure):
         """
         Checks if learning rate should be decreased
 
         :param loss_fn: loss function
         :param measure: measure to compare current measure to
         """
-        return loss_fn(self.measure) - loss_fn(measure) < 0
+        return loss_fn(measure) - loss_fn(old_measure) < 0
 
-    def minimize(self, loss_fn, max_epochs=10000,smallest_lr=1e-6, silent=False, tol_supp=1e-6, tol_const=1e-3,):
+    def minimize(self, loss_fn, max_epochs=10000,smallest_lr=1e-6, silent=False, tol_supp=1e-6, tol_const=1e-3, verbose = False):
         for epoch in range(max_epochs):
-            measure=copy.deepcopy(self.measure)
-            self.measure.zero_grad()
-            loss=loss_fn(self.measure)
+            old_measures=copy.deepcopy(self.measures)
+            self.measures[meas_index].zero_grad()
+            loss=loss_fn(self.measures[meas_index])
             loss.backward()
-            self.step()
+            for meas_index in range(self.measures)
+                self.step(meas_index)
+
             if self.stop_criterion(tol_supp, tol_const):
-                print(f'\nOptimum is attained. Value of the goal function is {loss_fn(self.measure)}. Optimization took {epoch} epochs.')
+                print(f'\nOptimum is attained. Value of the goal function is {loss}. Optimization took {epoch} epochs.')
                 self.is_optim = True
                 return
             
-            if self.lr_criterion(loss_fn,measure)==False:
-                self.measure=measure
-                self.update_lr()
+            for meas_index in range(self.measure):
+                if self.lr_criterion(loss_fn, self.measures[meas_index], old_measures[meas_index])==False:
+                    self.measures[meas_index]=old_measures[meas_index]
+                    self.update_lr()
 
-            if epoch % 100 == 0 and silent==False:
+            if verbose:
                 print(f'Epoch: {epoch:<10} Loss: {loss:<10.0f} LR: {self.lr}')   
 
-            if self.lr < smallest_lr:
+            elif epoch % 100 == 0 and silent==False:
+                print(f'Epoch: {epoch:<10} Loss: {loss:<10.0f} LR: {self.lr}')   
+
+            if [lr < smallest_lr for lr in self.lr].min():
                 print(f'The step size is too small: {self.lr: 0.8f}')
                 return
 

@@ -21,8 +21,8 @@ def loss_fn(measure):
     errors = torch.tensor([error(x, measure.locations[j], y) for j in range(M)])
     return torch.dot(errors, measure.weights)
 
-opt = pm.Optimizer(measure)
-opt.minimize(loss_fn)
+opt = pm.Optimizer(measure, lr = 1)
+opt.minimize(loss_fn, verbose = True)
 
 measure.visualize()
 
