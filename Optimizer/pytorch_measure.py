@@ -162,13 +162,13 @@ class Optimizer:
             if mass_neg <= 0:
                 break
     
-    def update_lr(self, lr):
+    def update_lr(self, fraction = 0.7):
         """
         Updates learning rate for the optimizer
 
         :param lr: learning rate
         """
-        self.lr = lr
+        self.lr *= fraction
 
     def state_dict(self):
         """
