@@ -101,7 +101,7 @@ class Measure:
 
 class Optimizer:
 
-    def __init__(self, measure: Measure, lr : float = 0.1):
+    def __init__(self, measure: Measure, lr : float = 0.0001):
         self.measure = measure
         self.lr = lr
         self.state = {'measure':self.measure, 'lr':self.lr}
