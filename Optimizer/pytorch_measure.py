@@ -203,7 +203,7 @@ class Optimizer:
             loss.backward()
             self.step()
             if self.stop_criterion(tol_supp, tol_const):
-                print(f'\nOptimum is attained. Value of the goal function is {loss_fn(self.measure.weights)}')
+                print(f'\nOptimum is attained. Value of the goal function is {loss_fn(self.measure)}')
                 self.is_optim = True
                 return
             

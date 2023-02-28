@@ -22,7 +22,7 @@ def loss_fn(measure):
     return torch.dot(errors, measure.weights)
 
 opt = pm.Optimizer(measure)
-opt.minimize(loss_fn, 1e-4)
+opt.minimize(loss_fn)
 
 measure.visualize()
 
