@@ -5,7 +5,7 @@ import copy
 
 class Measure:
     def __init__(self, locations: torch.tensor, weights: torch.tensor, device='cpu', optim_locations = False):
-        self.locations = torch.nn.parameter.Parameter(locations)
+        self.locations = locations
         self.weights = torch.nn.parameter.Parameter(weights)
         self.device = device
         self.grad_diff = 0.0
