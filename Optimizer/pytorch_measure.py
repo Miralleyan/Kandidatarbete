@@ -113,7 +113,7 @@ class Optimizer:
     def __init__(self, measure: Measure, lr : float = 0.1):
         self.measure = measure
         self.lr = lr
-        self.state = {'probability measure':self.measure.is_probability(), 'lr':self.lr}
+        self.state = {'measure':self.measure, 'lr':self.lr}
 
     def put_mass(self, mass, location_index):
         """
@@ -184,6 +184,9 @@ class Optimizer:
         param state_dict: state dictionary to load
         """
         self.state = state_dict
+
+    def lr_criterion(self, loss_fn, measure):
+        return loss_fn(self.measure.weights) - loss_fn(measure.weights) < 0
 
 
 def main():
