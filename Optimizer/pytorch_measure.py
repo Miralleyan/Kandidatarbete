@@ -185,18 +185,19 @@ class Optimizer:
         """
         self.state = state_dict
 
-    def minimize(self, loss_fn, tol):
-        epoch=0
-        while True:
-            epoch+=1
+    def minimize(self, loss_fn, tol, max_steps=1000):
+        for epoch in range(max_steps):
             measure=copy.deepcopy(self.measure)
             self.measure.zero_gradient()
             loss=loss_fn(self.measure.weights)
             loss.backward()
             self.step()
+            if lr_criterion(loss_fn,measure)==False:
+                self.measure=measure
+                self.update_lr()
 
-            
 
+        
             if epoch % 100 == 0:
                 print(f'Epoch: {epoch:<10} Loss: {loss:<10.0f} LR: {lr}')
 
