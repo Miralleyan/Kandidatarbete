@@ -89,16 +89,6 @@ class Measure:
     def zero_grad(self):
         self.weights.grad = torch.zeros(len(self.weights), device=self.device)
 
-    def stop_criterion(self, tol_supp=1e-6, tol_const=1e-3):
-        """
-        Grad should be minimal and constant on the support of the measure.
-        Consider it to be a constant if it varies by less than tol_const.
-        """
-        new_grad_diff = self.weights.grad[self.support(tol_supp)].max() - self.weights.grad.min()
-        out = abs(self.grad_diff - new_grad_diff) < tol_const
-        self.grad_diff = new_grad_diff
-        return out
-
     def visualize(self):
         """
         Visualization of the weights
@@ -142,6 +132,16 @@ class Optimizer:
                 self.measure.weights[location_index] -= mass
                 mass_removed = mass
         return mass_removed
+    
+    def stop_criterion(self, tol_supp=1e-6, tol_const=1e-3):
+        """
+        Grad should be minimal and constant on the support of the measure.
+        Consider it to be a constant if it varies by less than tol_const.
+        """
+        new_grad_diff = self.weights.grad[self.support(tol_supp)].max() - self.weights.grad.min()
+        out = abs(self.grad_diff - new_grad_diff) < tol_const
+        self.grad_diff = new_grad_diff
+        return out
 
     def step(self):
         """
