@@ -17,9 +17,9 @@ measure = pm.Measure(torch.linspace(0, 2, M), torch.ones(M) / M)
 def error(x, a, y): # a is location in measure (scalar), for example slope in linear regression
     return ((a * x - y).pow(2)).sum()
 
-def loss_fn(measure):
-    errors = torch.tensor([error(x, measure.locations[j], y) for j in range(M)])
-    return torch.dot(errors, measure.weights)
+def loss_fn(measures):
+    errors = torch.tensor([error(x, measures[0].locations[j], y) for j in range(M)])
+    return torch.dot(errors, measures[0].weights)
 
 opt = pm.Optimizer(measure, lr = 1)
 opt.minimize(loss_fn, verbose = True)
