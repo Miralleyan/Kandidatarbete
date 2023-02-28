@@ -135,9 +135,13 @@ class Optimizer:
     
     def stop_criterion(self, tol_supp=1e-6, tol_const=1e-3):
         """
-        Grad should be minimal and constant on the support of the measure.
-        Consider it to be a constant if it varies by less than tol_const.
+        Checks if the difference between the maximum and minimum gradient is
+        within a certain range.
+        :param tol_supp: lower bound for wieghts considered
+        :param tol_const: stop value, when the maximum difference of gradients
+        is smaller than this value the minimization should seize
         """
+
         return self.measure.weights.grad[self.support(tol_supp)].max() - self.measure.weights.grad.min() < tol_const
 
     def step(self):
