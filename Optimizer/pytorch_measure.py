@@ -203,14 +203,14 @@ class Optimizer:
             loss.backward()
             self.step()
             if self.stop_criterion(tol_supp, tol_const):
-                print(f'\nOptimum is attained. Value of the goal function is {self.val}')
+                print(f'\nOptimum is attained. Value of the goal function is {loss_fn(self.measure.weights)}')
                 self.is_optim = True
                 return
-            '''
+            
             if self.lr_criterion(loss_fn,measure)==False:
                 self.measure=measure
                 self.update_lr()
-'''
+
             if epoch % 100 == 0 and silent==False:
                 print(f'Epoch: {epoch:<10} Loss: {loss:<10.0f} LR: {self.lr}')   
 

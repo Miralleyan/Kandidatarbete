@@ -24,11 +24,11 @@ y/=sum(y) #Normalize
 index = torch.argmin(abs(l-data.view(-1,1)), dim=1)
 def loss_fn(w):
     return -w[index].log().sum()
-    #return sum((yt-w)**2)/len(w)
+    #return sum((y-w)**2)/len(w)
     #return -sum([torch.log(w[torch.nonzero(l==data[i].item()).item()]) for i in range(len(data))])
 
 
-lr=0.0001
+lr=0.001
 measure = pm.Measure(l, w)
 opt=pm.Optimizer(measure,lr=lr)
 
@@ -42,7 +42,7 @@ for epoch in range(5000):
         print(f'Epoch: {epoch:<10} Loss: {loss:<10.0f} LR: {lr}')
 '''
 
-opt.minimize(loss_fn,)
+opt.minimize(loss_fn,smallest_lr=1e-10)
 
 
 
@@ -50,9 +50,9 @@ plt.scatter(x,y,zorder=2)
 print(1-measure.total_mass())
 measure.visualize()
 
-
+'''
 plt.hist(measure.sample(10000),bins=50, density=True, range=[-4,4])
 plt.hist(torch.randn(10000),bins=50, density=True, range=[-4,4], alpha=0.5)
 plt.legend(['Model','True data'])
 plt.show()
-
+'''
