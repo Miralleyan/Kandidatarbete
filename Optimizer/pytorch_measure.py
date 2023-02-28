@@ -89,7 +89,7 @@ class Measure:
     def zero_grad(self):
         self.weights.grad = torch.zeros(len(self.weights), device=self.device)
 
-    def reduce_lr_criterion(self, tol_supp=1e-6, tol_const=1e-3):
+    def stop_criterion(self, tol_supp=1e-6, tol_const=1e-3):
         """
         Grad should be minimal and constant on the support of the measure.
         Consider it to be a constant if it varies by less than tol_const.
@@ -194,7 +194,7 @@ class Optimizer:
         """
         return loss_fn(self.measure.weights) - loss_fn(measure.weights) < 0
 
-    def minimize(self, loss_fn, tol):
+    def minimize(self, loss_fn, tol,smallest_lr=1e-6, silent=False):
         epoch=0
         while True:
             epoch+=1
@@ -206,8 +206,8 @@ class Optimizer:
             if self.lr_criterion(loss_fn,measure)==False:
                 self.measure=measure
                 self.update_lr()
-                
-            if epoch % 100 == 0:
+
+            if epoch % 100 == 0 and silent==False:
                 print(f'Epoch: {epoch:<10} Loss: {loss:<10.0f} LR: {self.lr}')           
             if self.lr < smallest_lr:
                 print(f'The step size is too small: {self.lr: 0.8f}')
