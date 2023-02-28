@@ -8,6 +8,7 @@ data=torch.randn(10000)
 #data=torch.from_numpy(np.random.beta(1,2,1000))
 
 
+
 w = torch.tensor([1/N]*N)#Weights
 l = torch.linspace(-4,4,N)
 w = torch.nn.parameter.Parameter(w)
