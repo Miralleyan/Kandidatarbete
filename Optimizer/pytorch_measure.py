@@ -86,7 +86,7 @@ class Measure:
         sample = torch.tensor([self.locations[element.item()] for element in sampling])
         return sample
 
-    def zero_gradient(self):
+    def zero_grad(self):
         self.weights.grad = torch.zeros(len(self.weights), device=self.device)
 
     def reduce_lr_criterion(self, tol_supp=1e-6, tol_const=1e-3):
@@ -110,8 +110,10 @@ class Measure:
 
 class Optimizer:
 
-    def __init__(self, measure: Measure):
+    def __init__(self, measure: Measure, lr : float = 0.1):
         self.measure = measure
+        self.lr = lr
+        self.state = {'probability measure':self.measure.is_probability(), 'lr':self.lr}
 
     def put_mass(self, mass, location_index):
         """
@@ -141,26 +143,47 @@ class Optimizer:
                 mass_removed = mass
         return mass_removed
 
-    def step(self, lr):
+    def step(self):
         """
         Steepest decent with fixed total mass
-
-        :param lr: learning rate
         """
 
         # Sort gradient
         grad_sorted = torch.argsort(self.measure.weights.grad)
 
         # Distribute positive mass
-        mass_pos = lr
+        mass_pos = self.lr
         self.put_mass(mass_pos, grad_sorted[0].item())
 
         # Distribute negative mass
-        mass_neg = lr
+        mass_neg = self.lr
         for i in torch.flip(grad_sorted, dims=[0]):
             mass_neg -= self.take_mass(mass_neg, i.item())
             if mass_neg <= 0:
                 break
+    
+    def update_lr(self, lr):
+        """
+        Updates learning rate for the optimizer
+
+        :param lr: learning rate
+        """
+        self.lr = lr
+
+    def state_dict(self):
+        """
+        Updates the state dictionary for the optimizer
+        """
+        print("\n".join("\t{}: {}".format(k, v) for k, v in self.state.items()))
+        return self.state_dict
+
+    def load_state_dict(self, state_dict):
+        """
+        Overloads the current state dictionary
+
+        param state_dict: state dictionary to load
+        """
+        self.state = state_dict
 
 
 def main():
@@ -185,6 +208,10 @@ def test_sample():
 
     print(d.sample(2000))
 
+def test_state_dict():
+    u = Measure(torch.tensor([0.,0.5,1.]),torch.tensor([0.2,0.5,0.3]))
+    opt = Optimizer(u)
+    opt.state_dict()
 
 if __name__ == "__main__":
     main()
