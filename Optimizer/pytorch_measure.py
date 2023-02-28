@@ -191,8 +191,12 @@ class Optimizer:
         """
         return loss_fn(self.measure.weights) - loss_fn(measure.weights) < 0
 
-    def minimize(self, loss_fn, tol, max_epochs=1000,smallest_lr=1e-6, silent=False):
+    def minimize(self, loss_fn, tol, max_epochs=1000,smallest_lr=1e-6, silent=False, tol_supp=1e-6, tol_const=1e-3,):
         for epoch in range(max_epochs):
+            if self.stop_criterion(tol_supp, tol_const):
+                print(f'\nOptimum is attained. Value of the goal function is {self.val}')
+                self.is_optim = True
+                return
             measure=copy.deepcopy(self.measure)
             self.measure.zero_gradient()
             loss=loss_fn(self.measure.weights)
