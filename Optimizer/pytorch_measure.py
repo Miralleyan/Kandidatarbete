@@ -57,7 +57,7 @@ class Measure:
         :returns: all index where the weights are non-zero
         """
         sorted_idx = torch.argsort(self.weights.abs())
-        accum_weight = torch.cumsum(self.weights[sorted_idx], dim=0)
+        accum_weight = torch.cumsum(self.weights[sorted_idx].abs(), dim=0)
         cutoff = tol * self.total_variation()
         return sorted_idx[cutoff < accum_weight]
 
@@ -113,7 +113,7 @@ class Optimizer:
     def __init__(self, measure: Measure, lr : float = 0.1):
         self.measure = measure
         self.lr = lr
-        self.state = {'probability measure':self.measure.is_probability(), 'lr':self.lr}
+        self.state = {'measure':self.measure, 'lr':self.lr}
 
     def put_mass(self, mass, location_index):
         """
@@ -184,6 +184,9 @@ class Optimizer:
         param state_dict: state dictionary to load
         """
         self.state = state_dict
+
+    def lr_criterion(self, loss_fn, measure):
+        return loss_fn(self.measure.weights) - loss_fn(measure.weights) < 0
 
     def minimize(self, loss_fn, tol, max_steps=1000):
         for epoch in range(max_steps):
