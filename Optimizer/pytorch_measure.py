@@ -194,10 +194,8 @@ class Optimizer:
         """
         return loss_fn(self.measure.weights) - loss_fn(measure.weights) < 0
 
-    def minimize(self, loss_fn, tol,smallest_lr=1e-6, silent=False):
-        epoch=0
-        while True:
-            epoch+=1
+    def minimize(self, loss_fn, tol, max_epochs=1000,smallest_lr=1e-6, silent=False):
+        for epoch in range(max_epochs):
             measure=copy.deepcopy(self.measure)
             self.measure.zero_gradient()
             loss=loss_fn(self.measure.weights)
