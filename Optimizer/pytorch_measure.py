@@ -57,7 +57,7 @@ class Measure:
         :returns: all index where the weights are non-zero
         """
         sorted_idx = torch.argsort(self.weights.abs())
-        accum_weight = torch.cumsum(self.weights[sorted_idx], dim=0)
+        accum_weight = torch.cumsum(self.weights[sorted_idx].abs(), dim=0)
         cutoff = tol * self.total_variation()
         return sorted_idx[cutoff < accum_weight]
 
@@ -187,6 +187,22 @@ class Optimizer:
 
     def lr_criterion(self, loss_fn, measure):
         return loss_fn(self.measure.weights) - loss_fn(measure.weights) < 0
+
+    def minimize(self, loss_fn, tol):
+        epoch=0
+        while True:
+            epoch+=1
+            measure=copy.deepcopy(self.measure)
+            self.measure.zero_gradient()
+            loss=loss_fn(self.measure.weights)
+            loss.backward()
+            self.step()
+
+            
+
+            if epoch % 100 == 0:
+                print(f'Epoch: {epoch:<10} Loss: {loss:<10.0f} LR: {lr}')
+
 
 
 def main():
