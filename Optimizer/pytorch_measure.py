@@ -4,7 +4,7 @@ import copy
 
 
 class Measure:
-    def __init__(self, locations: torch.tensor, weights: torch.tensor, device='cpu'):
+    def __init__(self, locations: torch.tensor, weights: torch.tensor, device='cpu', optim_locations = False):
         self.locations = torch.nn.parameter.Parameter(locations)
         self.weights = torch.nn.parameter.Parameter(weights)
         self.device = device
@@ -181,7 +181,7 @@ class Optimizer:
     def load_state_dict(self, state_dict):
         """
         Overloads the current state dictionary
-
+\chi ^{2} = Pearson's cumulative test statistic, which asymptotically approaches a χ 2 \chi ^{2} distribution.
         :param state_dict: state dictionary to load
         """
         self.state = state_dict
@@ -203,7 +203,7 @@ class Optimizer:
             loss.backward()
             self.step()
             if self.stop_criterion(tol_supp, tol_const):
-                print(f'\nOptimum is attained. Value of the goal function is {loss_fn(self.measure.weights)}')
+                print(f'\nOptimum is attained. Value of the goal function is {loss_fn(self.measure.weights)}. Optimization took {epoch} epochs.')
                 self.is_optim = True
                 return
             
