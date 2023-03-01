@@ -101,10 +101,10 @@ class Measure:
 
 class Optimizer:
 
-    def __init__(self, measures: list(Measure), lr : float = 0.1):
-        self.measures = measures.tolist()
+    def __init__(self, measures: list[Measure], lr : float = 0.1):
+        self.measures = measures
         self.lr = [lr]*len(self.measures)
-        self.state = {'measure':self.measure, 'lr':self.lr}
+        self.state = {'measure':self.measures, 'lr':self.lr}
 
     def put_mass(self, meas_index, mass, location_index):
         """
@@ -126,11 +126,11 @@ class Optimizer:
         :returns: mass left to remove from measure after removing from specified location
         """
         with torch.no_grad():
-            if mass > self.measure[meas_index].weights[location_index].item():
+            if mass > self.measures[meas_index].weights[location_index].item():
                 mass_removed = self.measures[meas_index].weights[location_index].item()
                 self.measures[meas_index].weights[location_index] = 0
             else:
-                self.measure.weights[location_index] -= mass
+                self.measures[meas_index].weights[location_index] -= mass
                 mass_removed = mass
         return mass_removed
     
@@ -142,7 +142,7 @@ class Optimizer:
         :param tol_const: stop value, when the maximum difference of gradients
         is smaller than this value the minimization should seize
         """
-        return [measure.weights.grad[measure.support(tol_supp)].max() - measure.weights.grad.min() < tol_const for measure in self.measures].min()
+        return min([measure.weights.grad[measure.support(tol_supp)].max() - measure.weights.grad.min() < tol_const for measure in self.measures])
 
     def step(self, meas_index):
         """
@@ -153,11 +153,11 @@ class Optimizer:
         grad_sorted = torch.argsort(self.measures[meas_index].weights.grad)
 
         # Distribute positive mass
-        mass_pos = self.lr
+        mass_pos = self.lr[meas_index]
         self.put_mass(meas_index, mass_pos, grad_sorted[0].item())
 
         # Distribute negative mass
-        mass_neg = self.lr
+        mass_neg = self.lr[meas_index]
         for i in torch.flip(grad_sorted, dims=[0]):
             mass_neg -= self.take_mass(meas_index, mass_neg, i.item())
             if mass_neg <= 0:
@@ -198,10 +198,11 @@ class Optimizer:
     def minimize(self, loss_fn, max_epochs=10000,smallest_lr=1e-6, silent=False, tol_supp=1e-6, tol_const=1e-3, verbose = False):
         for epoch in range(max_epochs):
             old_measures=copy.deepcopy(self.measures)
-            self.measures[meas_index].zero_grad()
-            loss=loss_fn(self.measures[meas_index])
+            for m in self.measures:
+                m.zero_grad()
+            loss=loss_fn(self.measures)
             loss.backward()
-            for meas_index in range(self.measures)
+            for meas_index in range(len(self.measures)):
                 self.step(meas_index)
 
             if self.stop_criterion(tol_supp, tol_const):
@@ -209,7 +210,7 @@ class Optimizer:
                 self.is_optim = True
                 return
             
-            for meas_index in range(self.measure):
+            for meas_index in range(len(self.measures)):
                 if self.lr_criterion(loss_fn, self.measures[meas_index], old_measures[meas_index])==False:
                     self.measures[meas_index]=old_measures[meas_index]
                     self.update_lr()
