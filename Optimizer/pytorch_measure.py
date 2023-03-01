@@ -210,10 +210,9 @@ class Optimizer:
                 self.is_optim = True
                 return
             
-            for meas_index in range(len(self.measures)):
-                if self.lr_criterion(loss_fn, self.measures[meas_index], old_measures[meas_index])==False:
-                    self.measures[meas_index]=old_measures[meas_index]
-                    self.update_lr()
+            if self.lr_criterion(loss_fn, self.measures, old_measures)==False:
+                self.measures=old_measures
+                self.update_lr()
 
             if verbose:
                 print(f'Epoch: {epoch:<10} Loss: {loss:<10.0f} LR: {self.lr}')   
@@ -221,7 +220,7 @@ class Optimizer:
             elif epoch % 100 == 0 and silent==False:
                 print(f'Epoch: {epoch:<10} Loss: {loss:<10.0f} LR: {self.lr}')   
 
-            if [lr < smallest_lr for lr in self.lr].min():
+            if min([lr < smallest_lr for lr in self.lr]):
                 print(f'The step size is too small: {self.lr: 0.8f}')
                 return
 
