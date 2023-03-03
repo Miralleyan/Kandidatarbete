@@ -111,6 +111,7 @@ class Optimizer:
         self.lr = [lr]*len(self.measures)
         self.old_lr = [lr]*len(self.measures)
         self.state = {'measure':self.measures, 'lr':self.lr}
+        self.is_optim = False
 
     def put_mass(self, meas_index, mass, location_index):
         """
@@ -215,7 +216,7 @@ class Optimizer:
                 self.step(meas_index)
 
             if self.stop_criterion(tol_supp, tol_const):
-                print(f'\nOptimum is attained. Value of the goal function is {loss}. Optimization took {epoch} epochs.')
+                print(f'\nOptimum is attained. Loss: {loss}. Epochs: {epoch} epochs.')
                 self.is_optim = True
                 return
             
