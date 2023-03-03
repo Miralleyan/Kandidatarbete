@@ -194,14 +194,14 @@ class Optimizer:
         """
         self.state = state_dict
 
-    def lr_criterion(self, loss_fn, measure, old_measure):
+    def lr_decrease_criterion(self, loss_fn, measure, old_measure):
         """
         Checks if learning rate should be decreased
 
         :param loss_fn: loss function
         :param measure: measure to compare current measure to
         """
-        return loss_fn(measure) - loss_fn(old_measure) < 0
+        return loss_fn(old_measure) < loss_fn(measure)
 
     def minimize(self, loss_fn, max_epochs=10000,smallest_lr=1e-6, tol_supp=1e-6, tol_const=1e-3, verbose=False, print_freq=100):
         Suceeded=True
@@ -221,7 +221,7 @@ class Optimizer:
                 self.is_optim = True
                 return
             
-            if not self.lr_criterion(loss_fn, self.measures, old_measures):
+            if self.lr_decrease_criterion(loss_fn, self.measures, old_measures):
                 Suceeded=False
                 self.measures=old_measures
                 self.update_lr()
