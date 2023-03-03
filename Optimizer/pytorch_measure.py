@@ -15,9 +15,9 @@ class Measure:
         Returns the locations and weights of the measure as a string.
         :returns: str
         """
-        out = "\033[4mLocations:\033[0m     \033[4mWeights:\033[0m \n"
+        out = "\033[4mLocations:\033[0m".ljust(28) + "\033[4mWeights:\033[0m \n"
         for i in range(len(self.weights)):
-            out += f'{self.locations[i].item(): < 10.9f}     {self.weights[i].item(): < 10.9f}\n'
+            out += f'{self.locations[i].item():<20.9f}{self.weights[i].item():<.9f}\n'
         return out
 
     def __repr__(self) -> str:
@@ -112,6 +112,7 @@ class Optimizer:
         self.lr = [lr]*len(self.measures)
         self.old_lr = [lr]*len(self.measures)
         self.state = {'measure':self.measures, 'lr':self.lr}
+        self.is_optim = False
 
     def put_mass(self, meas_index, mass, location_index):
         """
@@ -216,12 +217,11 @@ class Optimizer:
                 self.step(meas_index)
 
             if self.stop_criterion(tol_supp, tol_const):
-                print(f'\nOptimum is attained. Value of the goal function is {loss}. Optimization took {epoch} epochs.')
-                print('\nOptimized measure:\n')
+                print(f'\nOptimum is attained. Loss: {loss}. Epochs: {epoch} epochs.')
                 self.is_optim = True
                 return
             
-            if self.lr_criterion(loss_fn, self.measures, old_measures)==False:
+            if not self.lr_criterion(loss_fn, self.measures, old_measures):
                 #Suceeded=False
                 self.measures=old_measures
                 self.update_lr()
@@ -229,9 +229,6 @@ class Optimizer:
                 #Suceeded=True
 
             if not silent:
-                print(f'Epoch: {epoch:<10} Loss: {loss:<10.0f} LR: {self.lr}')   
-
-            elif epoch % 100 == 0 and silent==False:
                 print(f'Epoch: {epoch:<10} Loss: {loss:<10.0f} LR: {self.lr}')   
 
             if min([lr < smallest_lr for lr in self.lr]):
