@@ -193,7 +193,7 @@ class Optimizer:
         :param loss_fn: loss function
         :param measure: measure to compare current measure to
         """
-        return loss_fn(self.measure) - loss_fn(measure) < 0
+        return loss_fn(self.measure.weights) - loss_fn(measure.weights) < 0
 
     def minimize(self, loss_fn, max_epochs=10000,smallest_lr=1e-6, silent=False, tol_supp=1e-6, tol_const=1e-3,):
         for epoch in range(max_epochs):

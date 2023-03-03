@@ -28,7 +28,7 @@ def loss_fn(w):
     #return -sum([torch.log(w[torch.nonzero(l==data[i].item()).item()]) for i in range(len(data))])
 
 
-lr=0.0001
+lr=0.00015
 measure = pm.Measure(l, w)
 opt=pm.Optimizer(measure,lr=lr)
 
