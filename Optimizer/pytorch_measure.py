@@ -76,9 +76,10 @@ class Measure:
 
     def sample(self, size):
         """
-        Returns a sample of numbers from the distribution given by the measure
-        :param size: Number of elements to sample
-        :returns: sample of random numbers based on measure
+        Returns a sample of indeces from the locations of the measure 
+        given by the distribution of the measures weights
+        :param size: Numreturn torch.dot(errors, measures[0].weights) + torch.dot(errors, measures[1].weights)ber of elements to sample
+        :returns: sample of indeces for random numbers based on measure
         """
         if torch.any(self.weights < 0):
             assert ValueError("You can't have negative weights in a probability measure!")
@@ -101,7 +102,11 @@ class Measure:
 
 class Optimizer:
 
-    def __init__(self, measures: list[Measure], lr : float = 0.1):
+    def __init__(self, measures, lr : float = 0.1):
+        if type(measures) == Measure:
+            self.measures = [measures]
+        elif type(measures) != list:
+            Exception('Error: measures has to be of type Measure or list')
         self.measures = measures
         self.lr = [lr]*len(self.measures)
         self.old_lr = [lr]*len(self.measures)
@@ -228,7 +233,7 @@ class Optimizer:
                 print(f'Epoch: {epoch:<10} Loss: {loss:<10.0f} LR: {self.lr}')   
 
             if min([lr < smallest_lr for lr in self.lr]):
-                print(f'The step size is too small: {min(self.lr): 0.8f}')
+                print(f'The step size is too small: {min(self.lr)}')
                 return
 
 
