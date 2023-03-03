@@ -169,7 +169,7 @@ class Optimizer:
 
         :param lr: learning rate
         """
-        self.lr *= fraction
+        self.lr = [lr*fraction for lr in self.lr]
 
     def state_dict(self):
         """

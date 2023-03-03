@@ -23,14 +23,14 @@ y/=sum(y) #Normalize
 
 index = torch.argmin(abs(l-data.view(-1,1)), dim=1)
 def loss_fn(w):
-    return -w[index].log().sum()
+    return -w[0].weights[index].log().sum()
     #return sum((y-w)**2)/len(w)
     #return -sum([torch.log(w[torch.nonzero(l==data[i].item()).item()]) for i in range(len(data))])
 
 
 lr=0.00015
 measure = pm.Measure(l, w)
-opt=pm.Optimizer(measure,lr=lr)
+opt=pm.Optimizer([measure],lr=lr)
 
 '''
 for epoch in range(5000):
