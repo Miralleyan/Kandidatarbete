@@ -204,10 +204,10 @@ class Optimizer:
         return loss_fn(old_measure) < loss_fn(measure)
 
     def minimize(self, loss_fn, max_epochs=10000,smallest_lr=1e-6, tol_supp=1e-6, tol_const=1e-3, verbose=False, print_freq=100):
-        Suceeded=True
+        #Suceeded=True
         for epoch in range(max_epochs):
-            if Suceeded==True:
-                self.lr=[lr for lr in self.old_lr]
+            #if Suceeded==True:
+            #    self.lr=[lr for lr in self.old_lr]
             old_measures=copy.deepcopy(self.measures)
             for m in self.measures:
                 m.zero_grad()
@@ -222,11 +222,11 @@ class Optimizer:
                 return
             
             if self.lr_decrease_criterion(loss_fn, self.measures, old_measures):
-                Suceeded=False
+                #Suceeded=False
                 self.measures=old_measures
                 self.update_lr()
-            else:
-                Suceeded=True
+            #else:
+            #    Suceeded=True
 
             if verbose and epoch%print_freq==0:
                 print(f'Epoch: {epoch:<10} Loss: {loss:<10.0f} LR: {self.lr}')   
