@@ -220,6 +220,8 @@ class Optimizer:
                 for meas_index in range(len(self.measures)):
                     self.step(meas_index)
                     old_loss = loss
+            else:
+                self.update_lr()
 
             if self.stop_criterion(tol_supp, tol_const):
                 print(f'\nOptimum is attained. Loss: {loss}. Epochs: {epoch} epochs.')
