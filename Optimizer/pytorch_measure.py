@@ -84,8 +84,8 @@ class Measure:
         if torch.any(self.weights < 0):
             assert ValueError("You can't have negative weights in a probability measure!")
 
-        sampling = torch.multinomial(self.weights, size, replacement=True)
-        sample = torch.tensor([self.locations[element.item()] for element in sampling])
+        sample_idx = torch.multinomial(self.weights, size, replacement=True)
+        sample = self.locations[sample_idx]
         return sample
 
     def zero_grad(self):
