@@ -4,14 +4,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 torch.manual_seed(10)
-N = 10
+N = 20
 x = torch.linspace(3, 5, N)
-y = 1 * x + 1.5*torch.randn(N) + 1
+y = 0.3*torch.randn(N) + 2
 
 #plt.scatter(x, y)
 #plt.show()
 
-M = 100 # <- number of locations on measure
+M = 20 # <- number of locations on measure
 
 a = pm.Measure(torch.linspace(0, 3, M), torch.ones(M) / M)
 b = pm.Measure(torch.linspace(0, 3, M), torch.ones(M) / M)
@@ -32,8 +32,8 @@ def loss_fn(measures: list[pm.Measure], n_samples=1000):
     errors = torch.tensor([error(x, locs[i], y) for i in range(n_samples)])
     return errors.dot(probs)
 
-opt = pm.Optimizer([a, b], lr = 0.5)
-opt.minimize(loss_fn, verbose = True)
+opt = pm.Optimizer([a, b], lr = 0.1)
+opt.minimize(loss_fn, max_epochs=1000, verbose = True)
 
 a.visualize()
 b.visualize()
