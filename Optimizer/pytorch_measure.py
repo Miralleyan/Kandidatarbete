@@ -15,9 +15,9 @@ class Measure:
         Returns the locations and weights of the measure as a string.
         :returns: str
         """
-        out = "\033[4mLocations:\033[0m     \033[4mWeights:\033[0m \n"
+        out = "\033[4mLocations:\033[0m".ljust(28) + "\033[4mWeights:\033[0m \n"
         for i in range(len(self.weights)):
-            out += f'{self.locations[i].item(): < 10.9f}     {self.weights[i].item(): < 10.9f}\n'
+            out += f'{self.locations[i].item():<20.9f}{self.weights[i].item():<.9f}\n'
         return out
 
     def __repr__(self) -> str:
@@ -201,7 +201,7 @@ class Optimizer:
         """
         return loss_fn(measure) - loss_fn(old_measure) < 0
 
-    def minimize(self, loss_fn, max_epochs=10000,smallest_lr=1e-6, silent=False, tol_supp=1e-6, tol_const=1e-3, verbose = False):
+    def minimize(self, loss_fn, max_epochs=10000,smallest_lr=1e-6, tol_supp=1e-6, tol_const=1e-3, verbose=False):
         #Suceeded=True
         for epoch in range(max_epochs):
             #if Suceeded==True:
@@ -219,7 +219,7 @@ class Optimizer:
                 self.is_optim = True
                 return
             
-            if self.lr_criterion(loss_fn, self.measures, old_measures)==False:
+            if not self.lr_criterion(loss_fn, self.measures, old_measures):
                 #Suceeded=False
                 self.measures=old_measures
                 self.update_lr()
@@ -227,9 +227,6 @@ class Optimizer:
                 #Suceeded=True
 
             if verbose:
-                print(f'Epoch: {epoch:<10} Loss: {loss:<10.0f} LR: {self.lr}')   
-
-            elif epoch % 100 == 0 and silent==False:
                 print(f'Epoch: {epoch:<10} Loss: {loss:<10.0f} LR: {self.lr}')   
 
             if min([lr < smallest_lr for lr in self.lr]):
