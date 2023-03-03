@@ -28,7 +28,7 @@ def loss_fn(w):
     #return -sum([torch.log(w[torch.nonzero(l==data[i].item()).item()]) for i in range(len(data))])
 
 
-lr=0.0001
+lr=0.01
 measure = pm.Measure(l, w)
 opt=pm.Optimizer([measure],lr=lr)
 
@@ -42,7 +42,7 @@ for epoch in range(5000):
         print(f'Epoch: {epoch:<10} Loss: {loss:<10.0f} LR: {lr}')
 '''
 
-opt.minimize(loss_fn,smallest_lr=1e-10)
+opt.minimize(loss_fn,smallest_lr=1e-10,verbose=True)
 
 
 
