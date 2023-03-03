@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 N=10
 data=torch.randn(10000)
 #data=torch.from_numpy(np.random.beta(1,2,1000))
-
+M=N
 
 
 w = torch.tensor([1/N]*N)#Weights
@@ -21,14 +21,24 @@ x=torch.linspace(-4,4,N)
 y=1/(np.sqrt(2*np.pi)*sigma)*torch.exp(-(x-mu)**2/(2*sigma**2))
 y/=sum(y) #Normalize
 
+'''
 index = torch.argmin(abs(l-data.view(-1,1)), dim=1)
 def loss_fn(w):
     return -w[0].weights[index].log().sum()
     #return sum((y-w)**2)/len(w)
     #return -sum([torch.log(w[torch.nonzero(l==data[i].item()).item()]) for i in range(len(data))])
+'''
 
 
-lr=0.1
+def error(x,y): # a is location in measure (scalar), for example slope in linear regression
+    return ((x - y).pow(2)).sum()
+
+def loss_fn(measures):
+    errors = torch.tensor([error(data, y) for j in range(M)])
+    return torch.dot(errors, measures[0].weights)
+
+
+lr=0.01
 measure = pm.Measure(l, w)
 opt=pm.Optimizer([measure],lr=lr)
 
