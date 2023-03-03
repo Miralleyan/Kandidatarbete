@@ -150,7 +150,8 @@ class Optimizer:
         :param tol_const: stop value, when the maximum difference of gradients
         is smaller than this value the minimization should seize
         """
-        return min([measure.weights.grad[measure.support(tol_supp)].max() - measure.weights.grad.min() < tol_const for measure in self.measures])
+        return min([measure.weights.grad[measure.support(tol_supp)].max()
+                    - measure.weights.grad.min() < tol_const for measure in self.measures])
 
     def step(self, meas_index):
         """
@@ -205,31 +206,35 @@ class Optimizer:
 
     def minimize(self, loss_fn, max_epochs=10000,smallest_lr=1e-6, tol_supp=1e-6, tol_const=1e-3, verbose=False, print_freq=100):
         #Suceeded=True
+        old_loss = float('inf')
         for epoch in range(max_epochs):
             #if Suceeded==True:
-            #    self.lr=[lr for lr in self.old_lr]
+                #self.lr=[lr for lr in self.old_lr]
             old_measures=copy.deepcopy(self.measures)
             for m in self.measures:
                 m.zero_grad()
-            loss=loss_fn(self.measures)
+            loss = loss_fn(self.measures)
             loss.backward()
-            for meas_index in range(len(self.measures)):
-                self.step(meas_index)
+
+            if loss < old_loss:
+                for meas_index in range(len(self.measures)):
+                    self.step(meas_index)
+                    old_loss = loss
 
             if self.stop_criterion(tol_supp, tol_const):
                 print(f'\nOptimum is attained. Loss: {loss}. Epochs: {epoch} epochs.')
                 self.is_optim = True
                 return
-            
-            if self.lr_decrease_criterion(loss_fn, self.measures, old_measures):
+            '''
+            if old_loss < loss:
                 #Suceeded=False
-                self.measures=old_measures
+                self.measures = old_measures
                 self.update_lr()
             #else:
             #    Suceeded=True
-
-            if verbose and epoch%print_freq==0:
-                print(f'Epoch: {epoch:<10} Loss: {loss:<10.0f} LR: {self.lr}')   
+            '''
+            if verbose and epoch % print_freq == 0:
+                print(f'Epoch: {epoch:<10} Loss: {loss:<10.0f} LR: {self.lr}')
 
             if min([lr < smallest_lr for lr in self.lr]):
                 print(f'The step size is too small: {min(self.lr)}')
