@@ -101,7 +101,11 @@ class Measure:
 
 class Optimizer:
 
-    def __init__(self, measures: list[Measure], lr : float = 0.1):
+    def __init__(self, measures, lr : float = 0.1):
+        if type(measures) == Measure:
+            self.measures = [measures]
+        elif type(measures) != list:
+            Exception('Error: measures has to be of type Measure or list')
         self.measures = measures
         self.lr = [lr]*len(self.measures)
         self.state = {'measure':self.measures, 'lr':self.lr}
@@ -169,7 +173,7 @@ class Optimizer:
 
         :param lr: learning rate
         """
-        self.lr *= fraction
+        self.lr = [lr*fraction for lr in self.lr]
 
     def state_dict(self):
         """
@@ -221,7 +225,7 @@ class Optimizer:
                 print(f'Epoch: {epoch:<10} Loss: {loss:<10.0f} LR: {self.lr}')   
 
             if min([lr < smallest_lr for lr in self.lr]):
-                print(f'The step size is too small: {self.lr: 0.8f}')
+                print(f'The step size is too small: {self.lr}')
                 return
 
 
