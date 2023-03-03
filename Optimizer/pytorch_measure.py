@@ -225,6 +225,7 @@ class Optimizer:
                 print(f'\nOptimum is attained. Loss: {loss}. Epochs: {epoch} epochs.')
                 self.is_optim = True
                 return
+
             '''
             if old_loss < loss:
                 #Suceeded=False
