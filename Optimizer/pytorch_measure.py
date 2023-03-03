@@ -107,7 +107,8 @@ class Optimizer:
             self.measures = [measures]
         elif type(measures) != list:
             Exception('Error: measures has to be of type Measure or list')
-        self.measures = measures
+        else:
+            self.measures = measures
         self.lr = [lr]*len(self.measures)
         self.old_lr = [lr]*len(self.measures)
         self.state = {'measure':self.measures, 'lr':self.lr}
@@ -182,7 +183,7 @@ class Optimizer:
         Updates the state dictionary for the optimizer
         """
         print("\n".join("\t{}: {}".format(k, v) for k, v in self.state.items()))
-        return self.state_dict
+        return self.state
 
     def load_state_dict(self, state_dict):
         """
@@ -201,7 +202,7 @@ class Optimizer:
         """
         return loss_fn(measure) - loss_fn(old_measure) < 0
 
-    def minimize(self, loss_fn, max_epochs=10000,smallest_lr=1e-6, silent=False, tol_supp=1e-6, tol_const=1e-3, verbose = False):
+    def minimize(self, loss_fn, max_epochs=10000,smallest_lr=1e-6, silent=True, tol_supp=1e-6, tol_const=1e-3):
         #Suceeded=True
         for epoch in range(max_epochs):
             #if Suceeded==True:
@@ -216,6 +217,7 @@ class Optimizer:
 
             if self.stop_criterion(tol_supp, tol_const):
                 print(f'\nOptimum is attained. Value of the goal function is {loss}. Optimization took {epoch} epochs.')
+                print('\nOptimized measure:\n')
                 self.is_optim = True
                 return
             
@@ -226,7 +228,7 @@ class Optimizer:
             #else:
                 #Suceeded=True
 
-            if verbose:
+            if not silent:
                 print(f'Epoch: {epoch:<10} Loss: {loss:<10.0f} LR: {self.lr}')   
 
             elif epoch % 100 == 0 and silent==False:
