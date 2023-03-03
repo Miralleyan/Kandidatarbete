@@ -3,7 +3,7 @@ import pytorch_measure as pm
 import numpy as np
 import matplotlib.pyplot as plt
 
-N=100
+N=20
 data=torch.randn(10000)
 #data=torch.from_numpy(np.random.beta(1,2,1000))
 
@@ -28,7 +28,7 @@ def loss_fn(w):
     #return -sum([torch.log(w[torch.nonzero(l==data[i].item()).item()]) for i in range(len(data))])
 
 
-lr=0.00015
+lr=0.01
 measure = pm.Measure(l, w)
 opt=pm.Optimizer([measure],lr=lr)
 
