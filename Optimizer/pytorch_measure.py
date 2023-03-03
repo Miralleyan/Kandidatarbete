@@ -108,6 +108,7 @@ class Optimizer:
             Exception('Error: measures has to be of type Measure or list')
         self.measures = measures
         self.lr = [lr]*len(self.measures)
+        self.old_lr = [lr]*len(self.measures)
         self.state = {'measure':self.measures, 'lr':self.lr}
 
     def put_mass(self, meas_index, mass, location_index):
@@ -200,7 +201,10 @@ class Optimizer:
         return loss_fn(measure) - loss_fn(old_measure) < 0
 
     def minimize(self, loss_fn, max_epochs=10000,smallest_lr=1e-6, silent=False, tol_supp=1e-6, tol_const=1e-3, verbose = False):
+        #Suceeded=True
         for epoch in range(max_epochs):
+            #if Suceeded==True:
+            #    self.lr=[lr for lr in self.old_lr]
             old_measures=copy.deepcopy(self.measures)
             for m in self.measures:
                 m.zero_grad()
@@ -215,8 +219,11 @@ class Optimizer:
                 return
             
             if self.lr_criterion(loss_fn, self.measures, old_measures)==False:
+                #Suceeded=False
                 self.measures=old_measures
                 self.update_lr()
+            #else:
+                #Suceeded=True
 
             if verbose:
                 print(f'Epoch: {epoch:<10} Loss: {loss:<10.0f} LR: {self.lr}')   
@@ -225,7 +232,7 @@ class Optimizer:
                 print(f'Epoch: {epoch:<10} Loss: {loss:<10.0f} LR: {self.lr}')   
 
             if min([lr < smallest_lr for lr in self.lr]):
-                print(f'The step size is too small: {self.lr}')
+                print(f'The step size is too small: {min(self.lr)}')
                 return
 
 
