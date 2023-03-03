@@ -76,9 +76,10 @@ class Measure:
 
     def sample(self, size):
         """
-        Returns a sample of numbers from the distribution given by the measure
-        :param size: Number of elements to sample
-        :returns: sample of random numbers based on measure
+        Returns a sample of indeces from the locations of the measure 
+        given by the distribution of the measures weights
+        :param size: Numreturn torch.dot(errors, measures[0].weights) + torch.dot(errors, measures[1].weights)ber of elements to sample
+        :returns: sample of indeces for random numbers based on measure
         """
         if torch.any(self.weights < 0):
             assert ValueError("You can't have negative weights in a probability measure!")
