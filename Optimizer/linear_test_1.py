@@ -31,7 +31,7 @@ def loss_fn(w):
         return 1/(np.sqrt(2*np.pi))*torch.exp(-x**2/2)
 
     def KDE(x):
-        return sum([1/(N*h) *(K((xi-w[0].locations).sum()/h)) for xi in x])
+        return torch.tensor([1/(N*h) *(K((xi-w[0].locations).sum()/h)).item() for xi in x], requires_grad=True)
 
     return -KDE(data).log().sum()
     #return -w[0].weights[index].log().sum()
