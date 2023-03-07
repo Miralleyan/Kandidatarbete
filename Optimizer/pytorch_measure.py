@@ -204,7 +204,7 @@ class Optimizer:
         """
         return loss_fn(old_measure) < loss_fn(measure)
 
-    def minimize(self, loss_fn, max_epochs=10000,smallest_lr=1e-6, tol_supp=1e-6, tol_const=1e-3, verbose=False, print_freq=100):
+    def minimize(self, loss_fn, max_epochs=10000,smallest_lr=1e-6, tol_supp=1e-6, tol_const=1e-3, verbose=False, print_freq=100, stop=True):
         #Suceeded=True
         old_loss = float('inf')
         for epoch in range(max_epochs):
@@ -223,7 +223,7 @@ class Optimizer:
             else:
                 self.update_lr()
 
-            if self.stop_criterion(tol_supp, tol_const):
+            if stop and self.stop_criterion(tol_supp, tol_const):
                 print(f'\nOptimum is attained. Loss: {loss}. Epochs: {epoch} epochs.')
                 self.is_optim = True
                 return

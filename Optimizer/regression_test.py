@@ -25,6 +25,6 @@ opt = pm.Optimizer([measure], lr = 1)
 opt.minimize(loss_fn, verbose = True)
 print(measure.locations[torch.argmax(measure.weights)].item())  # Print degenerated solution
 
-
+measure.visualize()
 #plt.scatter(measure.locations.detach().numpy(), measure.weights.detach().numpy())
 #plt.show()

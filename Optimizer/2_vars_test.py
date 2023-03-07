@@ -3,7 +3,7 @@ import pytorch_measure as pm
 import numpy as np
 import matplotlib.pyplot as plt
 
-torch.manual_seed(10)
+torch.manual_seed(15)
 N = 20
 x = torch.linspace(3, 5, N)
 y = 0.3*torch.randn(N) + 2
@@ -27,13 +27,24 @@ def unif_samples(ms: list[pm.Measure], n_samples):
     probs = torch.cat([ms[i].weights[idx[:, i]].unsqueeze(1) for i in range(len(ms))], 1).prod(1)
     return (locs, probs)
 
+def sample_meas(ms: list[pm.Measure], n_samples):
+    idx = torch.cat([ms[i].sample(n_samples).unsqueeze(1) for i in range(len(ms))], 1).long()
+    locs = torch.cat([ms[i].locations[idx[:, i]].unsqueeze(1) for i in range(len(ms))], 1)
+    probs = torch.cat([ms[i].weights[idx[:, i]].unsqueeze(1) for i in range(len(ms))], 1).prod(1)
+    return (locs, probs)
+
 def loss_fn(measures: list[pm.Measure], n_samples=1000):
     locs, probs = unif_samples(measures, n_samples)
     errors = torch.tensor([error(x, locs[i], y) for i in range(n_samples)])
     return errors.dot(probs)
 
+def loss_fn_2(measures: list[pm.Measure], n_samples=1000):
+    locs, probs = sample_meas(measures, n_samples)
+    errors = torch.tensor([error(x, locs[i], y) for i in range(n_samples)])
+    return errors.dot(probs)
+
 opt = pm.Optimizer([a, b], lr = 0.1)
-opt.minimize(loss_fn, max_epochs=1000, verbose = True)
+opt.minimize(loss_fn, max_epochs=1000, verbose = True, stop=False)
 
 a.visualize()
 b.visualize()
