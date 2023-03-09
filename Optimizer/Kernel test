@@ -1,0 +1,39 @@
+import pytorch_measure as pm
+import torch
+import matplotlib.pyplot as plt
+import numpy as np
+N=100
+w = torch.tensor([1/N]*N)#Weights
+l = torch.linspace(-4,4,N)
+w = torch.nn.parameter.Parameter(w)
+l = torch.nn.parameter.Parameter(l)
+
+m=pm.Measure(l,w)
+data=torch.randn(1000)
+
+#m.visualize()
+#plt.show()
+
+
+
+sam=m.sample(1000)
+#plt.hist(sam.detach().numpy(),11)
+#sam=m.locations
+h=1.06*len(sam)**(-1/5)
+print(h)
+
+def K(x):
+    return 1/(np.sqrt(2*np.pi*h))*torch.exp(-x**2/2)
+
+def KDE(x):
+    #return torch.tensor([1/(len(sam)) *(K((x[0]-sam)/h)).sum().item()], requires_grad=True)
+    return torch.tensor([1/(len(sam)) *(K((xi-sam)/h)).sum().item() for xi in x], requires_grad=True)
+
+
+x=data
+y=KDE(data).detach().numpy()
+x=x.detach().numpy()
+plt.scatter(data,y)
+plt.xlim(-4, 4)
+plt.ylim(0, 0.1)
+plt.show()

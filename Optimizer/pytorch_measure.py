@@ -89,7 +89,7 @@ class Measure:
         return sample
 
     def zero_grad(self):
-        self.weights.grad = torch.zeros(len(self.weights), device=self.device)
+        self.weights.grad = None #torch.zeros(len(self.weights), device=self.device)
 
     def visualize(self):
         """
@@ -97,7 +97,7 @@ class Measure:
         """
         plt.bar(self.locations.tolist(), self.weights.tolist(), width=0.1)
         plt.axhline(y=0, c="grey", linewidth=0.5)
-        plt.show()
+        plt.draw()
 
 
 class Optimizer:
@@ -153,7 +153,7 @@ class Optimizer:
         return min([measure.weights.grad[measure.support(tol_supp)].max()
                     - measure.weights.grad.min() < tol_const for measure in self.measures])
 
-    def step(self, meas_index):
+    def step(self, meas_index, lr):
         """
         Steepest decent with fixed total mass
         """
@@ -162,23 +162,23 @@ class Optimizer:
         grad_sorted = torch.argsort(self.measures[meas_index].weights.grad)
 
         # Distribute positive mass
-        mass_pos = self.lr[meas_index]
+        mass_pos = lr[meas_index]
         self.put_mass(meas_index, mass_pos, grad_sorted[0].item())
 
         # Distribute negative mass
-        mass_neg = self.lr[meas_index]
+        mass_neg = lr[meas_index]
         for i in torch.flip(grad_sorted, dims=[0]):
             mass_neg -= self.take_mass(meas_index, mass_neg, i.item())
             if mass_neg <= 0:
                 break
     
-    def update_lr(self, fraction = 0.7):
+    def update_lr(self, lr, fraction=0.7):
         """
         Updates learning rate for the optimizer
 
-        :param lr: learning rate
+        :param fraction: multiply lr with this value
         """
-        self.lr = [lr*fraction for lr in self.lr]
+        return [l*fraction for l in lr]
 
     def state_dict(self):
         """
@@ -204,43 +204,42 @@ class Optimizer:
         """
         return loss_fn(old_measure) < loss_fn(measure)
 
-    def minimize(self, loss_fn, max_epochs=10000,smallest_lr=1e-6, tol_supp=1e-6, tol_const=1e-3, verbose=False, print_freq=100, stop=True):
+    def minimize(self, loss_fn, max_epochs=10000,smallest_lr=1e-6, tol_supp=1e-6, tol_const=1e-3, verbose=False, print_freq=100):
         #Suceeded=True
-        old_loss = float('inf')
+        lr = self.lr
         for epoch in range(max_epochs):
             #if Suceeded==True:
                 #self.lr=[lr for lr in self.old_lr]
-            old_measures=copy.deepcopy(self.measures)
+            old_measures = copy.deepcopy(self.measures)
             for m in self.measures:
                 m.zero_grad()
-            loss = loss_fn(self.measures)
-            loss.backward()
+            loss_old = loss_fn(self.measures)
+            loss_old.backward()
 
-            if loss < old_loss:
-                for meas_index in range(len(self.measures)):
-                    self.step(meas_index)
-                    old_loss = loss
-            else:
-                self.update_lr()
+            for meas_index in range(len(self.measures)):
+                self.step(meas_index, lr)
 
-            if stop and self.stop_criterion(tol_supp, tol_const):
-                print(f'\nOptimum is attained. Loss: {loss}. Epochs: {epoch} epochs.')
-                self.is_optim = True
-                return
-
-            '''
-            if old_loss < loss:
-                #Suceeded=False
+            loss_new = loss_fn(self.measures)
+            if loss_old <= loss_new:  # bad step, revert to old weights
                 self.measures = old_measures
-                self.update_lr()
-            #else:
-            #    Suceeded=True
-            '''
-            if verbose and epoch % print_freq == 0:
-                print(f'Epoch: {epoch:<10} Loss: {loss:<10.0f} LR: {self.lr}')
+                lr = self.update_lr(lr=lr)  # reduce lr
+                if verbose:
+                    print(f'Epoch: {epoch:<10} Lr was reduced to: {lr}')
+            else:  # successful step
+                lr = self.lr  # reset to starting lr
+                if self.stop_criterion(tol_supp, tol_const):
+                    print(f'\nOptimum is attained. Loss: {loss_new}. Epochs: {epoch} epochs.')
+                    self.is_optim = True
+                    return
 
-            if min([lr < smallest_lr for lr in self.lr]):
-                print(f'The step size is too small: {min(self.lr)}')
+            if epoch % print_freq == 0:
+                if verbose:
+                    print(f'Epoch: {epoch:<10} Loss: {loss_new:<10.0f} LR: {lr}')
+                else:
+                    print('.')
+
+            if min([l < smallest_lr for l in lr]):
+                print(f'The step size is too small: {min(lr)}')
                 return
 
 
