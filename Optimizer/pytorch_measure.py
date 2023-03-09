@@ -230,6 +230,7 @@ class Optimizer:
                 print(f'Epoch: {epoch:<10} Loss did not decrease')
 
             else:  # successful step
+                lr = self.lr  # reset to starting lr
                 if self.stop_criterion(tol_supp, tol_const):
                     print(f'\nOptimum is attained. Loss: {loss_new}. Epochs: {epoch} epochs.')
                     self.is_optim = True
