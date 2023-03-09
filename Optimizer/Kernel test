@@ -26,14 +26,15 @@ def K(x):
     return 1/(np.sqrt(2*np.pi*h))*torch.exp(-x**2/2)
 
 def KDE(x):
-    #return torch.tensor([1/(len(sam)) *(K((x[0]-sam)/h)).sum().item()], requires_grad=True)
+    return torch.tensor([1/(len(sam)) *(K((xi-l)/h)*1/m.weights).sum().item() for xi in x], requires_grad=True)
     return torch.tensor([1/(len(sam)) *(K((xi-sam)/h)).sum().item() for xi in x], requires_grad=True)
 
 
 x=data
 y=KDE(data).detach().numpy()
+print(y)
 x=x.detach().numpy()
 plt.scatter(data,y)
 plt.xlim(-4, 4)
-plt.ylim(0, 0.1)
+plt.ylim(0, 1)
 plt.show()
