@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 
 N=100
 data=torch.randn(1000)
-M=N
 
 
 w = torch.tensor([1/N]*N)#Weights
@@ -27,20 +26,22 @@ y/=sum(y) #Normalize
 
 index = torch.argmin(abs(l-data.view(-1,1)), dim=1)
 def loss_fn(w):
-    sam=w[0].sample(1000)
-    h=1.06*len(sam)**(-1/5)
+    #sam=w[0].sample(1000)
+    #h=1.06*len(sam)**(-1/5)
     
     def K(x):
         return 1/(np.sqrt(2*np.pi*h))*torch.exp(-x**2/2)
 
+
+
     def KDE(x):
         
         sam=w[0].locations
-        wei=w[0].weights
+        #wei=w[0].weights
         #print([(xi-sam) for xi in x])
         
-        return torch.tensor([1/(len(sam)) *(K((xi-sam)/h)*w[0].weights).sum().item() for xi in x], requires_grad=True)
- 
+        return torch.tensor([1/(len(sam)) *(K((xi-sam)/h)).sum().item() for xi in x], requires_grad=True)
+    #sam=w[0].locations
     #x=w[0].locations
     #y=KDE(x).detach().numpy()
     #x=x.detach().numpy()
@@ -48,6 +49,9 @@ def loss_fn(w):
     #plt.show()
     #print(-KDE(data).log().sum())
     #return -KDE(data).log().sum()
+    #bl=KDE(x)
+    #w[0].weights=bl/sum(bl)
+    #return -(torch.tensor([1/(len(sam)) *(K((xi-sam)/h)*1/w[0].weights).sum().item() for xi in data], requires_grad=True)).log().sum()
     return -w[0].weights[index].log().sum()
     #return sum((y-w)**2)/len(w)
     #return -sum([torch.log(w[torch.nonzero(l==data[i].item()).item()]) for i in range(len(data))])
@@ -63,7 +67,7 @@ def loss_fn(measures):
     '''
 
 
-lr=0.01
+lr=0.001
 measure = pm.Measure(l, w)
 #print(loss_fn([measure]))
 opt=pm.Optimizer([measure],lr=lr)
@@ -79,7 +83,7 @@ for epoch in range(5000):
         print(f'Epoch: {epoch:<10} Loss: {loss:<10.0f} LR: {lr}')
 '''
 
-opt.minimize(loss_fn,smallest_lr=1e-10,verbose=True, tol_supp=1e-200)
+opt.minimize(loss_fn,smallest_lr=1e-10,verbose=False)
 
 
 
