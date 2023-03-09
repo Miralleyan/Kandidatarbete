@@ -249,7 +249,6 @@ class Optimizer:
 
 
 
-
 def main():
     a = torch.tensor([-0.1, 0.1, 0.3, 0.1, 0.4])
     b = torch.tensor([1., 2., 3., 4., 5.])
