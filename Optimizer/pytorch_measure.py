@@ -234,7 +234,7 @@ class Optimizer:
 
             if epoch % print_freq == 0:
                 if verbose:
-                    print(f'Epoch: {epoch:<10} Loss: {loss_new:<10.0f} LR: {lr}')
+                    print(f'Epoch: {epoch:<10} Loss: {loss_new:<10.2e} LR: {lr}')
                 else:
                     print('.')
 
