@@ -6,15 +6,15 @@ import matplotlib.pyplot as plt
 torch.manual_seed(15)
 N = 20
 x = torch.linspace(3, 5, N)
-y = 0.3*torch.randn(N) + 2
+y = 2 * x - 3 + 0.2*torch.randn(N)
 
 #plt.scatter(x, y)
 #plt.show()
 
 M = 20 # <- number of locations on measure
 
-a = pm.Measure(torch.linspace(0, 3, M), torch.ones(M) / M)
-b = pm.Measure(torch.linspace(0, 3, M), torch.ones(M) / M)
+a = pm.Measure(torch.linspace(-5, 5, M), torch.ones(M) / M)
+b = pm.Measure(torch.linspace(-5, 5, M), torch.ones(M) / M)
 
 def error(x, param, y): # a is location in measure (scalar), for example slope in linear regression
     return ((param[0] * x + param[1] - y).pow(2)).sum()
@@ -34,8 +34,13 @@ def sample_meas(ms: list[pm.Measure], n_samples):
     return (locs, probs)
 
 def loss_fn(measures: list[pm.Measure], n_samples=1000):
-    locs, probs = unif_samples(measures, n_samples)
-    errors = torch.tensor([error(x, locs[i], y) for i in range(n_samples)])
+    #locs, probs = unif_samples(measures, n_samples)
+    #errors = torch.tensor([error(x, locs[i], y) for i in range(n_samples)])
+    #return errors.dot(probs)
+    idx = torch.tensor([[i, j] for i in range(len(measures[0].locations)) for j in range(len(measures[1].locations))])
+    locs = torch.cat([measures[i].locations[idx[:, i]].unsqueeze(1) for i in range(len(measures))], 1)
+    probs = torch.cat([measures[i].weights[idx[:, i]].unsqueeze(1) for i in range(len(measures))], 1).prod(1)
+    errors = torch.tensor([error(x, locs[i], y) for i in range(len(idx))])
     return errors.dot(probs)
 
 def loss_fn_2(measures: list[pm.Measure], n_samples=1000):
@@ -43,8 +48,8 @@ def loss_fn_2(measures: list[pm.Measure], n_samples=1000):
     errors = torch.tensor([error(x, locs[i], y) for i in range(n_samples)])
     return errors.dot(probs)
 
-opt = pm.Optimizer([a, b], lr = 0.1)
-opt.minimize(loss_fn, max_epochs=1000, verbose = True)#, stop=False)
+opt = pm.Optimizer([a, b], lr = 0.0002)
+opt.minimize(loss_fn, max_epochs=10000, verbose = True, stop=False)
 
 a.visualize()
 b.visualize()

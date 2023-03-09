@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 N = 100
 x = torch.linspace(0, 5, N)
-y = 2.15 * x + torch.randn(N)
+y = 2.15 * x + 0.5 * torch.randn(N)
 
 plt.scatter(x, y)
 plt.show()
