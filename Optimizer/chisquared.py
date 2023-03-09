@@ -3,7 +3,7 @@ import pytorch_measure as pm
 import torch
 from matplotlib import pyplot as plt
 
-l = torch.tensor(torch.linspace(-3, 3, 20))
+l = torch.linspace(-3, 3, 20)
 w = torch.ones(20) / 20
 measure = pm.Measure(l, w)
 
@@ -20,6 +20,6 @@ def chi_squared(measure):
     return 100 * sum(measure[0].weights**2 / bins_freq)
 
 
-opt = pm.Optimizer(measure, lr=0.005)
-opt.minimize(chi_squared, verbose = True, print_freq=1)
+opt = pm.Optimizer(measure, lr=0.01)
+opt.minimize(chi_squared, smallest_lr=1e-3, verbose = True, print_freq=1)
 measure.visualize()
