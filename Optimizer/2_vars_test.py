@@ -5,16 +5,16 @@ import matplotlib.pyplot as plt
 
 torch.manual_seed(15)
 N = 20
-x = torch.linspace(3, 5, N)
-y = 2 * x - 3 + 0.2*torch.randn(N)
+x = torch.linspace(-1, 2, N)
+y = 2 * x + 1 + 0.2*torch.randn(N)
 
 #plt.scatter(x, y)
 #plt.show()
 
 M = 20 # <- number of locations on measure
 
-a = pm.Measure(torch.linspace(-5, 5, M), torch.ones(M) / M)
-b = pm.Measure(torch.linspace(-5, 5, M), torch.ones(M) / M)
+a = pm.Measure(torch.linspace(0, 3, M), torch.ones(M) / M)
+b = pm.Measure(torch.linspace(0, 3, M), torch.ones(M) / M)
 
 def error(x, param, y): # a is location in measure (scalar), for example slope in linear regression
     return ((param[0] * x + param[1] - y).pow(2)).sum()
@@ -49,14 +49,14 @@ def loss_fn_2(measures: list[pm.Measure], n_samples=1000):
     return errors.dot(probs)
 
 opt = pm.Optimizer([a, b], lr = 0.0002)
-opt.minimize(loss_fn, max_epochs=10000, verbose = True, stop=False)
+opt.minimize(loss_fn, max_epochs=10000, verbose = True)
 
 a.visualize()
 b.visualize()
 aMax = a.locations[torch.argmax(a.weights)]
 bMax = b.locations[torch.argmax(b.weights)]
 plt.scatter(x,y)
-plt.plot([3,5], [3*aMax+bMax, 5*aMax+bMax])
+plt.plot([-1,2], [-aMax+bMax, 2*aMax+bMax])
 plt.show()
 print(a.weights.grad)
 print(b.weights.grad)
