@@ -44,7 +44,7 @@ def loss_fn_2(measures: list[pm.Measure], n_samples=1000):
     return errors.dot(probs)
 
 opt = pm.Optimizer([a, b], lr = 0.1)
-opt.minimize(loss_fn, max_epochs=1000, verbose = True, stop=False)
+opt.minimize(loss_fn, max_epochs=1000, verbose = True)#, stop=False)
 
 a.visualize()
 b.visualize()
