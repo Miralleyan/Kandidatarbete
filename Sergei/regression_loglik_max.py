@@ -52,7 +52,7 @@ def loglik(mes):  # - log-likelihood
     return -(mes.weights[closest_idx]).log().sum()
 
 likmax = MeasureMinimizer(alpha, loglik)
-likmax.minimize(print_each_step=10)
+#ikmax.minimize(print_each_step=10)
 likmax.minimize(print_each_step=10, tol_const=0.01, adaptive=True)
 
 # print(likmax.grad)
