@@ -97,7 +97,7 @@ class Measure:
         """
         plt.bar(self.locations.tolist(), self.weights.tolist(), width=0.1)
         plt.axhline(y=0, c="grey", linewidth=0.5)
-        plt.draw()
+        plt.show()
 
 
 class Optimizer:
@@ -202,29 +202,32 @@ class Optimizer:
         :param loss_fn: loss function
         :param measure: measure to compare current measure to
         """
-        return loss_fn(old_measure) - loss_fn(measure) < 1e-3
+        return loss_fn(old_measure) < loss_fn(measure)
 
-    def minimize(self, loss_fn, max_epochs=10000,smallest_lr=1e-6, tol_supp=1e-6, tol_const=1e-3, verbose=False, print_freq=100):
+    def minimize(self, loss_fn, max_epochs=10000,smallest_lr=1e-6, tol_supp=1e-6, tol_const=1e-3, verbose=False, print_freq=100, stop=True):
         #Suceeded=True
         old_loss = float('inf')
         for epoch in range(max_epochs):
             #if Suceeded==True:
                 #self.lr=[lr for lr in self.old_lr]
-            old_measures = copy.deepcopy(self.measures)
+            old_measures=copy.deepcopy(self.measures)
             for m in self.measures:
                 m.zero_grad()
             loss = loss_fn(self.measures)
             loss.backward()
-            for meas_index in range(len(self.measures)):
-                self.step(meas_index)
 
-            if self.lr_decrease_criterion(loss_fn, self.measures, old_measures):
-                self.measures = old_measures
+            if loss < old_loss:
+                for meas_index in range(len(self.measures)):
+                    self.step(meas_index)
+                    old_loss = loss
+            else:
                 self.update_lr()
-            elif self.stop_criterion(tol_supp, tol_const):
+
+            if stop and self.stop_criterion(tol_supp, tol_const):
                 print(f'\nOptimum is attained. Loss: {loss}. Epochs: {epoch} epochs.')
                 self.is_optim = True
                 return
+
             '''
             if old_loss < loss:
                 #Suceeded=False
