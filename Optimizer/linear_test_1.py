@@ -25,7 +25,7 @@ y/=sum(y) #Normalize
 
 
 
-#index = torch.argmin(abs(l-data.view(-1,1)), dim=1)
+index = torch.argmin(abs(l-data.view(-1,1)), dim=1)
 def loss_fn(w):
     sam=w[0].sample(1000)
     h=1.06*len(sam)**(-1/5)
@@ -35,11 +35,11 @@ def loss_fn(w):
 
     def KDE(x):
         
-        #sam=w[0].locations
-        #wei=w[0].weights
+        sam=w[0].locations
+        wei=w[0].weights
         #print([(xi-sam) for xi in x])
         
-        return torch.tensor([1/(len(sam)) *(K((xi-sam)/h)).sum().item() for xi in x], requires_grad=True)
+        return torch.tensor([1/(len(sam)) *(K((xi-sam)/h)*w[0].weights).sum().item() for xi in x], requires_grad=True)
  
     #x=w[0].locations
     #y=KDE(x).detach().numpy()
@@ -47,8 +47,8 @@ def loss_fn(w):
     #plt.scatter(x,y/sum(y))
     #plt.show()
     #print(-KDE(data).log().sum())
-    return -KDE(data).log().sum()
-    #return -w[0].weights[index].log().sum()
+    #return -KDE(data).log().sum()
+    return -w[0].weights[index].log().sum()
     #return sum((y-w)**2)/len(w)
     #return -sum([torch.log(w[torch.nonzero(l==data[i].item()).item()]) for i in range(len(data))])
 
@@ -63,7 +63,7 @@ def loss_fn(measures):
     '''
 
 
-lr=0.1
+lr=0.01
 measure = pm.Measure(l, w)
 #print(loss_fn([measure]))
 opt=pm.Optimizer([measure],lr=lr)
