@@ -109,8 +109,7 @@ class Optimizer:
             Exception('Error: measures has to be of type Measure or list')
         else:
             self.measures = measures
-        self.lr = [lr]*len(self.measures)
-        self.old_lr = [lr]*len(self.measures)
+        self.lr = lr
         self.state = {'measure':self.measures, 'lr':self.lr}
         self.is_optim = False
 
@@ -162,11 +161,11 @@ class Optimizer:
         grad_sorted = torch.argsort(self.measures[meas_index].weights.grad)
 
         # Distribute positive mass
-        mass_pos = lr[meas_index]
+        mass_pos = lr
         self.put_mass(meas_index, mass_pos, grad_sorted[0].item())
 
         # Distribute negative mass
-        mass_neg = lr[meas_index]
+        mass_neg = lr
         for i in torch.flip(grad_sorted, dims=[0]):
             mass_neg -= self.take_mass(meas_index, mass_neg, i.item())
             if mass_neg <= 0:
@@ -178,7 +177,7 @@ class Optimizer:
 
         :param fraction: multiply lr with this value
         """
-        return [l*fraction for l in lr]
+        return lr*fraction
 
     def state_dict(self):
         """
@@ -220,11 +219,16 @@ class Optimizer:
                 self.step(meas_index, lr)
 
             loss_new = loss_fn(self.measures)
-            if loss_old <= loss_new:  # bad step, revert to old weights
+            loss_new.backward()
+            if loss_old < loss_new:  # bad step
                 self.measures = old_measures
                 lr = self.update_lr(lr=lr)  # reduce lr
+
                 if verbose:
-                    print(f'Epoch: {epoch:<10} Lr was reduced to: {lr}')
+                    print(f'Epoch: {epoch:<10} Lr was reduced to: {lr:.5f}')
+            elif loss_old == loss_new and verbose:
+                print(f'Epoch: {epoch:<10} Loss did not decrease')
+
             else:  # successful step
                 lr = self.lr  # reset to starting lr
                 if self.stop_criterion(tol_supp, tol_const):
@@ -232,16 +236,15 @@ class Optimizer:
                     self.is_optim = True
                     return
 
-            if epoch % print_freq == 0:
-                if verbose:
-                    print(f'Epoch: {epoch:<10} Loss: {loss_new:<10.0f} LR: {lr}')
-                else:
-                    print('.')
+                if epoch % print_freq == 0:
+                    if verbose:
+                        print(f'Epoch: {epoch:<10} Loss: {loss_new:<10.4f} LR: {lr:.5f}')
+                    else:
+                        print('.')
 
-            if min([l < smallest_lr for l in lr]):
-                print(f'The step size is too small: {min(lr)}')
+            if lr < smallest_lr:
+                print(f'The step size is too small: {lr}')
                 return
-
 
 
 
