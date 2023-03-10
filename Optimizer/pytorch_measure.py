@@ -221,7 +221,7 @@ class Optimizer:
             loss_new = loss_fn(self.measures)
             loss_new.backward()
             if loss_old < loss_new:  # bad step
-                self.measures = old_measures
+                self.measures = copy.deepcopy(old_measures)
                 lr = self.update_lr(lr=lr)  # reduce lr
 
                 if verbose:
@@ -230,7 +230,7 @@ class Optimizer:
                 print(f'Epoch: {epoch:<10} Loss did not decrease')
 
             else:  # successful step
-                lr = self.lr  # reset to starting lr
+                #lr = self.lr  # reset to starting lr
                 if self.stop_criterion(tol_supp, tol_const):
                     print(f'\nOptimum is attained. Loss: {loss_new}. Epochs: {epoch} epochs.')
                     self.is_optim = True
