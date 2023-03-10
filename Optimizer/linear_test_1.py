@@ -3,9 +3,9 @@ import pytorch_measure as pm
 import numpy as np
 import matplotlib.pyplot as plt
 
-N=200
+N=20
 data=torch.randn(1000)
-data=torch.normal(0,3,size=(1,100))
+#data=torch.normal(0,3,size=(1,100))
 
 
 w = torch.tensor([1/N]*N)#Weights
@@ -20,7 +20,7 @@ x=torch.linspace(-4,4,N)
 y=1/(np.sqrt(2*np.pi))*torch.exp(-(x-mu)**2/(2*sigma**2))
 y/=sum(y) #Normalize
 #w=torch.tensor(y)
-'''
+#'''
 m=measure = pm.Measure(l, w)
 
 sam=torch.linspace(-10,10,N)
@@ -34,65 +34,45 @@ def K(x):
 def KDE(x):
     return 1/(len(sam))*torch.matmul(K((x.reshape(-1,1)-sam)/h),m.weights.reshape(-1,1).double())
 
-
+'''
 print("hello")
-z=torch.linspace(-4,4,N)
+z=torch.linspace(-4,4,N*10)
 t=KDE(z).detach().numpy()
+t=t/sum(t)
 
 plt.scatter(z.detach().numpy(),t)
+m.visualize()
 plt.show()
-#m.visualize()
-
-
-
 '''
+
+
+
+#'''
 
 #index = torch.argmin(abs(l-data.view(-1,1)), dim=1)
 def loss_fn(w):
+    #sam=w[0].locations
+    sam=torch.linspace(-8,8,2*N)
+    h=1.06*len(sam)**(-1/5)
+    
+    #sam=w[0].sample(N)
 
     def K(x):
         return torch.tensor(1/(np.sqrt(2*np.pi*h))*np.exp((-x**2/2).tolist()),requires_grad=True)
 
+   
+    #KDE=(100/N*torch.matmul(w[0].weights.double(),K((sam.reshape(-1,1)-x)/h)[?]))
+    KDE=(100/(len(sam))*torch.matmul(K((x.reshape(-1,1)-sam)/h),w[0].weights.reshape(-1,1).double()))
+    #KDE=(10/(len(sam))*K((x.reshape(-1,1)-sam)/h).sum(0))
+    t=KDE.detach().numpy()
 
-    #sam=w[0].locations
-    sam=torch.linspace(-10,10,N)
-    h=1.06*len(sam)**(-1/5)
-
-    return 1/(len(sam))*torch.matmul(K((x.reshape(-1,1)-sam)/h),w[0].weights.reshape(-1,1).double()).sum().log()
+    #w[0].visualize()
+    #plt.scatter(sam.detach().numpy(),t)
     
-    #test=torch.tensor([1,2,3])
-    #test1=torch.tensor([2,3,4])
-    #test2=torch.tensor([[1,2,3],[4,5,6],[7,8,9]])
-    #tensor1 = torch.randn(10, 3)
-    #print(tensor1)
-    #print(test)
-    #print(test2)
-    #print(test1.reshape(-1,1))
-    #print(test1.reshape(-1,1)-test)
-    #print((test2-test))
-    #print(torch.matmul(test2-test,test))
-    #print([(K((xi.reshape(-1,1)-sam)/h)*w[0].weights).sum() for xi in data])
-    #print(w[0].weights.reshape(-1,1))
-    #print(x-sam)
-    #print((x.reshape(-1,1)-sam)/h)
-    #print(K((x.reshape(-1,1)-sam)/h))
-    #print(K((x.reshape(-1,1)-sam)/h).double())
-    #print(torch.matmul(K((x.reshape(-1,1)-sam)/h),w[0].weights.reshape(-1,1).double()))
-    #print(x)
-    #print((x.reshape(-1,1)-sam))
-    #print(w[0].weights.reshape(-1,1).size())
-    #Kx= 1/(len(sam))*torch.matmul(K((x.reshape(-1,1)-sam)/h),w[0].weights.reshape(-1,1).double())
-    #print(Kx) 
-    #print(w[0].weights)
-    #print(Kx*w[0].weights)
-
-
-    #sam=w[0].locations
-    #x=w[0].locations
-    #y=KDE(x).detach().numpy(
-    #x=x.detach().numpy()
-    #plt.scatter(x,y/sum(y))
     #plt.show()
+    KDE=KDE/sum(KDE)
+    return -KDE.log().sum()
+    
     print("hello")
     z=torch.linspace(-4,4,N)
     t=KDE(z).detach().numpy()
@@ -100,20 +80,12 @@ def loss_fn(w):
     plt.show
     plt.draw
 
-
-
-
-    #return -KDE().log().sum()
-    #return -w[0].weights[index].log().sum()
-
-
 lr=0.01
 measure = pm.Measure(l, w)
-#print(loss_fn([measure]))
 opt=pm.Optimizer([measure],lr=lr)
 
 
-opt.minimize(loss_fn,smallest_lr=1e-10,verbose=False)
+opt.minimize(loss_fn,smallest_lr=1e-10,verbose=False, print_freq=100)
 measure.visualize()
 plt.show()
 #'''
