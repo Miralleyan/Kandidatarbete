@@ -95,7 +95,7 @@ class Measure:
         """
         Visualization of the weights
         """
-        plt.bar(self.locations.tolist(), self.weights.tolist(), width=0.1)
+        plt.bar(self.locations.detach(), self.weights.detach(), width=0.1)
         plt.axhline(y=0, c="grey", linewidth=0.5)
         plt.draw()
 
@@ -203,12 +203,10 @@ class Optimizer:
         """
         return loss_fn(old_measure) < loss_fn(measure)
 
-    def minimize(self, loss_fn, max_epochs=10000,smallest_lr=1e-6, tol_supp=1e-6, tol_const=1e-3, verbose=False, print_freq=100):
-        #Suceeded=True
+    def minimize(self, loss_fn, max_epochs=10000, smallest_lr=1e-6, verbose=False,
+                 tol_supp=1e-6, tol_const=1e-3,  print_freq=100):
         lr = self.lr
         for epoch in range(max_epochs):
-            #if Suceeded==True:
-                #self.lr=[lr for lr in self.old_lr]
             old_measures = copy.deepcopy(self.measures)
             for m in self.measures:
                 m.zero_grad()
@@ -221,16 +219,16 @@ class Optimizer:
             loss_new = loss_fn(self.measures)
             loss_new.backward()
             if loss_old < loss_new:  # bad step
-                self.measures = old_measures
+                self.measures = copy.deepcopy(old_measures)
                 lr = self.update_lr(lr=lr)  # reduce lr
 
                 if verbose:
-                    print(f'Epoch: {epoch:<10} Lr was reduced to: {lr:.5f}')
+                    print(f'Epoch: {epoch:<10} Lr was reduced to: {lr:.9f}')
             elif loss_old == loss_new and verbose:
-                print(f'Epoch: {epoch:<10} Loss did not decrease')
+                print(f'Epoch: {epoch:<10} Loss did not change')
 
             else:  # successful step
-                lr = self.lr  # reset to starting lr
+                #lr = self.lr  # reset to starting lr
                 if self.stop_criterion(tol_supp, tol_const):
                     print(f'\nOptimum is attained. Loss: {loss_new}. Epochs: {epoch} epochs.')
                     self.is_optim = True
@@ -238,13 +236,15 @@ class Optimizer:
 
                 if epoch % print_freq == 0:
                     if verbose:
-                        print(f'Epoch: {epoch:<10} Loss: {loss_new:<10.4f} LR: {lr:.5f}')
+                        print(f'Epoch: {epoch:<10} Loss: {loss_new:<10.4f} LR: {lr:.9f}')
                     else:
                         print('.')
 
             if lr < smallest_lr:
                 print(f'The step size is too small: {lr}')
                 return
+
+
 
 
 
