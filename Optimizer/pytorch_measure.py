@@ -189,7 +189,6 @@ class Optimizer:
     def load_state_dict(self, state_dict):
         """
         Overloads the current state dictionary
-\chi ^{2} = Pearson's cumulative test statistic, which asymptotically approaches a χ 2 \chi ^{2} distribution.
         :param state_dict: state dictionary to load
         """
         self.state = state_dict
