@@ -31,6 +31,9 @@ def K(x):
     return torch.tensor(1/(np.sqrt(2*np.pi*h))*np.exp((-x**2/2).tolist()),requires_grad=True)
 
 
+def K(x):
+    return 
+
 def KDE(x):
     return 1/(len(sam))*torch.matmul(K((x.reshape(-1,1)-sam)/h),m.weights.reshape(-1,1).double())
 
@@ -52,7 +55,7 @@ plt.show()
 #index = torch.argmin(abs(l-data.view(-1,1)), dim=1)
 def loss_fn(w):
     #sam=w[0].locations
-    sam=torch.linspace(-8,8,2*N)
+    sam=torch.linspace(-4,4,N)
     h=1.06*len(sam)**(-1/5)
     
     #sam=w[0].sample(N)
@@ -62,9 +65,9 @@ def loss_fn(w):
 
    
     #KDE=(100/N*torch.matmul(w[0].weights.double(),K((sam.reshape(-1,1)-x)/h)[?]))
-    KDE=(100/(len(sam))*torch.matmul(K((x.reshape(-1,1)-sam)/h),w[0].weights.reshape(-1,1).double()))
+    KDE=(1/(len(sam))*torch.matmul(K((x.reshape(-1,1)-sam)/h),w[0].weights.reshape(-1,1).double()))
     #KDE=(10/(len(sam))*K((x.reshape(-1,1)-sam)/h).sum(0))
-    t=KDE.detach().numpy()
+    #t=KDE.detach().numpy()
 
     #w[0].visualize()
     #plt.scatter(sam.detach().numpy(),t)
@@ -80,7 +83,7 @@ def loss_fn(w):
     plt.show
     plt.draw
 
-lr=0.01
+lr=0.001
 measure = pm.Measure(l, w)
 opt=pm.Optimizer([measure],lr=lr)
 
