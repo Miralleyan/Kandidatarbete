@@ -83,6 +83,8 @@ def loss_fn(w):
     plt.show
     plt.draw
 
+
+
 lr=0.001
 measure = pm.Measure(l, w)
 opt=pm.Optimizer([measure],lr=lr)
