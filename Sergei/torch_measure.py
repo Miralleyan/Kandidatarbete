@@ -71,7 +71,7 @@ class TorchMeasure(nn.Module):
     def support(self, tol_prop = 1e-2):
         '''
         :param tol_prop: proportion of total variation that can be un-accounted for by the support.
-        :returns: all indices of the atoms accounting for at least total.variation * (1-tol) mass
+        :returns: all indices of the atoms accounting for at least total.variation * (1-tol_prop) mass
         '''
         sorted_idx = torch.argsort(self.weights.abs())
         accum_weight = torch.cumsum(self.weights.abs()[sorted_idx], dim=0)
@@ -218,35 +218,34 @@ class MeasureMinimizer(nn.Module):
         self.grad = self.mes.weights.grad
         self.is_optim = self.mes.stop_criterion(self.grad)
 
-    def step(self, lr = None, armijo_val = 0.7):
-        ''' Try step with learning rate lr. If the goal function is reduced, update the measure,
+    def step(self, lr=None, armijo_val = 0.7):
+        ''' Try a step with learning rate lr. If the goal function is reduced, update the measure,
         value of the function and the gradient
         Otherwise, reduce step size and return '''
         if lr is None:
             lr=self.lr
-        val_is_reduced = False
+
+        val_is = 'more'
         mes_new = self.mes.copy()
         mes_new.take_step(self.grad, lr)
         val = self.goal_fn(mes_new, **self.goal_func_kwargs)
         if val < self.val: # goal function is reduced, update mes
-            val_is_reduced = True
+            val_is = 'less'
             self.val = val
             val.backward()
             self.grad = mes_new.weights.grad
             self.mes = mes_new
-            self.lr = lr
         else:
             if val > self.val:
                 lr = lr * armijo_val  # reduce the learning rate
-            else: # value is the same, still move to new measure
-                print('The value of the goal function has not changed!')
+            else: # value is the same, still move to the new measure
+                val_is = 'same'
                 val.backward()
                 self.grad = mes_new.weights.grad
                 self.mes = mes_new
+        return lr, val_is
 
-        return lr, val_is_reduced
-
-    def minimize(self, max_no_steps=1000, armijo_val = 0.7, smallest_lr = 1e-6,
+    def minimize(self, lr = None, max_no_steps=1000, armijo_val = 0.7, smallest_lr = 1e-6,
                  silent = False, print_each_step=10,
                  tol_supp=1e-6, tol_const=1e-3, adaptive=False):
         '''Minimize goal_fn of a measure starting from initial measure mes
@@ -256,6 +255,10 @@ class MeasureMinimizer(nn.Module):
              Stop either when the necessary optimality criterion is satisfied, the max_no_steps reached
               or the learning rate becomes smaller than smallest_lr.
               Print details of optimization if silent=False each 10th (print_each_step) step'''
+        if lr is None:
+            lr = self.lr
+        else:
+            self.lr = lr
 
         for k in range(max_no_steps):
             if self.mes.stop_criterion(self.grad, tol_supp, tol_const, adaptive):
@@ -269,9 +272,36 @@ class MeasureMinimizer(nn.Module):
                     print('.')
                 else:
                     print('.', end="")
-            self.lr, val_reduced = self.step(armijo_val=armijo_val)
-            if not val_reduced: # value of the function is not smaller so the learning rate is decreased
+            self.lr, val_is = self.step(armijo_val=armijo_val)
+            if (val_is == 'same') and (not silent):
+                print(f'Step {k + 1}: The value of the goal function has not changed!')
+            if val_is == 'more': # value of the function is larger so the learning rate has decreased
                 if (self.lr < smallest_lr):
                     print(f'The step size is too small: {self.lr: 0.8f}')
                     return
 
+    def visualize(self, v_shift=1.3, mes_col ='grey', grad_col ='green', supp_col ='red', legend_loc='upper center'):
+        '''
+        Visualize the gradient and the measure
+        :param v_shift: where the measure weights will be shown: if 1, then on the level of the minimum
+        of the gradient, if less than 1 - above this line, if more than 1 - below it
+        :param mes_col: color of the measure plot
+        :param grad_col: color of the gradient
+        :param supp_col: color of the support of the measure
+        :param legend_loc: location of the legend
+        :return: plot of the gradient with the measure weights scaled for visibility
+        and the support of the measure
+        '''
+        M, m = float(self.grad.max()), float(self.grad.min())
+        wm = float(self.mes.weights.max())
+        # shifted and scaled weights of the measure
+        weights_scaled = self.mes.weights * (M - m) / wm * 0.25 + v_shift * m
+        s = self.mes.support()
+        plt.vlines(self.mes.locations[s].tolist(), np.zeros(self.mes.n)[s] + v_shift * m,
+                   weights_scaled[s].tolist(), colors=mes_col, label='measure')
+        plt.plot(self.mes.locations[s].tolist(), np.zeros(self.mes.n)[s] + m, '.', c=supp_col,
+                 label='measure support')
+        plt.plot(self.mes.locations, self.grad, c=grad_col, label='gradient')
+        plt.axhline(y=m, c="orange", linewidth=0.5)
+        plt.legend(loc=legend_loc)
+        plt.show()
