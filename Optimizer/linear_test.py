@@ -3,8 +3,8 @@ import pytorch_measure as pm
 import numpy as np
 import matplotlib.pyplot as plt
 
-N=100
-data=torch.randn(10000)
+N=17
+data=torch.randn(1000)
 #data=torch.from_numpy(np.random.beta(1,2,1000))
 
 
@@ -23,17 +23,17 @@ y/=sum(y) #Normalize
 
 index = torch.argmin(abs(l-data.view(-1,1)), dim=1)
 def loss_fn(w):
-    #w[0].visualize()
-    #plt.show()
     return -w[0].weights[index].log().sum()
 
 
-lr=0.0001
+
+lr=1e-3
 measure = pm.Measure(l, w)
 opt=pm.Optimizer(measure,lr=lr)
 
 
-opt.minimize(loss_fn,smallest_lr=1e-10)
+#opt.minimize(loss_fn,verbose=True)
+opt.minimize(loss_fn,verbose=True)
 
 
 plt.scatter(x,y,zorder=2)

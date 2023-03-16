@@ -48,8 +48,22 @@ def loss_fn_2(measures: list[pm.Measure], n_samples=1000):
     errors = torch.tensor([error(x, locs[i], y) for i in range(n_samples)])
     return errors.dot(probs)
 
+def log_prep(x, locs, y):
+    loc_idx = []
+    for i in range(len(x)):
+        ab = torch.abs(locs[:,0]*x[i]+locs[:,1]-y[i])
+        loc_idx.append(torch.argmin(ab))
+    return torch.tensor(loc_idx)
+
+def log_loss(measures: list[pm.Measure]):
+    idx = torch.tensor([[i, j] for i in range(len(measures[0].locations)) for j in range(len(measures[1].locations))])
+    locs = torch.cat([measures[i].locations[idx[:, i]].unsqueeze(1) for i in range(len(measures))], 1)
+    probs = torch.cat([measures[i].weights[idx[:, i]].unsqueeze(1) for i in range(len(measures))], 1).prod(1)
+    loc_index = log_prep(x, locs, y)
+    return -sum(torch.log(probs(loc_index)))
+
 opt = pm.Optimizer([a, b], lr = 0.0002)
-opt.minimize(loss_fn, max_epochs=10000, verbose = True)
+opt.minimize(log_loss, max_epochs=10000, verbose = True)
 
 a.visualize()
 b.visualize()

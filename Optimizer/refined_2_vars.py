@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 torch.manual_seed(15)
-N = 100
+N = 300
 x = torch.linspace(-1, 2, N)
 y = 2 * x + 1 + 0.5*torch.randn(N)
 
@@ -24,7 +24,7 @@ b = pm.Measure(torch.linspace(0, 3, M), torch.ones(M) / M)
 def error(x, param, y): # a is location in measure (scalar), for example slope in linear regression
     return ((param[0] * x + param[1] - y).pow(2)).sum()
 
-ref_par = 3
+ref_par = 1
 
 def loss_fn(measures: list[pm.Measure]):
     #locs, probs = unif_samples(measures, n_samples)
@@ -32,6 +32,7 @@ def loss_fn(measures: list[pm.Measure]):
     #return errors.dot(probs)
     idx = torch.tensor([[i, j] for i in range(len(measures[0].locations)) for j in range(len(measures[1].locations))])
     idx = idx[::ref_par]
+    print(idx)
     locs = torch.cat([measures[i].locations[idx[:, i]].unsqueeze(1) for i in range(len(measures))], 1)
     probs = torch.cat([measures[i].weights[idx[:, i]].unsqueeze(1) for i in range(len(measures))], 1).prod(1)
     errors = torch.tensor([error(x, locs[i], y) for i in range(len(idx))])
