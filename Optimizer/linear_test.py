@@ -33,7 +33,7 @@ opt=pm.Optimizer(measure,lr=lr)
 
 
 #opt.minimize(loss_fn,verbose=True)
-opt.minimize(WardLoss,verbose=True)
+opt.minimize(loss_fn,verbose=True)
 
 
 plt.scatter(x,y,zorder=2)

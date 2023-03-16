@@ -17,20 +17,6 @@ a = pm.Measure(torch.linspace(0, 3, M), torch.ones(M) / M)
 b = pm.Measure(torch.linspace(0, 3, M), torch.ones(M) / M)
 
 
-# return list[(sample (tensor -- list of locations), tensor -- probability)]
-# assumes that the variables are independent
-def unif_samples(ms: list[pm.Measure], n_samples):
-    idx = (torch.rand((n_samples, len(ms))) * torch.tensor([len(m.locations) for m in ms])).long()
-    locs = torch.cat([ms[i].locations[idx[:, i]].unsqueeze(1) for i in range(len(ms))], 1)
-    probs = torch.cat([ms[i].weights[idx[:, i]].unsqueeze(1) for i in range(len(ms))], 1).prod(1)
-    return (locs, probs)
-
-def sample_meas(ms: list[pm.Measure], n_samples):
-    idx = torch.cat([ms[i].sample(n_samples).unsqueeze(1) for i in range(len(ms))], 1).long()
-    locs = torch.cat([ms[i].locations[idx[:, i]].unsqueeze(1) for i in range(len(ms))], 1)
-    probs = torch.cat([ms[i].weights[idx[:, i]].unsqueeze(1) for i in range(len(ms))], 1).prod(1)
-    return (locs, probs)
-
 def loss_fn(measures: list[pm.Measure], n_samples=1000):
     return 
 
