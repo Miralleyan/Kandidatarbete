@@ -3,18 +3,18 @@ import pytorch_measure as pm
 import numpy as np
 import matplotlib.pyplot as plt
 
-torch.manual_seed(15)
-N = 20
-x = torch.linspace(-1, 2, N)
-y = 2 * x + 1 + 0.2*torch.randn(N)
+torch.manual_seed(30)
+N = 200
+x = torch.linspace(-1, 3, N)
+y = (torch.randn(N)+1) * x + 0.1*torch.randn(N)
 
 #plt.scatter(x, y)
 #plt.show()
 
-M = 20 # <- number of locations on measure
+M = 30 # <- number of locations on measure
 
-a = pm.Measure(torch.linspace(0, 3, M), torch.ones(M) / M)
-b = pm.Measure(torch.linspace(0, 3, M), torch.ones(M) / M)
+a = pm.Measure(torch.linspace(-1, 3, M), torch.ones(M) / M)
+b = pm.Measure(torch.linspace(-1, 3, M), torch.ones(M) / M)
 
 def error(x, param, y): # a is location in measure (scalar), for example slope in linear regression
     return ((param[0] * x + param[1] - y).pow(2)).sum()
@@ -60,10 +60,25 @@ def log_loss(measures: list[pm.Measure]):
     locs = torch.cat([measures[i].locations[idx[:, i]].unsqueeze(1) for i in range(len(measures))], 1)
     probs = torch.cat([measures[i].weights[idx[:, i]].unsqueeze(1) for i in range(len(measures))], 1).prod(1)
     loc_index = log_prep(x, locs, y)
-    return -sum(torch.log(probs(loc_index)))
+    return -(probs[loc_index].log()).sum()
 
-opt = pm.Optimizer([a, b], lr = 0.0002)
-opt.minimize(log_loss, max_epochs=10000, verbose = True)
+def indexing(measures: list[pm.Measure]):
+    idx = torch.tensor([[i, j] for i in range(len(measures[0].locations)) for j in range(len(measures[1].locations))])
+    locs = torch.cat([measures[i].locations[idx[:, i]].unsqueeze(1) for i in range(len(measures))], 1)
+    probs = torch.cat([measures[i].weights[idx[:, i]].unsqueeze(1) for i in range(len(measures))], 1).prod(1)
+    return locs, probs
+
+alpha = 0.001
+def chi_squared(measures: list[pm.Measure]):
+    locs, probs = indexing(measures)
+    bins = log_prep(x, locs, y)
+    bins_freq = torch.bincount(bins, minlength=900)/len(x)**2
+    bins_freq = bins_freq*(1-alpha)+alpha / len(bins_freq)
+    return sum(probs**2/bins_freq)
+
+
+opt = pm.Optimizer([a, b], lr = 0.001)
+opt.minimize(chi_squared, max_epochs=1000, verbose = True, print_freq=5)
 
 a.visualize()
 b.visualize()
