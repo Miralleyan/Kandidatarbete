@@ -8,7 +8,6 @@ class Measure:
         self.locations = locations
         self.weights = torch.nn.parameter.Parameter(weights)
         self.device = device
-        self.grad_diff = 0.0
 
     def __str__(self) -> str:
         """
@@ -88,6 +87,9 @@ class Measure:
         sample = self.locations[sample_idx]
         return sample
 
+    def copy(self):
+        return Measure(self.locations, self.weights)
+
     def zero_grad(self):
         self.weights.grad = None #torch.zeros(len(self.weights), device=self.device)
 
@@ -95,7 +97,7 @@ class Measure:
         """
         Visualization of the weights
         """
-        plt.bar(self.locations.detach(), self.weights.detach(), width=0.1)
+        plt.bar(self.locations.detach(), self.weights.detach(), width=0.1, label="Measure")
         plt.axhline(y=0, c="grey", linewidth=0.5)
         plt.draw()
 
@@ -206,36 +208,45 @@ class Optimizer:
                  tol_supp=1e-6, tol_const=1e-3,  print_freq=100):
         lr = self.lr
         for epoch in range(max_epochs):
-            old_measures = copy.deepcopy(self.measures)
+            # Backup current measure
+            #old_measures = copy.deepcopy(self.measures)
+            old_measures = self.measures.copy()
+            # Compute loss and grad
             for m in self.measures:
                 m.zero_grad()
             loss_old = loss_fn(self.measures)
             loss_old.backward()
 
+            # Stop criterion
+            if self.stop_criterion(tol_supp, tol_const):
+                print(f'\nOptimum is attained. Loss: {loss_old}. Epochs: {epoch} epochs.')
+                self.is_optim = True
+                return
+
+            # Step
             for meas_index in range(len(self.measures)):
                 self.step(meas_index, lr)
 
+            # New loss
             loss_new = loss_fn(self.measures)
-            loss_new.backward()
-            if loss_old < loss_new:  # bad step
+
+            # Bad step
+            if loss_old < loss_new:
+                # Revert to the backup measure and decrease lr
                 self.measures = copy.deepcopy(old_measures)
-                lr = self.update_lr(lr=lr)  # reduce lr
+                lr = self.update_lr(lr=lr, fraction=0.1)
 
                 if verbose:
                     print(f'Epoch: {epoch:<10} Lr was reduced to: {lr:.9f}')
             elif loss_old == loss_new and verbose:
                 print(f'Epoch: {epoch:<10} Loss did not change')
 
-            else:  # successful step
+            # Successful step
+            else:
                 #lr = self.lr  # reset to starting lr
-                if self.stop_criterion(tol_supp, tol_const):
-                    print(f'\nOptimum is attained. Loss: {loss_new}. Epochs: {epoch} epochs.')
-                    self.is_optim = True
-                    return
-
                 if epoch % print_freq == 0:
                     if verbose:
-                        print(f'Epoch: {epoch:<10} Loss: {loss_new:<10.4f} LR: {lr:.9f}')
+                        print(f'Epoch: {epoch:<10} Loss: {loss_new:<10.9f} LR: {lr:.9f}')
                     else:
                         print('.')
 

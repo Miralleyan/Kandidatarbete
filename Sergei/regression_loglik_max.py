@@ -10,7 +10,7 @@ print('Linear regression alpha + x, where alpha is random, its distribution is t
 
 
 ########## Likelihood maximisation ##########
-
+torch.manual_seed(1)
 #  Model: -2 + x + Norm(0,sigma=1)
 # create dummy data for training
 N = 1000
@@ -51,9 +51,9 @@ def loglik(mes):  # - log-likelihood
      a_j(i) + x_i is the closest to y_j.'''
     return -(mes.weights[closest_idx]).log().sum()
 
-likmax = MeasureMinimizer(alpha, loglik)
-#ikmax.minimize(print_each_step=10)
-likmax.minimize(print_each_step=10, tol_const=0.01, adaptive=True)
+likmax = MeasureMinimizer(alpha, loglik, learning_rate=0.1)
+likmax.minimize(print_each_step=1, silent=False, max_no_steps=1000)
+#likmax.minimize(print_each_step=10, tol_const=0.01, adaptive=True)
 
 # print(likmax.grad)
 # likmax.mes.visualize()
