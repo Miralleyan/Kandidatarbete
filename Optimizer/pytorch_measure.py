@@ -137,13 +137,13 @@ class Optimizer:
         with torch.no_grad():
             if mass > self.measures[meas_index].weights[location_index].item():
                 mass_removed = self.measures[meas_index].weights[location_index].item()
-                self.measures[meas_index].weights[location_index] = 0
+                self.measures[meas_index].weights[location_index] = 0.
             else:
                 self.measures[meas_index].weights[location_index] -= mass
                 mass_removed = mass
         return mass_removed
     
-    def stop_criterion(self, tol_supp=1e-6, tol_const=1e-3):
+    def stop_criterion(self, tol_supp=1e-6, tol_const=1e-3, adaptive = False):
         """
         Checks if the difference between the maximum and minimum gradient is
         within a certain range.
@@ -151,8 +151,13 @@ class Optimizer:
         :param tol_const: stop value, when the maximum difference of gradients
         is smaller than this value the minimization should seize
         """
-        return min([measure.weights.grad[measure.support(tol_supp)].max()
-                    - measure.weights.grad.min() < tol_const for measure in self.measures])
+        if adaptive:
+            return min([measure.weights.grad[measure.support(tol_supp)].max()
+                        - measure.weights.grad.min() < tol_const*(measure.weights.grad.max() - measure.weights.grad.min()) 
+                        for measure in self.measures])
+        else:
+            return min([measure.weights.grad[measure.support(tol_supp)].max()
+                        - measure.weights.grad.min() < tol_const for measure in self.measures])
 
     def step(self, meas_index, lr):
         """
@@ -170,7 +175,7 @@ class Optimizer:
         mass_neg = lr
         for i in torch.flip(grad_sorted, dims=[0]):
             mass_neg -= self.take_mass(meas_index, mass_neg, i.item())
-            if mass_neg <= 0:
+            if mass_neg <= 0.:
                 break
     
     def update_lr(self, lr, fraction=0.7):
@@ -205,7 +210,7 @@ class Optimizer:
         return loss_fn(old_measure) < loss_fn(measure)
 
     def minimize(self, loss_fn, max_epochs=10000, smallest_lr=1e-6, verbose=False,
-                 tol_supp=1e-6, tol_const=1e-3,  print_freq=100):
+                 tol_supp=1e-6, tol_const=1e-3,  print_freq=100, adaptive=False):
         lr = self.lr
         for epoch in range(max_epochs):
             # Backup current measure
@@ -218,7 +223,7 @@ class Optimizer:
             loss_old.backward()
 
             # Stop criterion
-            if self.stop_criterion(tol_supp, tol_const):
+            if self.stop_criterion(tol_supp, tol_const, adaptive=adaptive):
                 print(f'\nOptimum is attained. Loss: {loss_old}. Epochs: {epoch} epochs.')
                 self.is_optim = True
                 return
