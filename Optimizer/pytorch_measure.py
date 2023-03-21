@@ -114,7 +114,7 @@ class Optimizer:
             self.measures = measures
         # Create list of lr's
         if type(lr) == float:
-            self.lr = [lr]
+            self.lr = [lr]*len(self.measures)
         elif type(lr) != list:
             Exception('Error: lr has to be of type float or list')
         else:
@@ -236,7 +236,6 @@ class Optimizer:
             for meas_index in range(len(self.measures)):
                 mins.append(torch.min(self.measures[meas_index].weights.grad))
             min_index = mins.index(sorted(mins)[0])
-            print(min_index)
             self.step(min_index)
 
             # New loss
