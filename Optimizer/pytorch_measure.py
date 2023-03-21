@@ -209,8 +209,8 @@ class Optimizer:
         lr = self.lr
         for epoch in range(max_epochs):
             # Backup current measure
-            #old_measures = copy.deepcopy(self.measures)
-            old_measures = self.measures.copy()
+            old_measures = copy.deepcopy(self.measures)
+            #old_measures = self.measures.copy()
             # Compute loss and grad
             for m in self.measures:
                 m.zero_grad()
@@ -234,12 +234,12 @@ class Optimizer:
             if loss_old < loss_new:
                 # Revert to the backup measure and decrease lr
                 self.measures = copy.deepcopy(old_measures)
-                lr = self.update_lr(lr=lr, fraction=0.1)
+                lr = self.update_lr(lr=lr, fraction=0.7)
 
                 if verbose:
                     print(f'Epoch: {epoch:<10} Lr was reduced to: {lr:.9f}')
             elif loss_old == loss_new and verbose:
-                print(f'Epoch: {epoch:<10} Loss did not change')
+                print(f'Epoch: {epoch:<10} Loss did not change ({loss_new})')
 
             # Successful step
             else:
