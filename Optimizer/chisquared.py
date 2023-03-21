@@ -16,11 +16,13 @@ bins_freq = bins.unique(return_counts=True)[1] / len(data)
 # Label smoothing
 bins_freq = bins_freq*(1-alpha)+alpha / len(bins_freq)
 
+
 def chi_squared(measure):
     return 100 * sum(measure[0].weights**2 / bins_freq)
 
 
 opt = pm.Optimizer(measure, lr=0.01)
-opt.minimize(chi_squared, smallest_lr=1e-4, verbose = True, print_freq=1)
-measure.visualize()
+opt.minimize(chi_squared, smallest_lr=1e-3, verbose = True, print_freq=1)
+#measure.visualize()
+opt.visualize()
 plt.show()
