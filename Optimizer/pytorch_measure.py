@@ -137,13 +137,13 @@ class Optimizer:
         with torch.no_grad():
             if mass > self.measures[meas_index].weights[location_index].item():
                 mass_removed = self.measures[meas_index].weights[location_index].item()
-                self.measures[meas_index].weights[location_index] = 0
+                self.measures[meas_index].weights[location_index] = 0.
             else:
                 self.measures[meas_index].weights[location_index] -= mass
                 mass_removed = mass
         return mass_removed
     
-    def stop_criterion(self, tol_supp=1e-6, tol_const=1e-3):
+    def stop_criterion(self, tol_supp=1e-6, tol_const=1e-3, adaptive = False):
         """
         Checks if the difference between the maximum and minimum gradient is
         within a certain range.
@@ -151,8 +151,13 @@ class Optimizer:
         :param tol_const: stop value, when the maximum difference of gradients
         is smaller than this value the minimization should seize
         """
-        return min([measure.weights.grad[measure.support(tol_supp)].max()
-                    - measure.weights.grad.min() < tol_const for measure in self.measures])
+        if adaptive:
+            return min([measure.weights.grad[measure.support(tol_supp)].max()
+                        - measure.weights.grad.min() < tol_const*(measure.weights.grad.max() - measure.weights.grad.min())
+                        for measure in self.measures])
+        else:
+            return min([measure.weights.grad[measure.support(tol_supp)].max()
+                        - measure.weights.grad.min() < tol_const for measure in self.measures])
 
     def step(self, meas_index, lr):
         """
@@ -170,7 +175,7 @@ class Optimizer:
         mass_neg = lr
         for i in torch.flip(grad_sorted, dims=[0]):
             mass_neg -= self.take_mass(meas_index, mass_neg, i.item())
-            if mass_neg <= 0:
+            if mass_neg <= 0.:
                 break
     
     def update_lr(self, lr, fraction=0.7):
@@ -191,6 +196,7 @@ class Optimizer:
     def load_state_dict(self, state_dict):
         """
         Overloads the current state dictionary
+\chi ^{2} = Pearson's cumulative test statistic, which asymptotically approaches a χ 2 \chi ^{2} distribution.
         :param state_dict: state dictionary to load
         """
         self.state = state_dict
@@ -205,12 +211,12 @@ class Optimizer:
         return loss_fn(old_measure) < loss_fn(measure)
 
     def minimize(self, loss_fn, max_epochs=10000, smallest_lr=1e-6, verbose=False,
-                 tol_supp=1e-6, tol_const=1e-3,  print_freq=100):
+                 tol_supp=1e-6, tol_const=1e-3,  print_freq=100, adaptive=False):
         lr = self.lr
         for epoch in range(max_epochs):
             # Backup current measure
-            old_measures = copy.deepcopy(self.measures)
-            #old_measures = self.measures.copy()
+            #old_measures = copy.deepcopy(self.measures)
+            old_measures = self.measures.copy()
             # Compute loss and grad
             for m in self.measures:
                 m.zero_grad()
@@ -226,24 +232,26 @@ class Optimizer:
             # Step
             for meas_index in range(len(self.measures)):
                 self.step(meas_index, lr)
+                self.grads.append(self.measures[meas_index].weights.grad)
 
-            # New loss
             loss_new = loss_fn(self.measures)
-
-            # Bad step
-            if loss_old < loss_new:
-                # Revert to the backup measure and decrease lr
+            loss_new.backward()
+            if loss_old < loss_new:  # bad step
                 self.measures = copy.deepcopy(old_measures)
-                lr = self.update_lr(lr=lr, fraction=0.7)
+                lr = self.update_lr(lr=lr)  # reduce lr
 
                 if verbose:
                     print(f'Epoch: {epoch:<10} Lr was reduced to: {lr:.9f}')
             elif loss_old == loss_new and verbose:
                 print(f'Epoch: {epoch:<10} Loss did not change ({loss_new})')
 
-            # Successful step
-            else:
+            else:  # successful step
                 #lr = self.lr  # reset to starting lr
+                if self.stop_criterion(tol_supp, tol_const):
+                    print(f'\nOptimum is attained. Loss: {loss_new}. Epochs: {epoch} epochs.')
+                    self.is_optim = True
+                    return
+
                 if epoch % print_freq == 0:
                     if verbose:
                         print(f'Epoch: {epoch:<10} Loss: {loss_new:<10.9f} LR: {lr:.9f}')
@@ -254,10 +262,25 @@ class Optimizer:
                 print(f'The step size is too small: {lr}')
                 return
 
-
-
-
-
+    def visualize(self):
+        fig, axs = plt.subplots(2)
+        fig.suptitle('Optimizer Visualization')
+        for i, measure in enumerate(self.measures):
+            M, m = self.grads[i].max(), self.grads[i].min()
+            wm = measure.weights.max()
+            scaled_weights = measure.weights * (M - m) / wm * 0.25 + 1.3 * m
+            support = measure.support()
+            with torch.no_grad():
+                # Support locations
+                axs[i].plot(measure.locations[support], torch.zeros(len(measure.weights))[support] + m,
+                            '.', c='red', label=' Measure Support')
+                # Gradient
+                axs[i].plot(measure.locations, self.grads[i], c='green', label=' Gradient')
+                # Measure weights where there is support
+                axs[i].vlines(measure.locations[support], torch.zeros(len(measure.weights))[support] + 1.3 * m,
+                              scaled_weights[support], colors='blue', label=' Measure Weights')
+                axs[i].axhline(y=m, c="orange", linewidth=0.5)
+                axs[i].legend(loc='upper right')
 
 def main():
     a = torch.tensor([-0.1, 0.1, 0.3, 0.1, 0.4])

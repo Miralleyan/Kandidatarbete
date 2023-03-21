@@ -78,14 +78,16 @@ def chi_squared(measures: list[pm.Measure]):
 
 
 opt = pm.Optimizer([a, b], lr = 0.001)
-opt.minimize(chi_squared, max_epochs=1000, verbose = True, print_freq=5)
-
+opt.minimize(log_loss, max_epochs=1000, verbose = True, print_freq=5)
+"""
 a.visualize()
 b.visualize()
 aMax = a.locations[torch.argmax(a.weights)]
 bMax = b.locations[torch.argmax(b.weights)]
 plt.scatter(x,y)
 plt.plot([-1,2], [-aMax+bMax, 2*aMax+bMax])
+"""
+opt.visualize()
 plt.show()
 print(a.weights.grad)
 print(b.weights.grad)
