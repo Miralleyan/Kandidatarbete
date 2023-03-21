@@ -3,7 +3,7 @@ import pytorch_measure as pm
 import numpy as np
 import matplotlib.pyplot as plt
 
-torch.manual_seed(30)
+#torch.manual_seed(30)
 N = 200
 x = torch.linspace(-1, 3, N)
 y = (torch.randn(N)+1) * x + 0.1*torch.randn(N)
@@ -77,8 +77,8 @@ def chi_squared(measures: list[pm.Measure]):
     return sum(probs**2/bins_freq)
 
 
-opt = pm.Optimizer([a, b], lr = 0.001)
-opt.minimize(chi_squared, max_epochs=1000, verbose = True, print_freq=5)
+opt = pm.Optimizer([a, b], lr = [0.02,0.03])
+opt.minimize(log_loss, max_epochs=300, verbose = True, print_freq=5)
 
 a.visualize()
 b.visualize()

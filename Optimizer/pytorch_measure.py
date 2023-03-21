@@ -105,13 +105,21 @@ class Measure:
 class Optimizer:
 
     def __init__(self, measures, lr : float = 0.1):
+        # Create list of measures
         if type(measures) == Measure:
             self.measures = [measures]
         elif type(measures) != list:
             Exception('Error: measures has to be of type Measure or list')
         else:
             self.measures = measures
-        self.lr = lr
+        # Create list of lr's
+        if type(lr) == float:
+            self.lr = [lr]
+        elif type(lr) != list:
+            Exception('Error: lr has to be of type float or list')
+        else:
+            self.lr = lr
+        
         self.state = {'measure':self.measures, 'lr':self.lr}
         self.is_optim = False
 
@@ -154,7 +162,7 @@ class Optimizer:
         return min([measure.weights.grad[measure.support(tol_supp)].max()
                     - measure.weights.grad.min() < tol_const for measure in self.measures])
 
-    def step(self, meas_index, lr):
+    def step(self, meas_index):
         """
         Steepest decent with fixed total mass
         """
@@ -163,23 +171,23 @@ class Optimizer:
         grad_sorted = torch.argsort(self.measures[meas_index].weights.grad)
 
         # Distribute positive mass
-        mass_pos = lr
+        mass_pos = self.lr[meas_index]
         self.put_mass(meas_index, mass_pos, grad_sorted[0].item())
 
         # Distribute negative mass
-        mass_neg = lr
+        mass_neg = self.lr[meas_index]
         for i in torch.flip(grad_sorted, dims=[0]):
             mass_neg -= self.take_mass(meas_index, mass_neg, i.item())
             if mass_neg <= 0:
                 break
     
-    def update_lr(self, lr, fraction=0.7):
+    def update_lr(self, index, fraction=0.7):
         """
         Updates learning rate for the optimizer
 
         :param fraction: multiply lr with this value
         """
-        return lr*fraction
+        self.lr[index]*=fraction
 
     def state_dict(self):
         """
@@ -224,8 +232,12 @@ class Optimizer:
                 return
 
             # Step
+            mins = []
             for meas_index in range(len(self.measures)):
-                self.step(meas_index, lr)
+                mins.append(torch.min(self.measures[meas_index].weights.grad))
+            min_index = mins.index(sorted(mins)[0])
+            print(min_index)
+            self.step(min_index)
 
             # New loss
             loss_new = loss_fn(self.measures)
@@ -234,10 +246,10 @@ class Optimizer:
             if loss_old < loss_new:
                 # Revert to the backup measure and decrease lr
                 self.measures = copy.deepcopy(old_measures)
-                lr = self.update_lr(lr=lr, fraction=0.1)
+                self.update_lr(min_index, fraction=0.1)
 
                 if verbose:
-                    print(f'Epoch: {epoch:<10} Lr was reduced to: {lr:.9f}')
+                    print(f'Epoch: {epoch:<10} Lr was reduced to: {lr}')
             elif loss_old == loss_new and verbose:
                 print(f'Epoch: {epoch:<10} Loss did not change')
 
@@ -246,11 +258,11 @@ class Optimizer:
                 #lr = self.lr  # reset to starting lr
                 if epoch % print_freq == 0:
                     if verbose:
-                        print(f'Epoch: {epoch:<10} Loss: {loss_new:<10.9f} LR: {lr:.9f}')
+                        print(f'Epoch: {epoch:<10} Loss: {loss_new:<10.9f} LR: {lr}')
                     else:
                         print('.')
 
-            if lr < smallest_lr:
+            if min(lr) < smallest_lr:
                 print(f'The step size is too small: {lr}')
                 return
 
