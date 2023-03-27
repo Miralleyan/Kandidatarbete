@@ -215,17 +215,18 @@ class Optimizer:
                  tol_supp=1e-6, tol_const=1e-3,  print_freq=100, adaptive=False):
         lr = self.lr
         for epoch in range(max_epochs):
-            # Backup current measure
-            #old_measures = copy.deepcopy(self.measures)
-            old_measures = self.measures.copy()
-            # Compute loss and grad
+            # Backup current measures and reset grad
+            old_measure = copy.deepcopy(self.measures)
             for m in self.measures:
+                #old_weights.append(copy.copy(m.weights))
                 m.zero_grad()
+
+            # Compute loss and grad
             loss_old = loss_fn(self.measures)
             loss_old.backward()
 
             # Stop criterion
-            if self.stop_criterion(tol_supp, tol_const):
+            if self.stop_criterion(tol_supp, tol_const, adaptive):
                 print(f'\nOptimum is attained. Loss: {loss_old}. Epochs: {epoch} epochs.')
                 self.is_optim = True
                 return
@@ -240,9 +241,14 @@ class Optimizer:
 
             # bad step
             if loss_old < loss_new:
-                self.measures = copy.deepcopy(old_measures)
-                lr = self.update_lr(lr=lr)  # reduce lr
-
+                # Revert to the backup
+                self.measures = old_measure
+                ''' 
+                for i, m in enumerate(self.measures):
+                    m.weights = old_weights[i]
+                '''
+                # reduce lr
+                lr = self.update_lr(lr=lr)
                 if verbose:
                     print(f'Epoch: {epoch:<10} Lr was reduced to: {lr:.9f}')
             elif loss_old == loss_new and verbose:
@@ -256,6 +262,15 @@ class Optimizer:
                         print(f'Epoch: {epoch:<10} Loss: {loss_new:<10.9f} LR: {lr:.9f}')
                     else:
                         print('.')
+
+                    #Debug
+                    '''
+                    midpoints = self.measures[0].locations
+                    plt.bar(midpoints - 0.1, self.measures[0].weights.tolist(), width=0.2, label='new')
+                    plt.bar(midpoints + 0.1, old_measures[0].weights.tolist(), width=0.2, label='old')
+                    plt.legend(loc='upper right')
+                    plt.show()
+                    '''
 
             if lr < smallest_lr:
                 print(f'The step size is too small: {lr}')
