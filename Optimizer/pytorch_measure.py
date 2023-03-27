@@ -114,6 +114,7 @@ class Optimizer:
         self.lr = lr
         self.state = {'measure':self.measures, 'lr':self.lr}
         self.is_optim = False
+        self.grads = []
 
     def put_mass(self, meas_index, mass, location_index):
         """
@@ -236,7 +237,9 @@ class Optimizer:
 
             loss_new = loss_fn(self.measures)
             loss_new.backward()
-            if loss_old < loss_new:  # bad step
+
+            # bad step
+            if loss_old < loss_new:
                 self.measures = copy.deepcopy(old_measures)
                 lr = self.update_lr(lr=lr)  # reduce lr
 
@@ -245,13 +248,9 @@ class Optimizer:
             elif loss_old == loss_new and verbose:
                 print(f'Epoch: {epoch:<10} Loss did not change ({loss_new})')
 
-            else:  # successful step
+            # successful step
+            else:
                 #lr = self.lr  # reset to starting lr
-                if self.stop_criterion(tol_supp, tol_const):
-                    print(f'\nOptimum is attained. Loss: {loss_new}. Epochs: {epoch} epochs.')
-                    self.is_optim = True
-                    return
-
                 if epoch % print_freq == 0:
                     if verbose:
                         print(f'Epoch: {epoch:<10} Loss: {loss_new:<10.9f} LR: {lr:.9f}')

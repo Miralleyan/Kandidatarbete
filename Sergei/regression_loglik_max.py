@@ -13,7 +13,7 @@ print('Linear regression alpha + x, where alpha is random, its distribution is t
 torch.manual_seed(1)
 #  Model: -2 + x + Norm(0,sigma=1)
 # create dummy data for training
-N = 1000
+N = 40
 X = torch.linspace(0, 10, N)
 X = X.reshape(-1, 1) # making it a column-vector
 Y1 = -2 + X + torch.from_numpy(np.random.normal(0,1,(N,1))).float()
@@ -22,7 +22,7 @@ Y1 = -2 + X + torch.from_numpy(np.random.normal(0,1,(N,1))).float()
 
 amin = -5
 amax = 3
-no_atoms = 17
+no_atoms = 5
 locations = np.linspace(amin, amax, no_atoms)
 weights = np.array(np.random.uniform(0, 1, size=no_atoms))
 # weights = np.ones(no_atoms)
