@@ -221,12 +221,22 @@ class Optimizer:
 
     def minimize(self, loss_fn, max_epochs=10000, smallest_lr=1e-6, verbose=False,
                  tol_supp=1e-6, tol_const=1e-3,  print_freq=100, adaptive=False):
+        """
+        :param loss_fn: Function to minimize
+        :param max_epochs: Max number of iterations
+        :param smallest_lr: Minimizer wil stop when lr is below this value
+        :param verbose: Print information about each epoch
+        :param print_freq: How frequently the minimizer should print information
+        :param tol_supp:
+        :param tol_const:
+        :param adaptive:
+        :return: Optimized measures
+        """
         lr = self.lr
         for epoch in range(max_epochs):
             # Backup current measures and reset grad
-            old_measure = copy.deepcopy(self.measures)
+            old_measures = copy.deepcopy(self.measures)
             for m in self.measures:
-                #old_weights.append(copy.copy(m.weights))
                 m.zero_grad()
 
             # Compute loss and grad
@@ -237,7 +247,7 @@ class Optimizer:
             if self.stop_criterion(tol_supp, tol_const, adaptive):
                 print(f'\nOptimum is attained. Loss: {loss_old}. Epochs: {epoch} epochs.')
                 self.is_optim = True
-                return
+                return self.measures
 
             # Step
             mins = []
@@ -262,7 +272,6 @@ class Optimizer:
 
             # successful step
             else:
-                #lr = self.lr  # reset to starting lr
                 if epoch % print_freq == 0:
                     if verbose:
                         print(f'Epoch: {epoch:<10} Loss: {loss_new:<10.9f} LR: {lr}')
@@ -271,7 +280,7 @@ class Optimizer:
 
             if min(lr) < smallest_lr:
                 print(f'The step size is too small: {lr}')
-                return
+                return self.measures
 
     def visualize(self):
         fig, axs = plt.subplots(2)
