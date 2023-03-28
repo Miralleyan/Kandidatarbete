@@ -288,6 +288,8 @@ class Optimizer:
         rows = torch.floor(torch.sqrt(torch.tensor(len(self.measures)))).item()
         cols = torch.ceil(torch.sqrt(torch.tensor(len(self.measures)))).item()
         fig, axs = plt.subplots(int(rows),int(cols))
+        if len(self.measures) == 1:
+            axs = [axs]
         fig.suptitle('Optimizer Visualization')
         grads = [measure.weights.grad for measure in self.measures]
         for i, measure in enumerate(self.measures):
