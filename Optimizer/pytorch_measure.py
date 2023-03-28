@@ -281,6 +281,9 @@ class Optimizer:
                 print(f'The step size is too small: {lr}')
                 return self.measures
 
+        print('Max epochs reached')
+        return self.measures
+
     def visualize(self):
         rows = torch.floor(torch.sqrt(torch.tensor(len(self.measures)))).item()
         cols = torch.ceil(torch.sqrt(torch.tensor(len(self.measures)))).item()
