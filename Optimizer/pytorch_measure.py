@@ -113,7 +113,7 @@ class Optimizer:
         else:
             self.measures = measures
         # Create list of lr's
-        if type(lr) == float:
+        if type(lr) == float or type(lr) == int:
             self.lr = [lr]*len(self.measures)
         elif type(lr) != list:
             Exception('Error: lr has to be of type float or list')
@@ -122,7 +122,6 @@ class Optimizer:
         
         self.state = {'measure':self.measures, 'lr':self.lr}
         self.is_optim = False
-        self.grads = []
 
     def put_mass(self, meas_index, mass, location_index):
         """
@@ -205,7 +204,7 @@ class Optimizer:
     def load_state_dict(self, state_dict):
         """
         Overloads the current state dictionary
-\chi ^{2} = Pearson's cumulative test statistic, which asymptotically approaches a χ 2 \chi ^{2} distribution.
+
         :param state_dict: state dictionary to load
         """
         self.state = state_dict
@@ -286,10 +285,15 @@ class Optimizer:
         return self.measures
 
     def visualize(self):
-        fig, axs = plt.subplots(2)
+        rows = torch.floor(torch.sqrt(torch.tensor(len(self.measures)))).item()
+        cols = torch.ceil(torch.sqrt(torch.tensor(len(self.measures)))).item()
+        fig, axs = plt.subplots(int(rows),int(cols))
+        if len(self.measures) == 1:
+            axs = [axs]
         fig.suptitle('Optimizer Visualization')
+        grads = [measure.weights.grad for measure in self.measures]
         for i, measure in enumerate(self.measures):
-            M, m = self.grads[i].max(), self.grads[i].min()
+            M, m = grads[i].max(), grads[i].min()
             wm = measure.weights.max()
             scaled_weights = measure.weights * (M - m) / wm * 0.25 + 1.3 * m
             support = measure.support()
@@ -298,39 +302,9 @@ class Optimizer:
                 axs[i].plot(measure.locations[support], torch.zeros(len(measure.weights))[support] + m,
                             '.', c='red', label=' Measure Support')
                 # Gradient
-                axs[i].plot(measure.locations, self.grads[i], c='green', label=' Gradient')
+                axs[i].plot(measure.locations, grads[i], c='green', label=' Gradient')
                 # Measure weights where there is support
                 axs[i].vlines(measure.locations[support], torch.zeros(len(measure.weights))[support] + 1.3 * m,
                               scaled_weights[support], colors='blue', label=' Measure Weights')
                 axs[i].axhline(y=m, c="orange", linewidth=0.5)
                 axs[i].legend(loc='upper right')
-
-def main():
-    a = torch.tensor([-0.1, 0.1, 0.3, 0.1, 0.4])
-    b = torch.tensor([1., 2., 3., 4., 5.])
-
-    c = Measure(b, a)
-    # print(c.negative_part())
-    # print(c.put_mass(0.9, 1))
-    print(c)
-    test_sample()
-
-
-def test_sample():
-    a = torch.tensor([0.1, 0.1, 0.3, 0.1, 0.4])
-    b = torch.tensor([1., 2., 3., 4., 5.])
-
-    d = Measure(b, a)
-    print(d)
-    print(d.is_probability())
-    d.visualize()
-
-    print(d.sample(2000))
-
-def test_state_dict():
-    u = Measure(torch.tensor([0.,0.5,1.]),torch.tensor([0.2,0.5,0.3]))
-    opt = Optimizer(u)
-    opt.state_dict()
-
-if __name__ == "__main__":
-    main()
