@@ -3,10 +3,10 @@ import pytorch_measure as pm
 import numpy as np
 import matplotlib.pyplot as plt
 
-torch.manual_seed(30)
+#torch.manual_seed(30)
 N = 200
-x = torch.linspace(-1, 3, N)
-y = (torch.randn(N)+1) * x + 0.1*torch.randn(N)
+x = torch.linspace(-1, 2, N)
+y = (torch.randn(N)+1.5) * x + (1+torch.randn(N))
 
 #plt.scatter(x, y)
 #plt.show()
@@ -89,5 +89,12 @@ plt.plot([-1,2], [-aMax+bMax, 2*aMax+bMax])
 """
 opt.visualize()
 plt.show()
+b.visualize()
+plt.show()
+# aMax = a.locations[torch.argmax(a.weights)]
+# bMax = b.locations[torch.argmax(b.weights)]
+# plt.scatter(x,y)
+# plt.plot([-1,2], [-aMax+bMax, 2*aMax+bMax])
+# plt.show()
 print(a.weights.grad)
 print(b.weights.grad)
