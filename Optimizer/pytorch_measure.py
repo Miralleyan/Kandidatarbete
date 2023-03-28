@@ -250,11 +250,11 @@ class Optimizer:
                 return self.measures
 
             # Step
-            mins = []
+            maxima = []
             for meas_index in range(len(self.measures)):
-                mins.append(torch.min(self.measures[meas_index].weights.grad))
-            min_index = mins.index(sorted(mins)[0])
-            self.step(min_index)
+                maxima.append(torch.max(self.measures[meas_index].weights.grad))
+            max_index = maxima.index(sorted(mins)[0])
+            self.step(max_index)
 
             loss_new = loss_fn(self.measures)
             loss_new.backward()
