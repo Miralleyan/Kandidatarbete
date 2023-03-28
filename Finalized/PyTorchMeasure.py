@@ -267,7 +267,7 @@ class Optimizer:
             if loss_old < loss_new:
                 # Revert to the backup measure and decrease lr
                 self.measures = copy.deepcopy(old_measures)
-                self.update_lr(min_index, fraction=0.1)
+                self.update_lr(max_index, fraction=0.1)
 
                 if verbose:
                     print(f'Epoch: {epoch:<10} Lr was reduced to: {lr}')
@@ -285,6 +285,9 @@ class Optimizer:
             if min(lr) < smallest_lr:
                 print(f'The step size is too small: {lr}')
                 return self.measures
+
+        print('Max epochs reached')
+        return self.measures
 
     def visualize(self):
         fig, axs = plt.subplots(2)
