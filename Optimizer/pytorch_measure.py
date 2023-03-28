@@ -253,7 +253,7 @@ class Optimizer:
             maxima = []
             for meas_index in range(len(self.measures)):
                 maxima.append(torch.max(self.measures[meas_index].weights.grad))
-            max_index = maxima.index(sorted(mins)[0])
+            max_index = maxima.index(sorted(maxima)[0])
             self.step(max_index)
 
             loss_new = loss_fn(self.measures)
