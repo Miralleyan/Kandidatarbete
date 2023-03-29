@@ -47,10 +47,10 @@ new_mes = opt_NLL.minimize(NLLLoss, verbose=False, print_freq=100, max_epochs=10
 opt_KDE = pm.Optimizer([measure], lr=1e-1)
 new_mesKDE = opt_KDE.minimize(KDENLLLoss, verbose=False, print_freq=100, max_epochs=1000, tol_const=1e-2, adaptive=True)
 
-mu=0 #Create true values
+mu=-2 #Create true values
 sigma=1
 xs = l.detach()
-y=1/(np.sqrt(2*np.pi)*sigma)*torch.exp(-(xs+2-mu)**2/(2*sigma**2))
+y=1/(np.sqrt(2*np.pi)*sigma)*torch.exp(-(xs-mu)**2/(2*sigma**2))
 y/=sum(y) #Normalize
 
 
