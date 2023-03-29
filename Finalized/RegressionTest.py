@@ -4,8 +4,7 @@ This script tests linear regression with the model
 variable
 '''
 import torch
-import pytorch_measure as pm
-import numpy as np
+import PyTorchMeasure as pm
 import matplotlib.pyplot as plt
 
 N = 100
