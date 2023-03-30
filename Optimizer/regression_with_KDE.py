@@ -24,11 +24,17 @@ l = torch.nn.parameter.Parameter(l)
 
 m=pm.Measure(l,w)
 
-sample_length = 20
+sample_length = 40
 h=1.06*N**(-1/5)
 print(h)
-x = torch.linspace(-1, 2, sample_length)
-y = x + 1.1 + 0.1*torch.randn(sample_length)
+lo = -1
+hi =  2
+x1 = torch.linspace(lo, lo + (hi-lo)/2, sample_length//2)
+y1 = x1 + 1.4 + 0.1*torch.randn(sample_length//2)
+x2 = torch.linspace(lo + (hi-lo)/2, hi, sample_length//2)
+y2 = x2 + 0.2 + 0.1*torch.randn(sample_length//2)
+x = torch.cat([x1,x2])
+y = torch.cat([y1,y2])
 
 def K(x):
     return 1/(np.sqrt(2*np.pi))*torch.exp(-x**2/2)
@@ -36,10 +42,10 @@ def K(x):
 def loss_function(m:pm.Measure):
     alpha = m[0].locations
     weights = m[0].weights
-    matrix = alpha.repeat(sample_length,1).transpose(0,1)-y + x
+    matrix = (alpha.repeat(sample_length,1).transpose(0,1)+x) - y 
     return -(K(matrix/h).transpose(0,1)*(weights/(sample_length*h))).sum(dim=1).log().sum()
 
-lr = 0.01
+lr = 0.001
 opt = pm.Optimizer(m, lr=lr)
 opt.minimize(loss_function, max_epochs=1000, verbose=True, adaptive=False)
 
