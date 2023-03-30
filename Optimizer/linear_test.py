@@ -37,9 +37,9 @@ opt.minimize(loss_fn,verbose=True)
 
 
 plt.scatter(x,y,zorder=2)
-print(1-measure.total_mass())
-measure.visualize()
+opt.visualize()
 plt.show()
+
 
 '''
 plt.hist(measure.sample(10000),bins=50, density=True, range=[-4,4])

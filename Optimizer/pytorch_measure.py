@@ -247,6 +247,10 @@ class Optimizer:
                 print(f'\nOptimum is attained. Loss: {loss_old}. Epochs: {epoch} epochs.')
                 self.is_optim = True
                 return self.measures
+            
+            if min(lr) < smallest_lr:
+                print(f'The step size is too small: {lr}')
+                return self.measures
 
             # Step
             maxima = []
@@ -277,9 +281,6 @@ class Optimizer:
                     else:
                         print('.')
 
-            if min(lr) < smallest_lr:
-                print(f'The step size is too small: {lr}')
-                return self.measures
 
         print('Max epochs reached')
         return self.measures
