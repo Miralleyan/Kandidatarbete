@@ -3,7 +3,7 @@ import pytorch_measure as pm
 import numpy as np
 import matplotlib.pyplot as plt
 
-N=17
+N=41
 data=torch.randn(1000)
 #data=torch.from_numpy(np.random.beta(1,2,1000))
 

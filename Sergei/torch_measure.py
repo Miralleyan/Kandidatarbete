@@ -294,6 +294,7 @@ class MeasureMinimizer(nn.Module):
         '''
         M, m = float(self.grad.max()), float(self.grad.min())
         wm = float(self.mes.weights.max())
+        print(M, m, wm)
         # shifted and scaled weights of the measure
         weights_scaled = self.mes.weights * (M - m) / wm * 0.25 + v_shift * m
         s = self.mes.support()

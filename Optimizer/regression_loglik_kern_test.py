@@ -19,15 +19,16 @@ model = torch.nn.Sequential(
 def lin_model(a,x):
     return a+x
 
-def loglik_model():
+def measure_model():
     weights = torch.tensor([1.]*no_atoms, requires_grad=True)
     return model(weights)
 
 optimizer = torch.optim.SGD(model.parameters(), lr=0.1)
-loss = torch.nn.NLLLoss()
+def loss():
+    
 
 for i in range(1000):
-    alpha = loglik_model()
+    alpha = measure_model()
     print(alpha)
     val = loss()
     if i % 100 == 99:

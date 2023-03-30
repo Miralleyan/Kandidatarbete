@@ -1,3 +1,7 @@
+"""
+The finalized Measure class
+Here we only add finished work
+"""
 import torch
 import matplotlib.pyplot as plt
 import copy
@@ -113,7 +117,7 @@ class Optimizer:
         else:
             self.measures = measures
         # Create list of lr's
-        if type(lr) == float or type(lr) == int:
+        if type(lr) == float:
             self.lr = [lr]*len(self.measures)
         elif type(lr) != list:
             Exception('Error: lr has to be of type float or list')
@@ -122,6 +126,7 @@ class Optimizer:
         
         self.state = {'measure':self.measures, 'lr':self.lr}
         self.is_optim = False
+        self.grads = []
 
     def put_mass(self, meas_index, mass, location_index):
         """
@@ -204,7 +209,7 @@ class Optimizer:
     def load_state_dict(self, state_dict):
         """
         Overloads the current state dictionary
-
+\chi ^{2} = Pearson's cumulative test statistic, which asymptotically approaches a χ 2 \chi ^{2} distribution.
         :param state_dict: state dictionary to load
         """
         self.state = state_dict
@@ -285,15 +290,10 @@ class Optimizer:
         return self.measures
 
     def visualize(self):
-        rows = torch.floor(torch.sqrt(torch.tensor(len(self.measures)))).item()
-        cols = torch.ceil(torch.sqrt(torch.tensor(len(self.measures)))).item()
-        fig, axs = plt.subplots(int(rows),int(cols))
-        if len(self.measures) == 1:
-            axs = [axs]
+        fig, axs = plt.subplots(2)
         fig.suptitle('Optimizer Visualization')
-        grads = [measure.weights.grad for measure in self.measures]
         for i, measure in enumerate(self.measures):
-            M, m = grads[i].max(), grads[i].min()
+            M, m = self.grads[i].max(), self.grads[i].min()
             wm = measure.weights.max()
             scaled_weights = measure.weights * (M - m) / wm * 0.25 + 1.3 * m
             support = measure.support()
@@ -302,7 +302,7 @@ class Optimizer:
                 axs[i].plot(measure.locations[support], torch.zeros(len(measure.weights))[support] + m,
                             '.', c='red', label=' Measure Support')
                 # Gradient
-                axs[i].plot(measure.locations, grads[i], c='green', label=' Gradient')
+                axs[i].plot(measure.locations, self.grads[i], c='green', label=' Gradient')
                 # Measure weights where there is support
                 axs[i].vlines(measure.locations[support], torch.zeros(len(measure.weights))[support] + 1.3 * m,
                               scaled_weights[support], colors='blue', label=' Measure Weights')
