@@ -255,8 +255,14 @@ class Optimizer:
             # Step
             maxima = []
             for meas_index in range(len(self.measures)):
-                maxima.append(torch.max(self.measures[meas_index].weights.grad))
-            max_index = maxima.index(sorted(maxima)[0])
+                    if len(self.measures[meas_index].support()) > 1:
+                        maxima.append(torch.max(self.measures[meas_index].weights.grad))
+                    else:
+                        maxima.append(0)
+
+            max_index = maxima.index(sorted(maxima)[-1])
+            print(max_index)
+            print(maxima)
             self.step(max_index)
 
             loss_new = loss_fn(self.measures)
@@ -286,7 +292,7 @@ class Optimizer:
         return self.measures
 
     def visualize(self):
-        rows = torch.floor(torch.sqrt(torch.tensor(len(self.measures)))).item()
+        rows = torch.ceil(torch.sqrt(torch.tensor(len(self.measures)))).item()
         cols = torch.ceil(torch.sqrt(torch.tensor(len(self.measures)))).item()
         fig, axs = plt.subplots(int(rows),int(cols))
         if len(self.measures) == 1:
@@ -300,12 +306,12 @@ class Optimizer:
             support = measure.support()
             with torch.no_grad():
                 # Support locations
-                axs[i].plot(measure.locations[support], torch.zeros(len(measure.weights))[support] + m,
+                axs[int(i//cols),i%2].plot(measure.locations[support], torch.zeros(len(measure.weights))[support] + m,
                             '.', c='red', label=' Measure Support')
                 # Gradient
-                axs[i].plot(measure.locations, grads[i], c='green', label=' Gradient')
+                axs[int(i//cols),i%2].plot(measure.locations, grads[i], c='green', label=' Gradient')
                 # Measure weights where there is support
-                axs[i].vlines(measure.locations[support], torch.zeros(len(measure.weights))[support] + 1.3 * m,
+                axs[int(i//cols),i%2].vlines(measure.locations[support], torch.zeros(len(measure.weights))[support] + 1.3 * m,
                               scaled_weights[support], colors='blue', label=' Measure Weights')
-                axs[i].axhline(y=m, c="orange", linewidth=0.5)
-                axs[i].legend(loc='upper right')
+                axs[int(i//cols),i%2].axhline(y=m, c="orange", linewidth=0.5)
+                axs[int(i//cols),i%2].legend(loc='upper right')
