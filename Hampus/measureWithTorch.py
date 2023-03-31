@@ -32,34 +32,40 @@ class NormalModel(torch.nn.Module):
         return f'Mean: {self.mean.item():.5f} and Std: {self.std.item():.5f}'
 
 
+def f(a, x):
+    return a
+
+
+def k(mean, std, x):
+    return 1 / np.sqrt(2 * np.pi) * torch.exp(-((x - mean)/std) ** 2 / 2) / std
+
+
 N = 200  # datapoints
+x = torch.linspace(-3, 5, N).view(-1, 1)
+y = f(torch.tensor(np.random.normal(0, 2, N), dtype=torch.float).view(-1, 1), x)
 
-x = torch.linspace(1, 5, N).view(-1, 1)
-y = (x)**2 -6*x + torch.tensor(np.random.normal(2., 0.2, N), dtype=torch.float).view(-1, 1)
+mean = torch.tensor(torch.randn(()), requires_grad=True)
+std = torch.tensor(torch.randn(()), requires_grad=True)
 
-model = NormalModel()
-opt = torch.optim.SGD(model.parameters(), lr=0.1)
-loss_fn = torch.nn.MSELoss()
-
+opt = torch.optim.Adam([mean, std], lr=0.1)
 for epoch in range(1000):
     opt.zero_grad()
-    mean, std = model(x)
-    dist = torch.distributions.Normal(mean, std)
-    loss = -dist.log_prob(y).sum()
-    #kern = 1 / np.sqrt(2 * np.pi) * torch.exp(-(y- mean) ** 2 / 2)
+    kern = k(mean, std, y)
+    loss = -kern.log().sum()
+
+    #mean, std = model(x)
+    #dist = torch.distributions.Normal(mean, std)
+    #loss = -dist.log_prob(y).sum()
     #loss = loss_fn(mean, y)
 
-    if epoch % 50 == 0:
+    if epoch % 1000 == 0:
         print(f'{epoch}:: Loss = {loss.item()}')
     loss.backward()
     opt.step()
 
-x_plot = torch.linspace(1.05, 4.96, 40).view(-1, 1)
-mean, std = model(x_plot)
-mean = mean.detach().squeeze(-1)
-std = std.detach().squeeze(-1)
-plt.scatter(x, y, s=3)
-plt.errorbar(x=x_plot, y=mean, yerr=std)
-#plt.plot(x_plot, mean.detach())
+x_plot = torch.linspace(-3, 3, 100).view(-1, 1)
+m = k(mean, std, x_plot).detach()
+plt.plot(x_plot, m.abs())
 plt.show()
+print(f'Mean: {mean.item():.4f} and Std: {std.abs().item():.4f}')
 
