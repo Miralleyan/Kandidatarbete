@@ -5,16 +5,16 @@ import matplotlib.pyplot as plt
 #torch.manual_seed(30)
 N = 200
 x = torch.linspace(-2, 2, N)
-y = (torch.randn(N)+1.5) * x**2 + (1+torch.randn(N)) * x + 2*(0.5+torch.randn(N))
+y = (torch.randn(N)+-1.5) * x**2 + (-1+torch.randn(N)) * x + (0.5+torch.randn(N))
 
 plt.scatter(x, y)
 plt.show()
 
 M = 30 # <- number of locations on measure
 
-a = pm.Measure(torch.linspace(0, 3, M), torch.ones(M) / M)
-b = pm.Measure(torch.linspace(0, 3, M), torch.ones(M) / M)
-c = pm.Measure(torch.linspace(0, 3, M), torch.ones(M) / M)
+a = pm.Measure(torch.linspace(-2, 2, M), torch.ones(M) / M)
+b = pm.Measure(torch.linspace(-2, 2, M), torch.ones(M) / M)
+c = pm.Measure(torch.linspace(-2, 2, M), torch.ones(M) / M)
 
 def error(x, param, y): # a is location in measure (scalar), for example slope in linear regression
     return ((param[0] * x**2 + param[1] * x + param[2] - y).pow(2)).sum()
@@ -27,14 +27,25 @@ def loss_fn(measures: list[pm.Measure], n_samples=1000):
     probs = torch.cat([measures[i].weights[idx[:, i]].unsqueeze(1) for i in range(len(measures))], 1).prod(1)
     return errors.dot(probs)
 
+def log_prep(x, locs, y):
+    loc_idx = []
+    for i in range(len(x)):
+        ab = torch.abs(locs[:,0]*x[i]**2+locs[:,1]*x[i]+locs[:,2]-y[i])
+        loc_idx.append(torch.argmin(ab))
+    return torch.tensor(loc_idx)
+
+loc_index = log_prep(x,locs,y)
+def log_loss(measures: list[pm.Measure]):
+    probs = torch.cat([measures[i].weights[idx[:, i]].unsqueeze(1) for i in range(len(measures))], 1).prod(1)
+    return -(probs[loc_index].log()).sum()
 
 opt = pm.Optimizer([a, b, c], lr = 0.01)
-opt.minimize(loss_fn, max_epochs=1000, verbose = True, print_freq=5)
+opt.minimize(loss_fn, max_epochs=800, verbose = True, print_freq=5, smallest_lr=1e-20)
 opt.visualize()
 plt.show()
-aMax = a.locations[torch.argmax(a.weights)]
-bMax = b.locations[torch.argmax(b.weights)]
-cMax = c.locations[torch.argmax(c.weights)]
+aMax = torch.sum(a.locations*a.weights).detach()
+bMax = torch.sum(b.locations*b.weights).detach()
+cMax = torch.sum(c.locations*c.weights).detach()
 plt.scatter(x,y)
 plt.plot(x, aMax*x**2+bMax*x+cMax)
 plt.show()
