@@ -255,14 +255,11 @@ class Optimizer:
             # Step
             maxima = []
             for meas_index in range(len(self.measures)):
-                    if len(self.measures[meas_index].support()) > 1:
-                        maxima.append(torch.max(self.measures[meas_index].weights.grad))
-                    else:
-                        maxima.append(0)
-
+                sup_index = self.measures[meas_index].support()
+                grads = copy.deepcopy(self.measures[meas_index].weights.grad)
+                #print(grads)
+                maxima.append(torch.max(grads[sup_index]))
             max_index = maxima.index(sorted(maxima)[-1])
-            print(max_index)
-            print(maxima)
             self.step(max_index)
 
             loss_new = loss_fn(self.measures)
