@@ -62,4 +62,3 @@ plt.scatter(x, y, s=3)
 plt.errorbar(x=x_plot, y=mean, yerr=std)
 #plt.plot(x_plot, mean.detach())
 plt.show()
-
