@@ -20,7 +20,7 @@ c = pm.Measure(torch.linspace(-10, 10, M), torch.ones(M) / M)
 
 # Regression model
 def regression_model(param, x):
-     return param[0]*x**2+param[1]*x+param[0]
+     return param[0]*x**2+param[1]*x+param[2]
 
 # Distance from model prediction to true data
 def error(x, param, y): # a is location in measure (scalar), for example slope in linear regression
@@ -41,7 +41,7 @@ def loss_fn(measures: list[pm.Measure], n_samples=1000):
 def K(d):
         return 1/np.sqrt(2*np.pi)*np.exp(-d**2/2)
 h=1.06*N**(-1/5)
-kde_mat = K((y.view(-1,1) - regression_model(locs, x)) / h)
+kde_mat = K((y.view(-1,1) - regression_model(locs.transpose(0,1), x.view(-1,1))) / h)
 
 def KDElog_loss(measures):
     probs = torch.cat([measures[i].weights[idx[:, i]].unsqueeze(1) for i in range(len(measures))], 1).prod(1)
@@ -59,16 +59,19 @@ def log_loss(measures: list[pm.Measure]):
     probs = torch.cat([measures[i].weights[idx[:, i]].unsqueeze(1) for i in range(len(measures))], 1).prod(1)
     return -sum(torch.log(probs[loc_index]))
 
+# Prep for chi squared
 alpha = 0.001
 bins = log_prep(x, locs, y)
 bins_freq = torch.bincount(bins, minlength=M**3)/len(x)**2
 bins_freq = bins_freq*(1-alpha)+alpha / len(bins_freq)
+
+# Chi squared loss
 def chi_squared(measures: list[pm.Measure]):
     probs = torch.cat([measures[i].weights[idx[:, i]].unsqueeze(1) for i in range(len(measures))], 1).prod(1)
     return sum(probs**2/bins_freq)
 
-opt = pm.Optimizer([a, b, c], lr = 0.01)
-measures = opt.minimize(KDElog_loss, max_epochs=1000, verbose = True, print_freq=1, smallest_lr=1e-20)
+opt = pm.Optimizer([a, b, c], lr = 0.05)
+measures = opt.minimize(KDElog_loss, max_epochs=600, verbose = True, print_freq=1, smallest_lr=1e-7)
 a,b,c = measures[0],measures[1],measures[2]
 opt.visualize()
 plt.show()
@@ -81,6 +84,7 @@ plt.plot(x, aMax*x**2+bMax*x+cMax, 'r-')
 plt.plot(x, (aMax-aVar**0.5)*x**2+bMax*x+cMax, 'r--')
 plt.plot(x, (aMax+aVar**0.5)*x**2+bMax*x+cMax, 'r--')
 plt.show()
-print(a)
-print(b)
-print(c)
+print(aMax)
+print(bMax)
+print(cMax)
+print(c.weights.grad)
