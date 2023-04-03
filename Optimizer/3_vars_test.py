@@ -25,6 +25,8 @@ def regression_model(param, x):
 # Distance from model prediction to true data
 def error(x, param, y): # a is location in measure (scalar), for example slope in linear regression
     return ((param[0] * x**2 + param[1] * x + param[2] - y).pow(2)).sum()
+    # estimate = sum([par * x**(len(param)-i-1) for i, par in enumerate(param)])
+    # return ((estimate - y).pow(2)).sum()
 
 # Indexing of the measures and computation of errors for each triplet
 measures = [a,b,c]
