@@ -18,6 +18,8 @@ c = pm.Measure(torch.linspace(0, 3, M), torch.ones(M) / M)
 
 def error(x, param, y): # a is location in measure (scalar), for example slope in linear regression
     return ((param[0] * x**2 + param[1] * x + param[2] - y).pow(2)).sum()
+    # estimate = sum([par * x**(len(param)-i-1) for i, par in enumerate(param)])
+    # return ((estimate - y).pow(2)).sum()
 
 measures = [a,b,c]
 idx = torch.tensor([[i, j, k] for i in range(len(measures[0].locations)) for j in range(len(measures[1].locations)) for k in range(len(measures[2].locations))])
