@@ -255,14 +255,11 @@ class Optimizer:
             # Step
             maxima = []
             for meas_index in range(len(self.measures)):
-                    if len(self.measures[meas_index].support()) > 1:
-                        maxima.append(torch.max(self.measures[meas_index].weights.grad))
-                    else:
-                        maxima.append(0)
-
+                sup_index = self.measures[meas_index].support()
+                grads = copy.deepcopy(self.measures[meas_index].weights.grad)
+                #print(grads)
+                maxima.append(torch.max(grads[sup_index]))
             max_index = maxima.index(sorted(maxima)[-1])
-            print(max_index)
-            print(maxima)
             self.step(max_index)
 
             loss_new = loss_fn(self.measures)
@@ -302,7 +299,7 @@ class Optimizer:
         for i, measure in enumerate(self.measures):
             M, m = grads[i].max(), grads[i].min()
             wm = measure.weights.max()
-            scaled_weights = measure.weights * (M - m) / wm * 0.25 + 1.3 * m
+            scaled_weights = measure.weights * (M - m) / wm * 0.25 + m
             support = measure.support()
             with torch.no_grad():
                 # Support locations
@@ -315,3 +312,4 @@ class Optimizer:
                               scaled_weights[support], colors='blue', label=' Measure Weights')
                 axs[int(i//cols),i%2].axhline(y=m, c="orange", linewidth=0.5)
                 axs[int(i//cols),i%2].legend(loc='upper right')
+                axs[int(i//cols),i%2].set_ylim([m, M])

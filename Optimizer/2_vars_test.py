@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #torch.manual_seed(30)
-N = 200
+N = 1000
 x = torch.linspace(-1, 2, N)
 y = (torch.randn(N)+1.5) * x + (1+torch.randn(N))
 
@@ -78,7 +78,7 @@ def chi_squared(measures: list[pm.Measure]):
 
 
 opt = pm.Optimizer([a, b], lr = 0.001)
-opt.minimize(log_loss, max_epochs=1000, verbose = True, print_freq=5)
+opt.minimize(loss_fn, max_epochs=200, verbose = True, print_freq=5)
 """
 a.visualize()
 b.visualize()
@@ -89,12 +89,14 @@ plt.plot([-1,2], [-aMax+bMax, 2*aMax+bMax])
 """
 opt.visualize()
 plt.show()
-b.visualize()
+opt.measures[0].visualize()
 plt.show()
-# aMax = a.locations[torch.argmax(a.weights)]
-# bMax = b.locations[torch.argmax(b.weights)]
-# plt.scatter(x,y)
-# plt.plot([-1,2], [-aMax+bMax, 2*aMax+bMax])
-# plt.show()
+opt.measures[1].visualize()
+plt.show()
+aMax = a.locations[torch.argmax(a.weights)]
+bMax = b.locations[torch.argmax(b.weights)]
+plt.scatter(x,y)
+plt.plot([-1,2], [-aMax+bMax, 2*aMax+bMax],'r-')
+plt.show()
 print(a.weights.grad)
 print(b.weights.grad)
