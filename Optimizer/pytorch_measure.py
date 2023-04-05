@@ -289,11 +289,10 @@ class Optimizer:
         return self.measures
 
     def visualize(self):
-        rows = torch.ceil(torch.sqrt(torch.tensor(len(self.measures)))).item()
-        cols = torch.ceil(torch.sqrt(torch.tensor(len(self.measures)))).item()
-        fig, axs = plt.subplots(int(rows),int(cols))
-        if len(self.measures) == 1:
-            axs = [axs]
+        cols = int(torch.ceil(torch.sqrt(torch.tensor(len(self.measures)))).item())
+        rows = int(torch.ceil(torch.tensor(len(self.measures)/cols)).item())
+        fig, axs = plt.subplots(rows,cols)
+        axs = axs.flatten()
         fig.suptitle('Optimizer Visualization')
         grads = [measure.weights.grad for measure in self.measures]
         for i, measure in enumerate(self.measures):
@@ -303,13 +302,13 @@ class Optimizer:
             support = measure.support()
             with torch.no_grad():
                 # Support locations
-                axs[int(i//cols),i%2].plot(measure.locations[support], torch.zeros(len(measure.weights))[support] + m,
+                axs[i%cols+(i//cols)*cols].plot(measure.locations[support], torch.zeros(len(measure.weights))[support] + m,
                             '.', c='red', label=' Measure Support')
                 # Gradient
-                axs[int(i//cols),i%2].plot(measure.locations, grads[i], c='green', label=' Gradient')
+                axs[i%cols+(i//cols)*cols].plot(measure.locations, grads[i], c='green', label=' Gradient')
                 # Measure weights where there is support
-                axs[int(i//cols),i%2].vlines(measure.locations[support], torch.zeros(len(measure.weights))[support] + 1.3 * m,
+                axs[i%cols+(i//cols)*cols].vlines(measure.locations[support], torch.zeros(len(measure.weights))[support] + 1.3 * m,
                               scaled_weights[support], colors='blue', label=' Measure Weights')
-                axs[int(i//cols),i%2].axhline(y=m, c="orange", linewidth=0.5)
-                axs[int(i//cols),i%2].legend(loc='upper right')
-                axs[int(i//cols),i%2].set_ylim([m, M])
+                axs[i%cols+(i//cols)*cols].axhline(y=m, c="orange", linewidth=0.5)
+                axs[i%cols+(i//cols)*cols].legend(loc='upper right')
+                axs[i%cols+(i//cols)*cols].set_ylim([m, M])
