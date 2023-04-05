@@ -44,8 +44,8 @@ N = 200  # datapoints
 x = torch.linspace(-3, 5, N).view(-1, 1)
 y = f(torch.tensor(np.random.normal(0, 2, N), dtype=torch.float).view(-1, 1), x)
 
-mean = torch.tensor(torch.randn(()), requires_grad=True)
-std = torch.tensor(torch.randn(()), requires_grad=True)
+mean = torch.randn(()).clone()
+std = torch.randn(()).clone()
 
 opt = torch.optim.Adam([mean, std], lr=0.1)
 for epoch in range(1000):
