@@ -70,7 +70,7 @@ bins_freq = bins_freq*(1-alpha)+alpha / len(bins_freq)
 # Chi squared loss
 def chi_squared(measures: list[pm.Measure]):
     probs = torch.cat([measures[i].weights[idx[:, i]].unsqueeze(1) for i in range(len(measures))], 1).prod(1)
-    return sum(probs**2/bins_freq)
+    return (probs**2/bins_freq).sum()
 
 opt = pm.Optimizer([a, b, c], lr = 0.05)
 measures = opt.minimize(KDElog_loss, max_epochs=600, verbose = True, print_freq=1, smallest_lr=1e-7)
