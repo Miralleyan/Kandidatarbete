@@ -13,3 +13,33 @@ opt = pm.Optimizer(bern)
 opt.minimize(minus_var, verbose = True)
 opt = pm.Optimizer(bern)
 opt.minimize(var, verbose = True)
+
+print("----- < using softmax instead: > -----")
+
+import torch
+import matplotlib.pyplot as plt
+
+
+
+m = torch.nn.Sequential(
+    torch.nn.Linear(1, 2),
+    torch.nn.Softmax(0)
+)
+loss_fn = lambda x, y: x.prod(0)
+opt = torch.optim.Adam(m.parameters(), lr=0.1)
+
+for epoch in range(200):
+    x = torch.tensor([1.], dtype=torch.float32)
+    y_pred = m(x)
+    
+    loss = loss_fn(y_pred, "placeholder")
+    opt.zero_grad()
+
+    loss.backward()
+    
+    opt.step()
+
+    if epoch % 10 == 0:
+        print(epoch, f"\tdistribution={y_pred[:]}")
+
+
