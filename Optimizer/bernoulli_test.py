@@ -25,10 +25,10 @@ m = torch.nn.Sequential(
     torch.nn.Linear(1, 2),
     torch.nn.Softmax(0)
 )
-loss_fn = lambda x, y: x.prod(0)
+loss_fn = lambda y_pred, y: y_pred.prod(0)
 opt = torch.optim.Adam(m.parameters(), lr=0.1)
 
-for epoch in range(200):
+for epoch in range(2000):
     x = torch.tensor([1.], dtype=torch.float32)
     y_pred = m(x)
     
@@ -39,7 +39,7 @@ for epoch in range(200):
     
     opt.step()
 
-    if epoch % 10 == 0:
-        print(epoch, f"\tdistribution={y_pred[:]}")
+    if epoch % 50 == 0:
+        print(epoch, f"\tloss={loss.item()}")
 
 
