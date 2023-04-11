@@ -11,8 +11,12 @@ data=torch.randn(n)*s+mu
 
 #If both kernel and data are unimodal normal distribution this is a good alternative
 sigma=torch.std(data)
-A=min(sigma,(torch.quantile(data,0.75)-torch.quantile(data,0.35))/1.35)
+A=min(sigma,(torch.quantile(data,0.75)-torch.quantile(data,0.25))/1.35)
 h=0.9*A*n**(-1/5)
+
+
+
+
 
 
 ####
