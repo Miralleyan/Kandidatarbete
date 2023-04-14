@@ -1,6 +1,7 @@
 import torch
 import matplotlib.pyplot as plt
 import copy
+import scipy as scipy
 import itertools
 import numpy as np
 
@@ -411,3 +412,41 @@ class Optimizer:
             bins_freq = bins_freq*(1-alpha)+alpha / len(bins_freq)
             prep.append(bins_freq)
         return perms, prep
+
+
+
+class Check():
+    def __init__(self, opt: Optimizer, model, x,y):
+        self.opt=opt
+        self.model=model
+        self.data=[x,y]
+        self.N=len(x)
+        self.prob=0.05
+
+
+    def check(self):
+        input=[]
+        bounds=[]
+        for meas in self.opt.measures:
+            input.append(meas.sample(self.N))
+        for x in self.data[0]:
+            bounds.append(self.CI(self.model(x,input)))
+        miss=self.misses(self.data[1],bounds)
+        return scipy.stats.binom.pmf(miss,self.N,self.prob)
+        
+    def CI(self, output):
+        edge=int(self.prob/2*self.N)
+        idx_sorted_cropped=torch.argsort(output)[edge:self.N-edge]
+        bounds=output[idx_sorted_cropped[[0,-1]]]
+        return bounds
+    
+
+    def misses(self,y,bounds):
+        miss=0
+        for i in range(len(y)):
+            if y[i]>bounds[i][1] or y[i]<bounds[i][0]:
+                miss+=1
+        return miss
+
+            
+
