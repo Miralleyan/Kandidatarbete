@@ -1,3 +1,4 @@
+# This file was meant to test the functionality of having loss in the optimizer
 import torch
 import pytorch_measure as pm
 import matplotlib.pyplot as plt
