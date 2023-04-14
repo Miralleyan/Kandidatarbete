@@ -227,6 +227,8 @@ class Optimizer:
         """
         :param data: list of tensors of data points. If x and y, then data should be on the form [x_tensor,y_tensor].
         If only one series of data points, just this tensor is needed
+        :param model: model written as a function.
+        Should take a data input (x) and a set of parameters (params).
         :param max_epochs: Max number of iterations
         :param smallest_lr: Minimizer wil stop when lr is below this value
         :param verbose: Print information about each epoch
@@ -301,6 +303,10 @@ class Optimizer:
         return self.measures
 
     def visualize(self):
+        """
+        Visualizes the measures of the optimizer. Currently requires that
+        a gradient has been stored in the weights of the measures.
+        """
         cols = int(torch.ceil(torch.sqrt(torch.tensor(len(self.measures)))).item())
         rows = int(torch.ceil(torch.tensor(len(self.measures)/cols)).item())
         fig, axs = plt.subplots(rows,cols)
@@ -377,30 +383,33 @@ class Optimizer:
         :param h: bandwidth parameter for KDE
         :param aplha: label smoothing parameter for chi-squared loss function
         """
-        perms = torch.tensor(itertools.product(*[range(len(measure)) for measure in self.measures]))
+        perms = torch.tensor([item for item in itertools.product(*[range(measure.weights.size(dim=0)) for measure in self.measures])])
         locs = torch.cat([self.measures[i].locations[perms[:, i]].unsqueeze(1) for i in range(len(self.measures))], 1)
         prep = []
-        if self.loss == essr:
+        if self.loss == self.essr:
             prep.append(torch.tensor([(model(data[0], locs[i]) - data[1]).pow(2).sum() for i in range(len(perms))])) # errors
-        elif self.loss == nll:
+        elif self.loss == self.nll:
             loc_idx = []
             for i in range(len(data[0])):
-                ab = torch.abs(model(data[0][i], locs) - data[1][i])
-                loc_idx.append(torch.argmin(ab))
+                ab = []
+                for j in range(locs.size(dim=0)):
+                    ab.append(torch.abs(model(data[0][i], locs[j,:]) - data[1][i]))
+                loc_idx.append(torch.argmin(torch.tensor(ab)))
             prep.append(torch.tensor(loc_idx))
-        elif self.loss == KDEnll:
+        elif self.loss == self.KDEnll:
             if h == 0:
                 h = 1.06*len(data[0])**(-1/5)
             h=1.06*len(data[0])**(-1/5)
             kde_mat = 1/np.sqrt(2*np.pi)*np.exp(-((data[1].view(-1,1) - model(data[0].view(-1,1), locs.transpose(0,1))) / h)**2/2)
-            prep.append(kde_mat, h)
-        elif self.loss == chi_squared:
+            prep.append(kde_mat)
+            prep.append(h)
+        elif self.loss == self.chi_squared:
             loc_idx = []
             for i in range(len(data[0])):
                 ab = torch.abs(model(data[0][i], locs) - data[1][i])
                 loc_idx.append(torch.argmin(ab))
             bins = torch.tensor(loc_idx)
-            bins_freq = torch.bincount(bins, minlength=len(self.measures[0])**3)/len(data[0])**2
+            bins_freq = torch.bincount(bins, minlength=self.measures[0].weights.size(dim=0)**3)/len(data[0])**2
             bins_freq = bins_freq*(1-alpha)+alpha / len(bins_freq)
             prep.append(bins_freq)
         return perms, prep
