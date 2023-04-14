@@ -404,10 +404,10 @@ class Optimizer:
         elif self.loss == self.chi_squared:
             loc_idx = []
             for i in range(len(data[0])):
-                ab = torch.abs(model(data[0][i], locs) - data[1][i])
+                ab = torch.abs(model(data[0][i], [locs[:,i] for i in range(locs.dim())]) - data[1][i])
                 loc_idx.append(torch.argmin(ab))
             bins = torch.tensor(loc_idx)
-            bins_freq = torch.bincount(bins, minlength=self.measures[0].weights.size(dim=0)**3)/len(data[0])**2
+            bins_freq = torch.bincount(bins, minlength=np.cumprod([self.measures[i].weights.size(dim=0) for i in range(len(self.measures))])[-1])/len(data[0])**2
             bins_freq = bins_freq*(1-alpha)+alpha / len(bins_freq)
             prep.append(bins_freq)
         return perms, prep

@@ -15,7 +15,7 @@ b = pm.Measure(torch.linspace(-1, 3, M), torch.ones(M) / M)
 def model(x, params):
     return params[0]*x+params[1]
 
-opt = pm.Optimizer([a, b], 'nll', lr = 0.05)
+opt = pm.Optimizer([a, b], 'chi_squared', lr = 0.05)
 opt.minimize([x,y], model, max_epochs=500, verbose = True, print_freq=5)
 
 opt.visualize()
