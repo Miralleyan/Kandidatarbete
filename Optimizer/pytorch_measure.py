@@ -1,6 +1,7 @@
 import torch
 import matplotlib.pyplot as plt
 import copy
+import scipy as scipy
 
 
 class Measure:
@@ -312,3 +313,41 @@ class Optimizer:
                 axs[i%cols+(i//cols)*cols].axhline(y=m, c="orange", linewidth=0.5)
                 axs[i%cols+(i//cols)*cols].legend(loc='upper right')
                 axs[i%cols+(i//cols)*cols].set_ylim([m, M])
+
+
+
+class Check():
+    def __init__(self, opt: Optimizer, model, x,y):
+        self.opt=Optimizer
+        self.model=model
+        self.data=[x,y]
+        self.N=len(x)
+        self.prob=0.05
+
+
+    def check(self):
+        input=[]
+        bounds=[]
+        for meas in self.opt.measures:
+            input.append(meas.sample(self.N))
+        for x in self.data[0]:
+            bounds.append(self.CI(self.model(input,x)))
+        miss=self.misses(self.data[1],bounds)
+        return scipy.stats.binom.pdf(miss,self.N,self.prob)
+        
+    def CI(self, output):
+        edge=int(self.prob/2*self.N)
+        idx_sorted_cropped=torch.argsort(output)[edge:self.N-edge]
+        bounds=output[idx_sorted_cropped[[0,-1]]]
+        return bounds
+    
+
+    def misses(self,y,bounds):
+        miss=0
+        for i in range(len(y)):
+            if y[i]>bounds[i][1] or y[i]<bounds[i][0]:
+                miss+=1
+        return miss
+
+            
+
