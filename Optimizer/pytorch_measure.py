@@ -391,9 +391,7 @@ class Optimizer:
         elif self.loss == self.nll:
             loc_idx = []
             for i in range(len(data[0])):
-                ab = []
-                for j in range(locs.size(dim=0)):
-                    ab.append(torch.abs(model(data[0][i], locs[j,:]) - data[1][i]))
+                ab = torch.abs(model(data[0][i], [locs[:,i] for i in range(locs.dim())]) - data[1][i])
                 loc_idx.append(torch.argmin(torch.tensor(ab)))
             prep.append(torch.tensor(loc_idx))
         elif self.loss == self.KDEnll:
