@@ -417,7 +417,7 @@ class Optimizer:
 
 class Check():
     def __init__(self, opt: Optimizer, model, x,y):
-        self.opt=Optimizer
+        self.opt=opt
         self.model=model
         self.data=[x,y]
         self.N=len(x)
@@ -430,9 +430,9 @@ class Check():
         for meas in self.opt.measures:
             input.append(meas.sample(self.N))
         for x in self.data[0]:
-            bounds.append(self.CI(self.model(input,x)))
+            bounds.append(self.CI(self.model(x,input)))
         miss=self.misses(self.data[1],bounds)
-        return scipy.stats.binom.pdf(miss,self.N,self.prob)
+        return scipy.stats.binom.pmf(miss,self.N,self.prob)
         
     def CI(self, output):
         edge=int(self.prob/2*self.N)
