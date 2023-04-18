@@ -223,7 +223,7 @@ class Optimizer:
         """
         return loss_fn(old_measure) < loss_fn(measure)
 
-    def minimize(self, data, model, h = 0, alpha = 0.001, max_epochs=1000, smallest_lr=1e-6, verbose=False,
+    def minimize(self, data, model, h = 0, alpha = 0.001, max_epochs=2000, smallest_lr=1e-6, verbose=False,
                  tol_supp=1e-6, tol_const=1e-3,  print_freq=100, adaptive=False):
         """
         :param data: list of tensors of data points. If x and y, then data should be on the form [x_tensor,y_tensor].
@@ -432,16 +432,24 @@ class Check():
         that amount of misses
 
         '''
-        input=[]
+        
         bounds=[]
-        for meas in self.opt.measures:
-            input.append(meas.sample(self.N))
         for x in self.data[0]:
+            input=[]
+            for meas in self.opt.measures:
+                input.append(meas.sample(self.N))
             bounds.append(self.CIapprox(self.model(x,input)))
             #print(self.CI(self.model(x,input)))
             #print(self.CIapprox(self.model(x,input)))
         miss=self.misses(self.data[1],bounds)
-        return 1-scipy.stats.binom.cdf(miss,self.N,self.prob), miss
+        mean=self.N*self.prob
+        sigma=np.sqrt(self.N*self.prob*(1-self.prob))
+        std=0
+        for i in range(1,10):
+            if mean-i*sigma<miss and mean+i*sigma>miss:
+                std=i
+                break
+        return 1-scipy.stats.binom.cdf(miss,self.N,self.prob), miss,std
         
     def CIapprox(self, data:list[float]):
         '''
@@ -457,8 +465,6 @@ class Check():
     def CI(self,data:list[float]):
         sigma=torch.std(data).item()
         mean=torch.mean(data).item()
-        print(sigma)
-        print(np.sqrt(self.N))
         marError=1.96*sigma/np.sqrt(self.N)
         bounds=torch.tensor([mean-marError,mean+marError])
         return bounds
