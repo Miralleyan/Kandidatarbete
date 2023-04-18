@@ -72,17 +72,17 @@ def model(x,params):
 
 plt.scatter(x,y)
 mu, sigma = runTheoretical(400)
-sigma = 2*sigma
+sigma2 = 2*sigma
 # plt.plot(x, mu[2]*x**2+mu[1]*x+mu[0], 'r-')
 # plt.plot(x, (mu[2]+2*sigma[2])*x**2+(mu[1]+2*sigma[1])*x+mu[0]+2*sigma[0], 'b--')
 # plt.plot(x, (mu[2]-2*sigma[2])*x**2+(mu[1]-2*sigma[1])*x+mu[0]-2*sigma[0], 'b--')
 # plt.fill_between(x, (mu[2]+2*sigma[2])*x**2+(mu[1]+2*sigma[1])*x+mu[0]+2*sigma[0], (mu[2]-2*sigma[2])*x**2+(mu[1]-2*sigma[1])*x+mu[0]-2*sigma[0], alpha=0.2)
 plt.plot(x, mu, 'r-')
-plt.plot(x, [mu[i]+sigma[i] for i in range(N)], 'r--')
-plt.plot(x, [mu[i]-sigma[i] for i in range(N)], 'r--')
+plt.plot(x, [mu[i]+sigma2[i] for i in range(N)], 'r--')
+plt.plot(x, [mu[i]-sigma2[i] for i in range(N)], 'r--')
 plt.fill_between(x, [mu[i]+sigma[i] for i in range(N)], [mu[i]-sigma[i] for i in range(N)], alpha = 0.2)
 ax = plt.gca()
 ax.set_ylim([-10, 30])
 plt.show()
-print(mu, sigma/2)
+print(mu, sigma)
 # print(aMax,bMax,cMax)
