@@ -416,15 +416,22 @@ class Optimizer:
 
 
 class Check():
-    def __init__(self, opt: Optimizer, model, x,y):
+    def __init__(self, opt: Optimizer, model, x:torch.tensor,y:torch.tensor, probability=0.05):
         self.opt=opt
         self.model=model
         self.data=[x,y]
         self.N=len(x)
-        self.prob=0.05
+        self.prob=probability
 
 
     def check(self):
+        '''
+        Calculates the amount of the original data (y) that is outside
+        the boundaries of a 95% confidence intervall (if no value si given 
+        the variable probability) and then calculates the probability of
+        that amount of misses
+
+        '''
         input=[]
         bounds=[]
         for meas in self.opt.measures:
@@ -432,16 +439,25 @@ class Check():
         for x in self.data[0]:
             bounds.append(self.CI(self.model(x,input)))
         miss=self.misses(self.data[1],bounds)
-        return scipy.stats.binom.pmf(miss,self.N,self.prob)
+        return 1-scipy.stats.binom.cdf(miss,self.N,self.prob), miss
         
-    def CI(self, output):
+    def CI(self, data:list[float]):
+        '''
+        Calculates the bounds of an approximate 95% confidence intervall
+        for the given data in output
+        :param data: List of values that the confidence interval is calculated from 
+        '''
         edge=int(self.prob/2*self.N)
-        idx_sorted_cropped=torch.argsort(output)[edge:self.N-edge]
-        bounds=output[idx_sorted_cropped[[0,-1]]]
+        idx_sorted_cropped=torch.argsort(data)[edge:self.N-edge]
+        bounds=data[idx_sorted_cropped[[0,-1]]]
         return bounds
     
 
-    def misses(self,y,bounds):
+    def misses(self,y:list[float],bounds:list[list[float,float]]):
+        '''
+        Calculates the amount of values in y that are not within the 
+        corresponding boundary in bounds
+        '''
         miss=0
         for i in range(len(y)):
             if y[i]>bounds[i][1] or y[i]<bounds[i][0]:
