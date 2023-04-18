@@ -223,7 +223,7 @@ class Optimizer:
         """
         return loss_fn(old_measure) < loss_fn(measure)
 
-    def minimize(self, data, model, h = 0, alpha = 0.001, max_epochs=10000, smallest_lr=1e-6, verbose=False,
+    def minimize(self, data, model, h = 0, alpha = 0.001, max_epochs=1000, smallest_lr=1e-6, verbose=False,
                  tol_supp=1e-6, tol_const=1e-3,  print_freq=100, adaptive=False):
         """
         :param data: list of tensors of data points. If x and y, then data should be on the form [x_tensor,y_tensor].
@@ -392,7 +392,7 @@ class Optimizer:
         elif self.loss == self.nll:
             loc_idx = []
             for i in range(len(data[0])):
-                ab = torch.abs(model(data[0][i], [locs[:,i] for i in range(locs.dim())]) - data[1][i])
+                ab = torch.abs(model(data[0][i], [locs[:,i] for i in range(locs.size(dim=1))]) - data[1][i])
                 loc_idx.append(torch.argmin(torch.tensor(ab)))
             prep.append(torch.tensor(loc_idx))
         elif self.loss == self.KDEnll:
@@ -405,7 +405,7 @@ class Optimizer:
         elif self.loss == self.chi_squared:
             loc_idx = []
             for i in range(len(data[0])):
-                ab = torch.abs(model(data[0][i], [locs[:,i] for i in range(locs.dim())]) - data[1][i])
+                ab = torch.abs(model(data[0][i], [locs[:,i] for i in range(locs.size(dim=1))]) - data[1][i])
                 loc_idx.append(torch.argmin(ab))
             bins = torch.tensor(loc_idx)
             bins_freq = torch.bincount(bins, minlength=np.cumprod([self.measures[i].weights.size(dim=0) for i in range(len(self.measures))])[-1])/len(data[0])**2
