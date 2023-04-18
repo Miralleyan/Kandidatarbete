@@ -24,7 +24,7 @@ l = torch.linspace(amin, amax, N, requires_grad=False).to(dev)
 
 measure = pm.Measure(locations=l, weights=w, device=dev)
 
-opt_NLL = pm.Optimizer([measure],"nll" ,lr=1e-1)
+opt_NLL = pm.Optimizer([measure],"KDEnll" ,lr=1e-1)
 new_mes=opt_NLL.minimize([x,data], regression_model,verbose=True)
 
 new_mes[0].visualize()
