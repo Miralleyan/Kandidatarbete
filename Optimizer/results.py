@@ -80,8 +80,8 @@ sigma2 = 2*sigma
 # plt.plot(x, (mu[2]-2*sigma[2])*x**2+(mu[1]-2*sigma[1])*x+mu[0]-2*sigma[0], 'b--')
 # plt.fill_between(x, (mu[2]+2*sigma[2])*x**2+(mu[1]+2*sigma[1])*x+mu[0]+2*sigma[0], (mu[2]-2*sigma[2])*x**2+(mu[1]-2*sigma[1])*x+mu[0]-2*sigma[0], alpha=0.2)
 plt.plot(x, mu, 'r-')
-plt.plot(x, [mu[i]+sigma2[i] for i in range(N)], 'r--')
-plt.plot(x, [mu[i]-sigma2[i] for i in range(N)], 'r--')
+plt.plot(x, [mu[i]+sigma2[i] for i in range(N)], 'r--') # Upper bound confidence interval
+plt.plot(x, [mu[i]-sigma2[i] for i in range(N)], 'r--') # Lower bound confidence interval
 plt.fill_between(x, [mu[i]+sigma[i] for i in range(N)], [mu[i]-sigma[i] for i in range(N)], alpha = 0.2)
 ax = plt.gca()
 ax.set_ylim([-10, 30])
@@ -123,16 +123,17 @@ def runTheoretical2(epochs):
     # sigma = beta[1].detach().numpy()
     return [m(mu, h_all[i,:]).detach().numpy() for i in range(N)], [(sigma_2(sigma, h_all[i,:])**0.5).detach().numpy() for i in range(N)]
 
-plt.scatter(x,y)
+plt.scatter(x,y,alpha=0.5)
 mu, sigma = runTheoretical2(400)
 sigma2 = 2*sigma
 plt.plot(x, mu, 'r-')
-plt.plot(x, [mu[i]+sigma2[i] for i in range(N)], 'r--')
-plt.plot(x, [mu[i]-sigma2[i] for i in range(N)], 'r--')
+plt.plot(x, [mu[i]+sigma2[i] for i in range(N)], 'r--') # Upper bound confidence interval
+plt.plot(x, [mu[i]-sigma2[i] for i in range(N)], 'r--') # Lower bound confidence interval
 plt.fill_between(x, [mu[i]+sigma[i] for i in range(N)], [mu[i]-sigma[i] for i in range(N)], alpha = 0.2)
 ax = plt.gca()
 ax.set_ylim([-10, 30])
 
+#- Our method -
 def linModel(x,params):
     return params[1]*x+params[0]
 
