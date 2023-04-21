@@ -17,8 +17,8 @@ def m(mu, h_x):
 def sigma_2(sigma, h_x):
     return (sigma * h_x).pow(2).sum()
 
-def log_normal_pdf(y, mu, sigma):
-    return -1/2*(torch.log(2*np.pi*(sigma**2)) + ((y-mu)/sigma)**2)
+def log_normal_pdf(y, mu, sigma_2):
+    return -1/2*(torch.log(2*np.pi*(sigma_2)) + ((y-mu)**2/sigma_2))
 
 def log_lik(x, y, beta, h_all):
     return sum([log_normal_pdf(y_i, m(beta[0], h_all[i]), sigma_2(beta[1], h_all[i])) for i, (y_i, x_i) in enumerate(zip(y,x))])
@@ -30,7 +30,6 @@ def misses(x, y, mu, sigma):
     for i in range(x.size(dim=0)):
         sample = torch.normal(mean = float(mu[i]), std = float(sigma[i]), size = (1,1000)).squeeze(dim=0)
         sample = torch.sort(sample)[0]
-        plt.scatter(torch.ones(1001)*x[i], )
         if y[i] < sample[25] or y[i] > sample[974]:
             miss += 1
     return miss
