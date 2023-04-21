@@ -1,6 +1,9 @@
 import torch
 import matplotlib.pyplot as plt
 import copy
+import scipy as scipy
+import itertools
+import numpy as np
 
 
 class Measure:
@@ -104,7 +107,7 @@ class Measure:
 
 class Optimizer:
 
-    def __init__(self, measures, lr : float = 0.1):
+    def __init__(self, measures, loss : str, lr : float = 0.1):
         # Create list of measures
         if type(measures) == Measure:
             self.measures = [measures]
@@ -119,7 +122,9 @@ class Optimizer:
             Exception('Error: lr has to be of type float or list')
         else:
             self.lr = lr
-        
+
+        loss_dict = {'essr':self.essr, 'nll':self.nll, 'KDEnll':self.KDEnll, 'chi_squared':self.chi_squared}
+        self.loss = loss_dict[loss]
         self.state = {'measure':self.measures, 'lr':self.lr}
         self.is_optim = False
 
@@ -218,10 +223,13 @@ class Optimizer:
         """
         return loss_fn(old_measure) < loss_fn(measure)
 
-    def minimize(self, loss_fn, max_epochs=10000, smallest_lr=1e-6, verbose=False,
+    def minimize(self, data, model, h = 0, alpha = 0.001, max_epochs=2000, smallest_lr=1e-6, verbose=False,
                  tol_supp=1e-6, tol_const=1e-3,  print_freq=100, adaptive=False):
         """
-        :param loss_fn: Function to minimize
+        :param data: list of tensors of data points. If x and y, then data should be on the form [x_tensor,y_tensor].
+        If only one series of data points, just this tensor is needed
+        :param model: model written as a function.
+        Should take a data input (x) and a set of parameters (params).
         :param max_epochs: Max number of iterations
         :param smallest_lr: Minimizer wil stop when lr is below this value
         :param verbose: Print information about each epoch
@@ -232,6 +240,13 @@ class Optimizer:
         :return: Optimized measures
         """
         lr = self.lr
+        loss_fn = self.loss
+
+        if type(data) == torch.tensor:
+            data = [data, data]
+
+        perms, prep = self.prep_step(data, model, h, alpha)
+
         for epoch in range(max_epochs):
             # Backup current measures and reset grad
             old_measures = copy.deepcopy(self.measures)
@@ -239,7 +254,7 @@ class Optimizer:
                 m.zero_grad()
 
             # Compute loss and grad
-            loss_old = loss_fn(self.measures)
+            loss_old = loss_fn(perms, *prep)
             loss_old.backward()
 
             # Stop criterion
@@ -262,7 +277,7 @@ class Optimizer:
             max_index = maxima.index(sorted(maxima)[-1])
             self.step(max_index)
 
-            loss_new = loss_fn(self.measures)
+            loss_new = loss_fn(perms, *prep)
             loss_new.backward()
 
             # bad step
@@ -289,6 +304,10 @@ class Optimizer:
         return self.measures
 
     def visualize(self):
+        """
+        Visualizes the measures of the optimizer. Currently requires that
+        a gradient has been stored in the weights of the measures.
+        """
         cols = int(torch.ceil(torch.sqrt(torch.tensor(len(self.measures)))).item())
         rows = int(torch.ceil(torch.tensor(len(self.measures)/cols)).item())
         fig, axs = plt.subplots(rows,cols)
@@ -312,3 +331,154 @@ class Optimizer:
                 axs[i%cols+(i//cols)*cols].axhline(y=m, c="orange", linewidth=0.5)
                 axs[i%cols+(i//cols)*cols].legend(loc='upper right')
                 axs[i%cols+(i//cols)*cols].set_ylim([m, M])
+
+    # Loss functions
+    def essr(self, perms, errors):
+        """
+        Calculates the expected sum of square residuals loss function
+
+        :param perms: list of the possible permutations of one location from each measure
+        :param errors: tensor of the sum of errors, compared with true data, for each permutation of locations
+        """
+        probs = torch.cat([self.measures[i].weights[perms[:, i]].unsqueeze(1) for i in range(len(self.measures))], 1).prod(1)
+        return errors.dot(probs)
+    
+    def nll(self, perms, loc_index):
+        """
+        Calculates the negative log-likelihood loss function
+
+        :param perms: list of the possible permutations of one location from each measure
+        :param loc_index: list of location permutation closest with the least absolute error for each data point
+        """
+        probs = torch.cat([self.measures[i].weights[perms[:, i]].unsqueeze(1) for i in range(len(self.measures))], 1).prod(1)
+        return -sum(torch.log(probs[loc_index]))
+    
+    def KDEnll(self, perms, kde_mat, h):
+        """
+        Calculates the negative log-likelihood loss function, with a KDE
+
+        :param perms: list of the possible permutations of one location from each measure
+        :param kde_mat: matrix of kernels for each location permutation
+        :param h: bandwidth for the KDE
+        """
+        probs = torch.cat([self.measures[i].weights[perms[:, i]].unsqueeze(1) for i in range(len(self.measures))], 1).prod(1)
+        return -(torch.matmul(kde_mat, probs) / h).log().sum()
+    
+    def chi_squared(self, perms, bins_freq):
+        """
+        Calculates the chi-squared loss function
+
+        :param perms: list of the possible permutations of one location from each measure
+        :param bins_freq: frequencies of data points closest to each location permutation
+        """
+        probs = torch.cat([self.measures[i].weights[perms[:, i]].unsqueeze(1) for i in range(len(self.measures))], 1).prod(1)
+        return (probs**2/bins_freq).sum()
+    
+    # Preparational step for loss functions
+    def prep_step(self, data, model, h = 0, alpha = 0.001):
+        """
+        Does a preparatory step and returns the prepared data needed for the optimizers loss function
+
+        :param data: data to fit the model to
+        :param model: model that should be fit to data, should be a function taking the data (x) and locations as parameters
+        :param h: bandwidth parameter for KDE
+        :param aplha: label smoothing parameter for chi-squared loss function
+        """
+        perms = torch.tensor([item for item in itertools.product(*[range(measure.weights.size(dim=0)) for measure in self.measures])])
+        locs = torch.cat([self.measures[i].locations[perms[:, i]].unsqueeze(1) for i in range(len(self.measures))], 1)
+        prep = []
+        if self.loss == self.essr:
+            prep.append(torch.tensor([(model(data[0], locs[i]) - data[1]).pow(2).sum() for i in range(len(perms))])) # errors
+        elif self.loss == self.nll:
+            loc_idx = []
+            for i in range(len(data[0])):
+                ab = torch.abs(model(data[0][i], [locs[:,i] for i in range(locs.size(dim=1))]) - data[1][i])
+                loc_idx.append(torch.argmin(torch.tensor(ab)))
+            prep.append(torch.tensor(loc_idx))
+        elif self.loss == self.KDEnll:
+            if h == 0:
+                h = 1.06*len(data[0])**(-1/5)
+            h=1.06*len(data[0])**(-1/5)
+            kde_mat = 1/np.sqrt(2*np.pi)*np.exp(-((data[1].view(-1,1) - model(data[0].view(-1,1), locs.transpose(0,1))) / h)**2/2)
+            prep.append(kde_mat)
+            prep.append(h)
+        elif self.loss == self.chi_squared:
+            loc_idx = []
+            for i in range(len(data[0])):
+                ab = torch.abs(model(data[0][i], [locs[:,i] for i in range(locs.size(dim=1))]) - data[1][i])
+                loc_idx.append(torch.argmin(ab))
+            bins = torch.tensor(loc_idx)
+            bins_freq = torch.bincount(bins, minlength=np.cumprod([self.measures[i].weights.size(dim=0) for i in range(len(self.measures))])[-1])/len(data[0])**2
+            bins_freq = bins_freq*(1-alpha)+alpha / len(bins_freq)
+            prep.append(bins_freq)
+        return perms, prep
+
+
+
+class Check():
+    def __init__(self, opt: Optimizer, model, x:torch.tensor,y:torch.tensor, probability=0.05):
+        self.opt=opt
+        self.model=model
+        self.data=[x,y]
+        self.N=len(x)
+        self.prob=probability
+
+
+    def check(self):
+        '''
+        Calculates the amount of the original data (y) that is outside
+        the boundaries of a 95% confidence intervall (if no value si given 
+        the variable probability) and then calculates the probability of
+        that amount of misses
+
+        '''
+        
+        bounds=[]
+        for x in self.data[0]:
+            input=[]
+            for meas in self.opt.measures:
+                input.append(meas.sample(self.N))
+            bounds.append(self.CIapprox(self.model(x,input)))
+            #print(self.CI(self.model(x,input)))
+            #print(self.CIapprox(self.model(x,input)))
+        miss=self.misses(self.data[1],bounds)
+        mean=self.N*self.prob
+        sigma=np.sqrt(self.N*self.prob*(1-self.prob))
+        std=0
+        for i in range(1,10):
+            if mean-i*sigma<miss and mean+i*sigma>miss:
+                std=i
+                break
+        return 1-scipy.stats.binom.cdf(miss,self.N,self.prob), miss,std
+        
+    def CIapprox(self, data:list[float]):
+        '''
+        Calculates the bounds of an approximate 95% confidence intervall
+        for the given data in output
+        :param data: List of values that the confidence interval is calculated from 
+        '''
+        edge=int(self.prob/2*self.N)
+        idx_sorted_cropped=torch.argsort(data)[edge:self.N-edge]
+        bounds=data[idx_sorted_cropped[[0,-1]]]
+        return bounds
+    
+    def CI(self,data:list[float]):
+        sigma=torch.std(data).item()
+        mean=torch.mean(data).item()
+        marError=1.96*sigma/np.sqrt(self.N)
+        bounds=torch.tensor([mean-marError,mean+marError])
+        return bounds
+
+    def misses(self,y:list[float],bounds:list[list[float,float]]):
+        '''
+        Calculates the amount of values in y that are not within the 
+        corresponding boundary in bounds
+        '''
+        miss=0
+        for i in range(len(y)):
+            if y[i]>bounds[i][1] or y[i]<bounds[i][0]:
+                miss+=1
+        return miss
+
+            
+
