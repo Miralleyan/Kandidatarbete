@@ -451,7 +451,7 @@ class Check():
                 break
                 '''
         test1=scipy.stats.binom.ppf(0.025,self.N,self.prob)
-        test2=scipy.stats.binom.ppf(0.9755,self.N,self.prob)
+        test2=scipy.stats.binom.ppf(0.975,self.N,self.prob)
         return test1,test2,1-scipy.stats.binom.cdf(miss,self.N,self.prob), miss
         
     def CI(self, data:list[float]):

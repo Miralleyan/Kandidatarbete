@@ -32,11 +32,11 @@ def misses(x, y, mu, sigma):
     for i in range(x.size(dim=0)):
         sample = torch.normal(mean = float(mu[i]), std = float(sigma[i]), size = (1,S)).squeeze(dim=0)
         sample = torch.sort(sample)[0]
-        if y[i] < sample[int(np.floor(S*0.05))] or y[i] > sample[int(np.ceil(S*0.95))-1]:
+        if y[i] < sample[int(np.floor(S*0.025))] or y[i] > sample[int(np.ceil(S*0.975))-1]:
             miss += 1
-    c1 = sp.stats.binom.ppf(0.05,500,0.1)
-    c3 = sp.stats.binom.ppf(0.5,500,0.1)
-    c2 = sp.stats.binom.ppf(0.95,500,0.1)
+    c1 = sp.stats.binom.ppf(0.025,500,0.05)
+    c3 = sp.stats.binom.ppf(0.5,500,0.05)
+    c2 = sp.stats.binom.ppf(0.975,500,0.05)
     print(c1,c3,c2)
     return miss
 
@@ -58,6 +58,11 @@ def linModel(x,params):
     return params[1]*x+params[0]
 
 def linTest():
+    N = 500
+    x = torch.linspace(-4, 4, N)
+    y = torch.squeeze((-3+torch.randn(N)) * x + (torch.normal(mean=1.0,std=1,size=(1,N))), 0)
+    y.requires_grad = False
+
     M = 50
     a = pm.Measure(torch.linspace(-10, 10, M), torch.ones(M) / M)
     b = pm.Measure(torch.linspace(-10, 10, M), torch.ones(M) / M)
@@ -66,17 +71,12 @@ def linTest():
     aMean = torch.sum(a.locations*a.weights).detach()
     bMean = torch.sum(b.locations*b.weights).detach()
     plt.plot(x, aMean*x+bMean, 'b-')
-    print(misses(x, y, mu, sigma))
+    checker = pm.Check(opt, linModel, x, y)
+    print(checker.check())
 
     plt.show()
 
     h = [h_1, h_2]
-
-    torch.seed = (2)
-    N = 500
-    x = torch.linspace(-4, 4, N)
-    y = torch.squeeze((-3+torch.randn(N)) * x + (torch.normal(mean=1.0,std=1,size=(1,N))), 0)
-    y.requires_grad = False
 
     #- Theoretical solution -
     h_1_data = h_1(x)
@@ -91,13 +91,14 @@ def linTest():
 
     plt.scatter(x,y,alpha=0.5)
     mu, sigma = runTheoretical(x,y,h_all,mu, sigma, 400)
+    print(misses(x, y, mu, sigma))
     sigma2 = 2*sigma
     plt.plot(x, mu, 'r-')
     plt.plot(x, [mu[i]+sigma2[i] for i in range(N)], 'r--') # Upper bound confidence interval
     plt.plot(x, [mu[i]-sigma2[i] for i in range(N)], 'r--') # Lower bound confidence interval
     plt.fill_between(x, [mu[i]+sigma[i] for i in range(N)], [mu[i]-sigma[i] for i in range(N)], alpha = 0.2)
-    ax = plt.gca()
-    ax.set_ylim([-10, 30])
+    # ax = plt.gca()
+    # ax.set_ylim([-10, 30])
 
 #-- Quadratic regression --
 
@@ -106,7 +107,6 @@ def quadModel(x,params):
     return params[2]*x**2+params[1]*x+params[0]
 
 def quadTest():
-    torch.seed = (1)
     N = 500
     x = torch.linspace(-4, 4, N)
     y = torch.squeeze((torch.normal(mean=1.0,std=1,size=(1,N))) * x**2 + (-3+torch.randn(N)) * x + (torch.normal(mean=1.0,std=1,size=(1,N))), 0)
@@ -132,6 +132,8 @@ def quadTest():
     aMean = torch.sum(a.locations*a.weights).detach()
     bMean = torch.sum(b.locations*b.weights).detach()
     cMean = torch.sum(c.locations*c.weights).detach()
+    checker = pm.Check(opt, quadModel, x, y)
+    print(checker.check())
 
     plt.scatter(x,y, alpha=0.5)
     plt.plot(x, aMean*x**2+bMean*x+cMean, 'b-')
@@ -152,7 +154,6 @@ def constModel(x,params):
     return params[0]*1
 #- Constant -
 def normTest():
-    torch.seed = (1)
     N = 500
     x = torch.linspace(-4, 4, N)
     y = torch.squeeze((torch.normal(mean=1.0,std=1,size=(1,N))), 0)
@@ -169,7 +170,7 @@ def normTest():
 
     mu = torch.tensor([0.], dtype=float, requires_grad=True)
     sigma = torch.tensor([1.], dtype=float, requires_grad=True)
-    mu, sigma = runTheoretical(x, y, h_all, mu, sigma, 400)
+    mu, sigma = runTheoretical(x, y, h_all, mu, sigma, 200)
     sigma2 = 2*sigma
     print(misses(x,y,mu,sigma))
 
@@ -183,7 +184,7 @@ def normTest():
     M = 50
     a = pm.Measure(torch.linspace(-10, 10, M), torch.ones(M) / M)
     opt = pm.Optimizer([a], 'KDEnll', lr = 0.1)
-    [a] = opt.minimize([x,y], constModel, max_epochs=400)
+    [a] = opt.minimize([x,y], constModel, max_epochs=1000)
     checker = pm.Check(opt, constModel, x, y, 0.05)
     print(checker.check())
 
@@ -193,4 +194,6 @@ def normTest():
     plt.plot(a.locations.detach().numpy(), a.weights.detach().numpy())
     plt.show()
 
-normTest()
+#normTest()
+#linTest()
+quadTest()
