@@ -87,7 +87,7 @@ def chi_squared(measures: list[pm.Measure]):
 # Instance of optimizer
 opt = pm.Optimizer([a, b], lr = 0.05)
 # Call to miinimizer
-opt.minimize(chi_squared, max_epochs=2000, verbose = True, print_freq=5, smallest_lr=1e-10)
+opt.minimize(KDElog_loss, max_epochs=1000, verbose = True, print_freq=100, smallest_lr=1e-10)
 # Visualize measures and gradient
 opt.visualize()
 plt.show()

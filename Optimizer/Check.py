@@ -2,18 +2,18 @@ import matplotlib.pyplot as plt
 import torch
 import pytorch_measure as pm
 import numpy as np
-N = 17 # number of atoms
+
+amin = -7
+amax = 4
+N = 2*(amax-amin)+1 # number of atoms
 M = 4000 # Number of datapoints
-amin = -5
-amax = 3
 verbose = True
 dev = 'cpu'
 
 
 
-
 def regression_model(x,list):
-    return list[0]+x
+    return 1+list[0]*x
 
 
 x = torch.linspace(0, 10, M).view(-1, 1)
@@ -30,7 +30,9 @@ new_mes=opt_NLL.minimize([x,data], regression_model,verbose=True)
 new_mes[0].visualize()
 plt.show()
 check=pm.Check(opt_NLL,regression_model,x,data)
-prob,miss,std=check.check()
-print(prob)
+#prob,miss,std=check.check()
+t,y,prob,miss=check.check()
+print(t)
+print(y)
 print(miss)
-print(std)
+print(prob)
