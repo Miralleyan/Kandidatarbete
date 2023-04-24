@@ -7,7 +7,7 @@ s=3
 mu=7
 data=torch.randn(n)*s+mu
 
-
+print(data)
 
 #If both kernel and data are unimodal normal distribution this is a good alternative
 sigma=torch.std(data)
