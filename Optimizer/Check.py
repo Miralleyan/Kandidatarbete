@@ -6,7 +6,7 @@ import numpy as np
 amin = -7
 amax = 4
 N = 2*(amax-amin)+1 # number of atoms
-M = 4000 # Number of datapoints
+M = 1000 # Number of datapoints
 verbose = True
 dev = 'cpu'
 
@@ -28,11 +28,8 @@ opt_NLL = pm.Optimizer([measure],"KDEnll" ,lr=1e-1)
 new_mes=opt_NLL.minimize([x,data], regression_model,verbose=True)
 
 new_mes[0].visualize()
-plt.show()
-check=pm.Check(opt_NLL,regression_model,x,data)
+#plt.show()
+check=pm.Check(opt_NLL,regression_model,x,data,normal=True)
 #prob,miss,std=check.check()
-t,y,prob,miss=check.check()
-print(t)
-print(y)
-print(miss)
-print(prob)
+check.check()
+

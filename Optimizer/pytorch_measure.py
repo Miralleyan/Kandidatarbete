@@ -418,12 +418,13 @@ class Optimizer:
 
 
 class Check():
-    def __init__(self, opt: Optimizer, model, x:torch.tensor,y:torch.tensor, probability=0.05):
+    def __init__(self, opt: Optimizer, model, x:torch.tensor,y:torch.tensor, alpha=0.05,normal=False):
         self.opt=opt
         self.model=model
         self.data=[x,y]
         self.N=len(x)
-        self.prob=probability
+        self.alpha=alpha
+        self.normal=normal
 
 
     def check(self):
@@ -441,18 +442,16 @@ class Check():
                 input.append(meas.sample(self.N))
             bounds.append(self.CI(self.model(x,input)))
         miss=self.misses(self.data[1],bounds)
-        '''
-        mean=self.N*self.prob
-        sigma=np.sqrt(self.N*self.prob*(1-self.prob))
-        std=0
-        for i in range(1,10):
-            if mean-i*sigma<miss and mean+i*sigma>miss:
-                std=i
-                break
-                '''
-        test1=scipy.stats.binom.ppf(0.025,self.N,self.prob)
-        test2=scipy.stats.binom.ppf(0.975,self.N,self.prob)
-        return test1,test2,1-scipy.stats.binom.cdf(miss,self.N,self.prob), miss
+
+        lci=scipy.stats.binom.ppf(self.alpha/2,self.N,self.alpha)
+        hci=scipy.stats.binom.ppf(1-self.alpha/2,self.N,self.alpha)
+        if (miss >= lci) and (miss <= hci):
+            print(f'{miss} is inside the confidence interval ({lci}, {hci}):')
+            print(f'No contradiction with the fitted model at {100*(1-self.alpha)}% confidence level')
+        else:
+            print(f'{miss} is outside the confidence interval ({lci}, {hci}):')
+            print(f'Number of misses is significantly at {100*(1-self.alpha)}% confidence level different from expected for the fitted model!')
+        #return test1,test2,1-scipy.stats.binom.cdf(miss,self.N,self.alpha), miss
         
     def CI(self, data:list[float]):
         '''
@@ -460,9 +459,17 @@ class Check():
         for the given data in output
         :param data: List of values that the confidence interval is calculated from 
         '''
-        edge=int(self.prob/2*self.N)
-        idx_sorted_cropped=torch.argsort(data)[edge:self.N-edge]
-        bounds=data[idx_sorted_cropped[[0,-1]]]
+        if self.normal:
+            mean=torch.mean(data)
+            std=torch.std(data)
+            q=scipy.stats.norm.ppf(self.alpha/2)
+            cil=mean+q*std
+            cih=mean-q*std
+            bounds=[cil,cih]
+        else:
+            edge=int(self.alpha/2*self.N)
+            idx_sorted_cropped=torch.argsort(data)[edge:self.N-edge]
+            bounds=data[idx_sorted_cropped[[0,-1]]]
         return bounds
     
 
