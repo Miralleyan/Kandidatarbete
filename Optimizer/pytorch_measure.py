@@ -418,13 +418,14 @@ class Optimizer:
 
 
 class Check():
-    def __init__(self, opt: Optimizer, model, x:torch.tensor,y:torch.tensor, alpha=0.05,normal=False):
+    def __init__(self, opt: Optimizer, model, x:torch.tensor,y:torch.tensor, alpha=0.05,normal=False,Return=False):
         self.opt=opt
         self.model=model
         self.data=[x,y]
         self.N=len(x)
         self.alpha=alpha
         self.normal=normal
+        self.Return=Return
 
 
     def check(self):
@@ -451,7 +452,8 @@ class Check():
         else:
             print(f'{miss} is outside the confidence interval ({lci}, {hci}):')
             print(f'Number of misses is significantly at {100*(1-self.alpha)}% confidence level different from expected for the fitted model!')
-        #return test1,test2,1-scipy.stats.binom.cdf(miss,self.N,self.alpha), miss
+        if self.Return==True:
+            return lci,hci, miss
         
     def CI(self, data:list[float]):
         '''
