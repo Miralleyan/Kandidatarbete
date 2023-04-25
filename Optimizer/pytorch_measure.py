@@ -1,7 +1,7 @@
 import torch
 import matplotlib.pyplot as plt
 import copy
-import scipy as scipy
+import scipy 
 import itertools
 import numpy as np
 
@@ -80,7 +80,7 @@ class Measure:
         """
         Returns a sample of indeces from the locations of the measure 
         given by the distribution of the measures weights
-        :param size: Numreturn torch.dot(errors, measures[0].weights) + torch.dot(errors, measures[1].weights)ber of elements to sample
+        :param size: Number of elements to sample
         :returns: sample of indeces for random numbers based on measure
         """
         if torch.any(self.weights < 0):
@@ -398,7 +398,9 @@ class Optimizer:
         elif self.loss == self.KDEnll:
             if h == 0:
                 h = 1.06*len(data[0])**(-1/5)
-            h=1.06*len(data[0])**(-1/5)
+            sigma=torch.std(data[0])
+            A=min(sigma,(torch.quantile(data[0],0.75)-torch.quantile(data[0],0.25))/1.35)
+            h=0.9*A*len(data[0])**(-1/5)
             kde_mat = 1/np.sqrt(2*np.pi)*np.exp(-((data[1].view(-1,1) - model(data[0].view(-1,1), locs.transpose(0,1))) / h)**2/2)
             prep.append(kde_mat)
             prep.append(h)
@@ -432,16 +434,14 @@ class Check():
         that amount of misses
 
         '''
-        
         bounds=[]
         for x in self.data[0]:
             input=[]
             for meas in self.opt.measures:
                 input.append(meas.sample(self.N))
-            bounds.append(self.CIapprox(self.model(x,input)))
-            #print(self.CI(self.model(x,input)))
-            #print(self.CIapprox(self.model(x,input)))
+            bounds.append(self.CI(self.model(x,input)))
         miss=self.misses(self.data[1],bounds)
+        '''
         mean=self.N*self.prob
         sigma=np.sqrt(self.N*self.prob*(1-self.prob))
         std=0
@@ -449,9 +449,12 @@ class Check():
             if mean-i*sigma<miss and mean+i*sigma>miss:
                 std=i
                 break
-        return 1-scipy.stats.binom.cdf(miss,self.N,self.prob), miss,std
+                '''
+        test1=scipy.stats.binom.ppf(0.025,self.N,self.prob)
+        test2=scipy.stats.binom.ppf(0.975,self.N,self.prob)
+        return test1,test2,1-scipy.stats.binom.cdf(miss,self.N,self.prob), miss
         
-    def CIapprox(self, data:list[float]):
+    def CI(self, data:list[float]):
         '''
         Calculates the bounds of an approximate 95% confidence intervall
         for the given data in output
@@ -462,12 +465,6 @@ class Check():
         bounds=data[idx_sorted_cropped[[0,-1]]]
         return bounds
     
-    def CI(self,data:list[float]):
-        sigma=torch.std(data).item()
-        mean=torch.mean(data).item()
-        marError=1.96*sigma/np.sqrt(self.N)
-        bounds=torch.tensor([mean-marError,mean+marError])
-        return bounds
 
     def misses(self,y:list[float],bounds:list[list[float,float]]):
         '''
