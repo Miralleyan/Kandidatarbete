@@ -38,7 +38,7 @@ def misses(x, y, mu, sigma):
     c3 = sp.stats.binom.ppf(0.5,500,0.05)
     c2 = sp.stats.binom.ppf(0.975,500,0.05)
     print(c1,c3,c2)
-    return miss
+    print(f"CI: [{c1}, {c2}], Misses: {miss}, Within CI: {c1<=miss<=c2}")
 
 def runTheoretical(x, y, h_all, mu, sigma, epochs):
     beta = [mu, sigma]
@@ -91,7 +91,7 @@ def linTest():
 
     plt.scatter(x,y,alpha=0.5)
     mu, sigma = runTheoretical(x,y,h_all,mu, sigma, 400)
-    print(misses(x, y, mu, sigma))
+    misses(x, y, mu, sigma)
     sigma2 = 2*sigma
     plt.plot(x, mu, 'r-')
     plt.plot(x, [mu[i]+sigma2[i] for i in range(N)], 'r--') # Upper bound confidence interval
@@ -148,7 +148,7 @@ def quadTest():
     ax = plt.gca()
     ax.set_ylim([-10, 30])
     plt.show()
-    print(misses(x,y,mu,sigma))
+    misses(x,y,mu,sigma)
 
 def constModel(x,params):
     return params[0]*1
@@ -172,7 +172,7 @@ def normTest():
     sigma = torch.tensor([1.], dtype=float, requires_grad=True)
     mu, sigma = runTheoretical(x, y, h_all, mu, sigma, 200)
     sigma2 = 2*sigma
-    print(misses(x,y,mu,sigma))
+    misses(x,y,mu,sigma)
 
     # plt.scatter(x,y, alpha=0.5)
     # plt.plot(x, mu, 'r-')
@@ -195,5 +195,5 @@ def normTest():
     plt.show()
 
 #normTest()
-#linTest()
-quadTest()
+linTest()
+#quadTest()
