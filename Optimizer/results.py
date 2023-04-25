@@ -34,9 +34,9 @@ def misses(x, y, mu, sigma):
         sample = torch.sort(sample)[0]
         if y[i] < sample[int(np.floor(S*0.025))] or y[i] > sample[int(np.ceil(S*0.975))-1]:
             miss += 1
-    c1 = sp.stats.binom.ppf(0.025,500,0.05)
-    c3 = sp.stats.binom.ppf(0.5,500,0.05)
-    c2 = sp.stats.binom.ppf(0.975,500,0.05)
+    c1 = sp.stats.binom.ppf(0.025,y.size(dim=0),0.05)
+    c3 = sp.stats.binom.ppf(0.5,y.size(dim=0),0.05)
+    c2 = sp.stats.binom.ppf(0.975,y.size(dim=0),0.05)
     print(c1,c3,c2)
     print(f"CI: [{c1}, {c2}], Misses: {miss}, Within CI: {c1<=miss<=c2}")
 
@@ -57,22 +57,17 @@ def runTheoretical(x, y, h_all, mu, sigma, epochs):
 def linModel(x,params):
     return params[1]*x+params[0]
 
-def linTest():
-    N = 500
-    x = torch.linspace(-4, 4, N)
-    y = torch.squeeze((-3+torch.randn(N)) * x + (torch.normal(mean=1.0,std=1,size=(1,N))), 0)
-    y.requires_grad = False
-
-    M = 50
-    a = pm.Measure(torch.linspace(-10, 10, M), torch.ones(M) / M)
-    b = pm.Measure(torch.linspace(-10, 10, M), torch.ones(M) / M)
+def linTest(x, y):
+    M = 30
+    a = pm.Measure(torch.linspace(-5, 5, M), torch.ones(M) / M)
+    b = pm.Measure(torch.linspace(-5, 5, M), torch.ones(M) / M)
     opt = pm.Optimizer([b,a], 'KDEnll', lr = 0.1)
-    [b,a] = opt.minimize([x,y], linModel, max_epochs=400)
+    [b,a] = opt.minimize([x,y], linModel, max_epochs=500)
     aMean = torch.sum(a.locations*a.weights).detach()
     bMean = torch.sum(b.locations*b.weights).detach()
-    plt.plot(x, aMean*x+bMean, 'b-')
-    checker = pm.Check(opt, linModel, x, y)
-    print(checker.check())
+    checker = pm.Check(opt, linModel, x, y, normal=False)
+    checker.check()
+    opt.visualize()
 
     plt.show()
 
@@ -90,13 +85,15 @@ def linTest():
     sigma = torch.tensor([1., 1.], dtype=float, requires_grad=True)
 
     plt.scatter(x,y,alpha=0.5)
-    mu, sigma = runTheoretical(x,y,h_all,mu, sigma, 400)
+    mu, sigma = runTheoretical(x,y,h_all,mu, sigma, 500)
     misses(x, y, mu, sigma)
     sigma2 = 2*sigma
     plt.plot(x, mu, 'r-')
     plt.plot(x, [mu[i]+sigma2[i] for i in range(N)], 'r--') # Upper bound confidence interval
     plt.plot(x, [mu[i]-sigma2[i] for i in range(N)], 'r--') # Lower bound confidence interval
     plt.fill_between(x, [mu[i]+sigma[i] for i in range(N)], [mu[i]-sigma[i] for i in range(N)], alpha = 0.2)
+    plt.plot(x, aMean*x+bMean, 'b-')
+    plt.show()
     # ax = plt.gca()
     # ax.set_ylim([-10, 30])
 
@@ -106,12 +103,7 @@ def linTest():
 def quadModel(x,params):
     return params[2]*x**2+params[1]*x+params[0]
 
-def quadTest():
-    N = 500
-    x = torch.linspace(-4, 4, N)
-    y = torch.squeeze((torch.normal(mean=1.0,std=1,size=(1,N))) * x**2 + (-3+torch.randn(N)) * x + (torch.normal(mean=1.0,std=1,size=(1,N))), 0)
-    y.requires_grad = False
-
+def quadTest(x, y):
     #- Theoretical solution -
     h = [h_1, h_2, h_3]
 
@@ -124,22 +116,22 @@ def quadTest():
     plt.show()
 
     M = 50
-    a = pm.Measure(torch.linspace(-10, 10, M), torch.ones(M) / M)
-    b = pm.Measure(torch.linspace(-10, 10, M), torch.ones(M) / M)
-    c = pm.Measure(torch.linspace(-10, 10, M), torch.ones(M) / M)
+    a = pm.Measure(torch.linspace(-3, 3, M), torch.ones(M) / M)
+    b = pm.Measure(torch.linspace(-3, 3, M), torch.ones(M) / M)
+    c = pm.Measure(torch.linspace(-3, 3, M), torch.ones(M) / M)
     opt = pm.Optimizer([c,b,a], 'KDEnll', lr = 0.1)
-    [c,b,a] = opt.minimize([x,y], quadModel, max_epochs=400)
+    [c,b,a] = opt.minimize([x,y], quadModel, max_epochs=1000)
     aMean = torch.sum(a.locations*a.weights).detach()
     bMean = torch.sum(b.locations*b.weights).detach()
     cMean = torch.sum(c.locations*c.weights).detach()
     checker = pm.Check(opt, quadModel, x, y)
-    print(checker.check())
+    checker.check()
 
     plt.scatter(x,y, alpha=0.5)
     plt.plot(x, aMean*x**2+bMean*x+cMean, 'b-')
     mu = torch.tensor([0., 0., 0.], dtype=float, requires_grad=True)
     sigma = torch.tensor([1., 1., 1.], dtype=float, requires_grad=True)
-    mu, sigma = runTheoretical(x, y, h_all, mu, sigma, 400)
+    mu, sigma = runTheoretical(x, y, h_all, mu, sigma, 1000)
     sigma2 = 2*sigma
     plt.plot(x, mu, 'r-')
     plt.plot(x, [mu[i]+sigma2[i] for i in range(N)], 'r--') # Upper bound confidence interval
@@ -153,11 +145,7 @@ def quadTest():
 def constModel(x,params):
     return params[0]*1
 #- Constant -
-def normTest():
-    N = 500
-    x = torch.linspace(-4, 4, N)
-    y = torch.squeeze((torch.normal(mean=1.0,std=1,size=(1,N))), 0)
-    y.requires_grad = False
+def normTest(x, y):
 
     #- Theoretical solution -
     h = h_1
@@ -170,7 +158,7 @@ def normTest():
 
     mu = torch.tensor([0.], dtype=float, requires_grad=True)
     sigma = torch.tensor([1.], dtype=float, requires_grad=True)
-    mu, sigma = runTheoretical(x, y, h_all, mu, sigma, 200)
+    mu, sigma = runTheoretical(x, y, h_all, mu, sigma, 1000)
     sigma2 = 2*sigma
     misses(x,y,mu,sigma)
 
@@ -182,11 +170,11 @@ def normTest():
 
     #- Our method -
     M = 50
-    a = pm.Measure(torch.linspace(-10, 10, M), torch.ones(M) / M)
+    a = pm.Measure(torch.linspace(-4, 4, M), torch.ones(M) / M)
     opt = pm.Optimizer([a], 'KDEnll', lr = 0.1)
     [a] = opt.minimize([x,y], constModel, max_epochs=1000)
     checker = pm.Check(opt, constModel, x, y, 0.05)
-    print(checker.check())
+    checker.check()
 
     counts, bins = np.histogram(y,bins=20)
     plt.stairs(counts/sum(counts), bins)
@@ -194,6 +182,18 @@ def normTest():
     plt.plot(a.locations.detach().numpy(), a.weights.detach().numpy())
     plt.show()
 
-#normTest()
-linTest()
-#quadTest()
+
+# N = 1000
+# x = torch.linspace(-10, 10, N)
+# y = torch.squeeze((torch.normal(mean=1.0,std=1,size=(1,N))), 0)
+# normTest(x, y)
+
+N = 1000
+x = torch.linspace(-5, 5, N)
+y = torch.squeeze((-2+torch.randn(N)) * x + (torch.normal(mean=2.0,std=1,size=(1,N))), 0)
+linTest(x, y)
+
+# N = 1000
+# x = torch.linspace(-10, 10, N)
+# y = torch.squeeze((torch.normal(mean=1.0,std=1,size=(1,N))) * x**2 + (-3+torch.randn(N)) * x + (torch.normal(mean=1.0,std=1,size=(1,N))), 0)
+# quadTest(x, y)
