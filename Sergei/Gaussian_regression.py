@@ -238,7 +238,7 @@ if __name__ == "__main__":
     print(f'True means: [0, -1, 0.5]')
     print(f'st_devs={reg.st_devs.tolist()}')
     print(f'True st_devs: [0.3, 0.2, 0.1]')
-    print(f'log-likelihood = {-reg.loglik(x, y_train).tolist()}')
+    print(f'log-likelihood = {reg.loglik(x, y_train).tolist()}')
 
     # plotting simulated data (grey) from the fitted model together with the original data (red)
     for i in range(5):

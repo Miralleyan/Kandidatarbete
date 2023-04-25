@@ -13,11 +13,11 @@ plt.scatter(x, y)
 plt.show()
 
 # Number of locations of measure
-M = 21
+M = 17
 
 # Measure for slope (a) and intercept (b) of linear model
 a = pm.Measure(torch.linspace(-4, 4, M), torch.ones(M) / M)
-b = pm.Measure(torch.linspace(-2, 5, M), torch.ones(M) / M)
+b = pm.Measure(torch.linspace(-2, 6, M), torch.ones(M) / M)
 
 # Linear regression model
 def regression_model(x,list):
@@ -28,17 +28,12 @@ measures = [a,b]
 # Instance of optimizer
 opt = pm.Optimizer(measures, "KDEnll", lr = 0.1)
 # Call to minimizer
-new_mes=opt.minimize([x,y],regression_model,max_epochs=2000,verbose = True, print_freq=100, smallest_lr=1e-10)
+new_mes=opt.minimize([x,y],regression_model,max_epochs=2500,verbose = True, print_freq=100, smallest_lr=1e-10)
 # Visualize measures and gradient
 new_mes[0].visualize()
 plt.show()
 new_mes[1].visualize()
 plt.show()
 
-check=pm.Check(opt,regression_model,x,y)
-#prob,miss,std=check.check()
-t,y,prob,miss=check.check()
-print(t)
-print(y)
-print(miss)
-print(prob)
+check=pm.Check(opt,regression_model,x,y,normal=True)
+check.check()
