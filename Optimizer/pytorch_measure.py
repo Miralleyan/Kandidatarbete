@@ -483,6 +483,3 @@ class Check():
             if y[i]>bounds[i][1] or y[i]<bounds[i][0]:
                 miss+=1
         return miss
-
-            
-
