@@ -22,7 +22,7 @@ def regression_model(x,list):
 
 
 success=[]
-for i in range(1000):
+for i in range(100):
 
      # Measure for slope (a) and intercept (b) of linear model
      a = pm.Measure(torch.linspace(-4, 4, M), torch.ones(M) / M)

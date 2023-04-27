@@ -24,7 +24,7 @@ def regression_model(x,list):
 
 
 success=[]
-for i in range(1000):
+for i in range(10):
     # Measure for slope (a) and intercept (b) of linear model
     a = pm.Measure(torch.linspace(0, 8, M), torch.ones(M) / M)
     b = pm.Measure(torch.linspace(-4, 4, M), torch.ones(M) / M)
@@ -37,7 +37,7 @@ for i in range(1000):
     # Instance of optimizer
     opt = pm.Optimizer(measures, "KDEnll", lr = 0.1)
     # Call to minimizer
-    new_mes=opt.minimize([x,y],regression_model,max_epochs=2000,verbose = True, print_freq=100, smallest_lr=1e-10)
+    new_mes=opt.minimize([x,y],regression_model,max_epochs=3000,verbose = True, print_freq=100, smallest_lr=1e-10)
     # Visualize measures and gradient
     new_mes[0].visualize()
     #plt.show()
