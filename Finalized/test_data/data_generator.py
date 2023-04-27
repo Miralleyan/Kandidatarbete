@@ -1,8 +1,9 @@
 import numpy as np
+np.random.seed(0)
 
 filename = 'data.npy'
 
-for N in [100, 1000]:
+for N in [100, 500, 1000]:
     a = np.random.normal(1.2, 0.9, N)
     b = np.random.normal(-0.9, 1.1, N)
     c = np.random.normal(0.5, 0.5, N)
