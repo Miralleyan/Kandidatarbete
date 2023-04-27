@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy as sp
 import time
+import linear_combination_optimizer as lco
 
 #torch.manual_seed(30) # <-- if seed is wanted
 N = 500
@@ -23,7 +24,7 @@ def misses(x, y, mu, sigma):
     miss = 0
     S = 1000
     for i in range(x.size(dim=0)):
-        sample = torch.normal(mean = float(mu[i]), std = float(sigma[i]), size = (1,S)).squeeze(dim=0)
+        sample = torch.normal(mean = float(mu[i]), std = float(sigma[i]), size = (S,1)).squeeze(dim=0)
         sample = torch.sort(sample)[0]
         if y[i] < sample[int(np.floor(S*0.025))] or y[i] > sample[int(np.ceil(S*0.975))-1]:
             miss += 1
@@ -135,9 +136,9 @@ for i in range(runs):
     opt = pm.Optimizer(measures, "KDEnll", lr = 0.1)
     # Call to minimizer
     [a,b,c]=opt.minimize([x,y],regression_model,max_epochs=maxepochs,verbose = True, print_freq=100, smallest_lr=1e-10)
-    a_mean = sum(a.weights*a.locations)
-    b_mean = sum(b.weights*b.locations)
-    c_mean = sum(c.weights*c.locations)
+    a_mean = sum(a.weights*a.locations).detach()
+    b_mean = sum(b.weights*b.locations).detach()
+    c_mean = sum(c.weights*c.locations).detach()
 
     check=pm.Check(opt,regression_model,x,y,normal=True,Return=True)
     l,u,miss=check.check()
@@ -191,23 +192,19 @@ for i in range(runs):
     h = [h_1, h_2, h_3]
 
     #- Theoretical solution -
-    h_1_data = h_1(x)
-    h_2_data = h_2(x)
-    h_3_data = h_3(x)
-    h_all = torch.transpose(torch.stack([h_1_data, h_2_data, h_3_data], 0), 0, 1)
-
-    mu = torch.tensor([0., 0., 0.], dtype=float, requires_grad=True)
-    sigma = torch.tensor([1., 1., 1.], dtype=float, requires_grad=True)
-
+    opt = lco.Optimizer(x,y,order=3)
     t1 = time.time()
-    mu, sigma = runTheoretical(x,y,h_all,mu,sigma,maxepochs)
+    mu, sigma = opt.optimize(epochs=1000)
     t2 = time.time()
     print(f'Time: {t2-t1}')
     l, u, miss = misses(x,y,mu,sigma)
     success_lc.append(l<=miss and miss<=u)
 
     # Plotting
+    print(alpha[i], beta[i], gamma[i])
     plt.scatter(x,y)
     plt.plot(x, a_mean*x**2+b_mean*x+c_mean, 'b')
     plt.plot(x_unsq, m.detach(), 'r')
-    plt.plot(x, x*mu.detach(), 'g')
+    plt.plot(x, [x[i]*mu[i] for i in range(x.size(dim=0))], 'g')
+    plt.show()
+    
