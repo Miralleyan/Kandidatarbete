@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pytorch_measure as pm
 import scipy as sp
+import time
 
 # Functions for linear combination
 def h_1(x):
@@ -62,7 +63,7 @@ def linTest(x, y):
     a = pm.Measure(torch.linspace(-5, 5, M), torch.ones(M) / M)
     b = pm.Measure(torch.linspace(-5, 5, M), torch.ones(M) / M)
     opt = pm.Optimizer([b,a], 'KDEnll', lr = 0.1)
-    [b,a] = opt.minimize([x,y], linModel, max_epochs=500)
+    [b,a] = opt.minimize([x,y], linModel, max_epochs=1000)
     aMean = torch.sum(a.locations*a.weights).detach()
     bMean = torch.sum(b.locations*b.weights).detach()
     checker = pm.Check(opt, linModel, x, y, normal=False)
@@ -85,7 +86,10 @@ def linTest(x, y):
     sigma = torch.tensor([1., 1.], dtype=float, requires_grad=True)
 
     plt.scatter(x,y,alpha=0.5)
-    mu, sigma = runTheoretical(x,y,h_all,mu, sigma, 500)
+    t1 = time.time()
+    mu, sigma = runTheoretical(x,y,h_all,mu, sigma, 1000)
+    t2 = time.time()
+    print(f'Time: {t2-t1}')
     misses(x, y, mu, sigma)
     sigma2 = 2*sigma
     plt.plot(x, mu, 'r-')
@@ -115,7 +119,7 @@ def quadTest(x, y):
     plt.scatter(x, y)
     plt.show()
 
-    M = 50
+    M = 20
     a = pm.Measure(torch.linspace(-3, 3, M), torch.ones(M) / M)
     b = pm.Measure(torch.linspace(-3, 3, M), torch.ones(M) / M)
     c = pm.Measure(torch.linspace(-3, 3, M), torch.ones(M) / M)
@@ -131,7 +135,10 @@ def quadTest(x, y):
     plt.plot(x, aMean*x**2+bMean*x+cMean, 'b-')
     mu = torch.tensor([0., 0., 0.], dtype=float, requires_grad=True)
     sigma = torch.tensor([1., 1., 1.], dtype=float, requires_grad=True)
+    t1 = time.time()
     mu, sigma = runTheoretical(x, y, h_all, mu, sigma, 1000)
+    t2 = time.time()
+    print(f'Time: {t2-t1}') # Our code takes 14.49s, while Sergei's takes 51.12s
     sigma2 = 2*sigma
     plt.plot(x, mu, 'r-')
     plt.plot(x, [mu[i]+sigma2[i] for i in range(N)], 'r--') # Upper bound confidence interval
@@ -188,12 +195,12 @@ def normTest(x, y):
 # y = torch.squeeze((torch.normal(mean=1.0,std=1,size=(1,N))), 0)
 # normTest(x, y)
 
-N = 1000
-x = torch.linspace(-5, 5, N)
-y = torch.squeeze((-2+torch.randn(N)) * x + (torch.normal(mean=2.0,std=1,size=(1,N))), 0)
-linTest(x, y)
+# N = 100
+# x = torch.linspace(-5, 5, N)
+# y = torch.squeeze((-2+torch.randn(N)) * x + (torch.normal(mean=2.0,std=1,size=(1,N))), 0)
+# linTest(x, y)
 
-# N = 1000
-# x = torch.linspace(-10, 10, N)
-# y = torch.squeeze((torch.normal(mean=1.0,std=1,size=(1,N))) * x**2 + (-3+torch.randn(N)) * x + (torch.normal(mean=1.0,std=1,size=(1,N))), 0)
-# quadTest(x, y)
+N = 1000
+x = torch.linspace(-10, 10, N)
+y = torch.squeeze((torch.normal(mean=1.0,std=1,size=(1,N))) * x**2 + (-3+torch.randn(N)) * x + (torch.normal(mean=1.0,std=1,size=(1,N))), 0)
+quadTest(x, y)

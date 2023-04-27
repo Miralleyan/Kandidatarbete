@@ -1,5 +1,5 @@
-# File for comparing results of one measure linear regression
-# between methods
+# File for comparing results of three measure quadratic
+# regression between methods
 
 import torch
 import pytorch_measure as pm
@@ -18,31 +18,36 @@ x = torch.linspace(-3, 5, N)
 plt.show()
 
 # Number of locations of measure
-M = 30
+M = 20
 
 # Linear regression model
 def regression_model(x,list):
-     return x+list[0]
+     return list[0]*x**2+list[1]*x+list[2]
 
 runs = 20
+maxepochs = 1000
 alpha = torch.randn(runs)
+beta = torch.randn(runs)
+gamma = torch.randn(runs)
 
 success=[]
-means_dist = [[],[]]
-std_devs_dist = [[],[]]
 for i in range(runs):
+
     # Measure for slope (a) and intercept (b) of linear model
     a = pm.Measure(torch.linspace(-4, 4, M), torch.ones(M) / M)
+    b = pm.Measure(torch.linspace(-2, 6, M), torch.ones(M) / M)
+    c = pm.Measure(torch.linspace(-2, 6, M), torch.ones(M) / M)
 
-
-    measures = [a]
-    y = (torch.randn(N)+alpha[i])+x
+    measures = [a,b,c]
+    y = (torch.randn(N)+alpha[i]) * x**2 + (beta[i]+torch.randn(N)*x + gamma[i]+torch.randn(N))
     # Instance of optimizer
     opt = pm.Optimizer(measures, "KDEnll", lr = 0.1)
     # Call to minimizer
-    new_mes=opt.minimize([x,y],regression_model,max_epochs=1000,verbose = True, print_freq=100, smallest_lr=1e-10)
+    new_mes=opt.minimize([x,y],regression_model,max_epochs=maxepochs,verbose = True, print_freq=100, smallest_lr=1e-10)
     # Visualize measures and gradient
     new_mes[0].visualize()
+    #plt.show()
+    new_mes[1].visualize()
     #plt.show()
 
     check=pm.Check(opt,regression_model,x,y,normal=True,Return=True)
@@ -50,15 +55,8 @@ for i in range(runs):
     #check.check()
     success.append(l<=miss and miss<=u)
 
-    a_mean = sum(a.weights*a.locations)
-    means_dist[0].append(torch.abs(alpha[i]-a_mean))
-    std_devs_dist[0].append(torch.abs(1-torch.sqrt(sum(a.weights*(a.locations-a_mean)**2))))
-
-
 print(f'{sum(success)} successes')
 print(f'Our method succeeds {100*sum(success)/runs}% of the time')
-print(f'Average distance from correct mean: {sum(means_dist[0])/runs}')
-print(f'Average distance from correct variance: {sum(std_devs_dist[0])/runs}')
 
 
 # Linear combination method
@@ -114,28 +112,24 @@ def runTheoretical(x, y, h_all, mu, sigma, epochs):
 
 success=[]
 for i in range(runs):
-    y = (torch.randn(N)+alpha[i])+x
-    h = [h_1]
+    y = (torch.randn(N)+alpha[i]) * x**2 + (beta[i]+torch.randn(N)*x + gamma[i]+torch.randn(N))
+    h = [h_1, h_2, h_3]
 
     #- Theoretical solution -
     h_1_data = h_1(x)
-    h_all = torch.transpose(torch.stack([h_1_data], 0), 0, 1)
+    h_2_data = h_2(x)
+    h_3_data = h_3(x)
+    h_all = torch.transpose(torch.stack([h_1_data, h_2_data, h_3_data], 0), 0, 1)
 
-    mu = torch.tensor([0., 0.], dtype=float, requires_grad=True)
-    sigma = torch.tensor([1., 1.], dtype=float, requires_grad=True)
+    mu = torch.tensor([0., 0., 0.], dtype=float, requires_grad=True)
+    sigma = torch.tensor([1., 1., 1.], dtype=float, requires_grad=True)
 
     t1 = time.time()
-    mu, sigma = runTheoretical(x,y,h_all,mu,sigma,1000)
+    mu, sigma = runTheoretical(x,y,h_all,mu,sigma,maxepochs)
     t2 = time.time()
     print(f'Time: {t2-t1}')
     l, u, miss = misses(x,y,mu,sigma)
     success.append(l<=miss and miss<=u)
 
-    # a_mean = sum(mu[0])/N
-    # means_dist[0].append(torch.abs(alpha[i]-a_mean))
-    # std_devs_dist[0].append(torch.abs(1-sum(sigma[0])/N))
-
 print(f'{sum(success)} successes')
-# print(f'Average distance from correct mean: {sum(means_dist[0])/runs}')
-# print(f'Average distance from correct variance: {sum(std_devs_dist[0])/runs}')
 print(f'Linear combination method succeeds {100*sum(success)/runs}% of the time')
