@@ -156,7 +156,7 @@ class Optimizer:
                 mass_removed = mass
         return mass_removed
     
-    def stop_criterion(self, tol_supp=1e-6, tol_const=1e-3, adaptive = False):
+    def stop_criterion(self, tol_supp=1e-6, tol_const=1e-2, adaptive = False):
         """
         Checks if the difference between the maximum and minimum gradient is
         within a certain range.
@@ -224,7 +224,7 @@ class Optimizer:
         return loss_fn(old_measure) < loss_fn(measure)
 
     def minimize(self, data, model, h = 0, alpha = 0.001, max_epochs=2000, smallest_lr=1e-6, verbose=False,
-                 tol_supp=1e-6, tol_const=1e-3,  print_freq=100, adaptive=False):
+                 tol_supp=1e-6, tol_const=1e-2,  print_freq=100, adaptive=False):
         """
         :param data: list of tensors of data points. If x and y, then data should be on the form [x_tensor,y_tensor].
         If only one series of data points, just this tensor is needed
@@ -431,8 +431,8 @@ class Check():
     def check(self):
         '''
         Calculates the amount of the original data (y) that is outside
-        the boundaries of a 95% confidence intervall (if no value si given 
-        the variable probability) and then calculates the probability of
+        the boundaries of a 95% confidence intervall (if no value is given to
+        the variable alpha) and then calculates the probability of
         that amount of misses
 
         '''

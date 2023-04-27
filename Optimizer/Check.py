@@ -4,7 +4,7 @@ import pytorch_measure as pm
 import numpy as np
 
 amin = -7
-amax = 4
+amax = 3
 N = 2*(amax-amin)+1 # number of atoms
 M = 1000 # Number of datapoints
 verbose = True
@@ -13,12 +13,12 @@ dev = 'cpu'
 
 
 def regression_model(x,list):
-    return 1+list[0]*x
+    return list[0]*x+1
 
 success=[]
 for i in range(100):
-    x = torch.linspace(0, 10, M).view(-1, 1)
-    data = regression_model(torch.randn(M).to(dev) - 2, x.view(1, -1)).view(-1, 1)
+    x = torch.linspace(0, 10, M)
+    data = (torch.randn(M).to(dev) - 2)*x+1
     w = torch.rand(N,dtype=torch.float).to(dev)
     w = torch.nn.parameter.Parameter(w/w.sum())
     l = torch.linspace(amin, amax, N, requires_grad=False).to(dev)
@@ -26,7 +26,7 @@ for i in range(100):
     measure = pm.Measure(locations=l, weights=w, device=dev)
 
     opt_NLL = pm.Optimizer([measure],"KDEnll" ,lr=1e-1)
-    new_mes=opt_NLL.minimize([x,data], regression_model,verbose=True)
+    new_mes=opt_NLL.minimize([x,data], regression_model,verbose=True,adaptive=False,max_epochs=2000)
 
     new_mes[0].visualize()
     #plt.show()
