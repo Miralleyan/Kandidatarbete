@@ -32,6 +32,7 @@ class Optimizer():
         self.mu_optim = self.beta[0].detach().numpy()
         self.sigma_optim = self.beta[1].detach().numpy()
         print(epoch, "mu:", self.mu_optim, "sigma:", self.sigma_optim)
+        return [self.m(self.mu, self.h_all[i,:]).detach().numpy() for i in range(self.x.size(dim=0))], [(self.sigma_2(self.sigma, self.h_all[i,:])**0.5).detach().numpy() for i in range(self.x.size(dim=0))]
 
     def m(self, mu, h_x):
         return (mu * h_x).sum()
