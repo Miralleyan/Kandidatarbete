@@ -16,7 +16,7 @@ def regression_model(x,list):
     return 1+list[0]*x
 
 success=[]
-for i in range(100):
+for i in range(1):
     x = torch.linspace(0, 10, M).view(-1, 1)
     data = regression_model(torch.randn(M).to(dev) - 2, x.view(1, -1)).view(-1, 1)
     w = torch.rand(N,dtype=torch.float).to(dev)
@@ -26,7 +26,7 @@ for i in range(100):
     measure = pm.Measure(locations=l, weights=w, device=dev)
 
     opt_NLL = pm.Optimizer([measure],"KDEnll" ,lr=1e-1)
-    new_mes=opt_NLL.minimize([x,data], regression_model,verbose=True)
+    new_mes=opt_NLL.minimize([x,data], regression_model,verbose=True,adaptive=True)
 
     new_mes[0].visualize()
     #plt.show()
