@@ -431,8 +431,8 @@ class Check():
     def check(self):
         '''
         Calculates the amount of the original data (y) that is outside
-        the boundaries of a 95% confidence intervall (if no value si given 
-        the variable probability) and then calculates the probability of
+        the boundaries of a 95% confidence intervall (if no value is given to
+        the variable alpha) and then calculates the probability of
         that amount of misses
 
         '''
