@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 
 class Optimizer():
     def __init__(self, x, y, order=3, n=3):
@@ -20,8 +21,10 @@ class Optimizer():
             return lambda u: u*0+1
         return lambda u:u**i
     
-    def optimize(self, epochs=300, lr=0.1, print_frequency = 10):
+    def optimize(self, epochs=300, lr=0.1, print_frequency = 10, test = False):
         optimizer = torch.optim.Adam(self.beta,lr=lr, maximize=True)
+        old_loss = float('inf')
+        t1 = time.time()
         for epoch in range(epochs):
             optimizer.zero_grad()
             loss = self.log_lik(self.y, self.beta, self.h_all)
@@ -29,10 +32,18 @@ class Optimizer():
             optimizer.step()
             if epoch%print_frequency==0:
                 print(epoch, "mu:", self.mu.detach().numpy(), "sigma:", self.sigma.detach().numpy())
+            if torch.abs(loss-old_loss) < 1e-5:
+                t2 = time.time()
+                cur_epoch = epoch
+                break
+            old_loss = loss
         self.mu_optim = self.beta[0].detach().numpy()
         self.sigma_optim = self.beta[1].detach().numpy()
         print(epoch, "mu:", self.mu_optim, "sigma:", self.sigma_optim)
-        return [self.m(self.mu, self.h_all[i,:]).detach().numpy() for i in range(self.x.size(dim=0))], [(self.sigma_2(self.sigma, self.h_all[i,:])**0.5).detach().numpy() for i in range(self.x.size(dim=0))]
+        if test == False:
+            return [self.m(self.mu, self.h_all[i,:]).detach().numpy() for i in range(self.x.size(dim=0))], [(self.sigma_2(self.sigma, self.h_all[i,:])**0.5).detach().numpy() for i in range(self.x.size(dim=0))]
+        else:
+            return [self.m(self.mu, self.h_all[i,:]).detach().numpy() for i in range(self.x.size(dim=0))], [(self.sigma_2(self.sigma, self.h_all[i,:])**0.5).detach().numpy() for i in range(self.x.size(dim=0))], cur_epoch, t2-t1
 
     def m(self, mu, h_x):
         return (mu * h_x).sum()
