@@ -24,6 +24,7 @@ class Optimizer():
     def optimize(self, epochs=300, lr=0.1, print_frequency = 10, test = False):
         optimizer = torch.optim.Adam(self.beta,lr=lr, maximize=True)
         old_loss = float('inf')
+        cur_epoch = epochs
         t1 = time.time()
         for epoch in range(epochs):
             optimizer.zero_grad()
@@ -31,8 +32,8 @@ class Optimizer():
             loss.backward()
             optimizer.step()
             if epoch%print_frequency==0:
-                print(epoch, "mu:", self.mu.detach().numpy(), "sigma:", self.sigma.detach().numpy())
-            if torch.abs(loss-old_loss) < 1e-5:
+                print(epoch, "mu:", self.mu.detach().numpy(), "sigma:", self.sigma.detach().numpy(), "loss:", loss)
+            if torch.abs(loss-old_loss) < 1e-10:
                 t2 = time.time()
                 cur_epoch = epoch
                 break
