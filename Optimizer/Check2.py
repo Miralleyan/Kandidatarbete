@@ -28,16 +28,17 @@ def regression_model(x,list):
 
 
 param=np.load(f'../Finalized/test_data/params.npy')
-for length in [1000]:
+for length in [100,500,1000]:
      success=[]
      tid=[]
      epoch=[]
      measures=[]
      for i in tqdm(range(50)):
           data=np.load(f'../Finalized/test_data/data_{length}_y_lin_{i}.npy')
-
           y=torch.from_numpy(data)
-          x = torch.linspace(-5, 5, len(y))
+          x = torch.linspace(-5, 5, length)
+          #y=((torch.randn(length)*param[1][3*i+1]+param[0][3*i+1])*x+torch.randn(length)*param[1][3*i]+param[0][3*i]).double()
+          
 
           M=length #Amount of datapoints
 
@@ -48,7 +49,6 @@ for length in [1000]:
           bL=math.floor(param[0][3*i]-s*param[1][3*i])
           Nb=2*(bU-bL)+1
           Na=2*(aU-aL)+1
-          N=max(Nb,Na)
 
           a = pm.Measure(torch.linspace(aL, aU, Na), torch.ones(Na).double() / Na)
           b = pm.Measure(torch.linspace(bL, bU, Nb), torch.ones(Nb).double() / Nb)
@@ -60,14 +60,13 @@ for length in [1000]:
           opt = pm.Optimizer(measure, "KDEnll", lr = 0.1)
           # Call to minimizer
           new_mes,time,iteration=opt.minimize([x,y],regression_model,max_epochs=3000,verbose = False, print_freq=100, smallest_lr=1e-10,test=True)
-          opt.visualize()
           # Visualize measures and gradient
           new_mes[0].visualize()
-          
+          plt.show()
           new_mes[1].visualize()
           plt.show()
 
-          check=pm.Check(opt,regression_model,x,y,normal=False,Return=True)
+          check=pm.Check(opt,regression_model,x,y,normal=True,Return=True)
           l,u,miss=check.check()
           success.append(l<=miss and miss<=u)
           tid.append(time)

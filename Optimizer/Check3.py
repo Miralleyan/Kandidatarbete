@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import json
 import math
-
+'''
 #torch.manual_seed(30) # <-- if seed is wanted
 N = 100
 x = torch.linspace(-3, 5, N)
@@ -13,11 +13,10 @@ x = torch.linspace(-3, 5, N)
 
 # Plot the data points
 #plt.scatter(x, y)
-plt.show()
 
 # Number of locations of measure
 M = 17
-
+'''
 
 
 # Linear regression model
@@ -50,7 +49,7 @@ for length in [100,500,1000]:
         Nc=2*(cU-cL)+1
         Nb=2*(bU-bL)+1
         Na=2*(aU-aL)+1
-        N=max(Nc,Nb,Na)
+
 
         # Measure for slope (a) and intercept (b) of linear model
         a = pm.Measure(torch.linspace(aU, aL, Na), torch.ones(Na).double() / Na)
@@ -71,7 +70,7 @@ for length in [100,500,1000]:
         #plt.show()
         new_mes[1].visualize()
         #plt.show()
-        new_mes[2].visualize()
+        new_mes[2].visualize() 
         #plt.show()
 
         check=pm.Check(opt,regression_model,x,y,normal=True,Return=True)

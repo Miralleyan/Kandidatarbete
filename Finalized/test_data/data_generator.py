@@ -8,7 +8,11 @@ stds = np.array([])
 
 for i in range(tests):
     mean = np.random.normal(0,1,3)
+    if i==1:
+        print(mean)
     std = np.abs(np.random.normal(1,0.1,3))
+    if i==1:
+        print(std)
     means = np.append(means, mean)
     stds = np.append(stds, std)
     for N in [100, 500, 1000]:
@@ -24,7 +28,7 @@ for i in range(tests):
 
         data = {
             'y': y,
-            'y_lin': y,
+            'y_lin': y_lin,
             'y_sqr': y_sqr,
             'y_nonNorm': y_nonNorm
         }

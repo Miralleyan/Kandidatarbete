@@ -12,7 +12,7 @@ M = 1000 # Number of datapoints
 verbose = True
 dev = 'cpu'
 def regression_model(x,list):
-    return list[0]+x
+    return list[0]
 
 
 success=[]
@@ -21,7 +21,7 @@ epoch=[]
 measures=[]
 for i in tqdm(range(50)):
     x = torch.linspace(0, 10, M)
-    data = (torch.randn(M).to(dev) - 2)+x
+    data = (torch.randn(M).to(dev) - 2)
     w = torch.rand(N,dtype=torch.float).to(dev)
     w = torch.nn.parameter.Parameter(w/w.sum())
     l = torch.linspace(amin, amax, N, requires_grad=False).to(dev)
