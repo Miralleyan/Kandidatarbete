@@ -37,10 +37,6 @@ for length in [1000]:
           data=np.load(f'../Finalized/test_data/data_{length}_y_lin_{i}.npy')
 
           y=torch.from_numpy(data)
-          
-          y=y
-          #print(y)
-          #y=torch.tensor(y.tolist())
           x = torch.linspace(-5, 5, len(y))
 
           M=length #Amount of datapoints
