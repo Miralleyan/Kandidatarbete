@@ -3,6 +3,7 @@ import pytorch_measure as pm
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+import json
 
 #torch.manual_seed(30) # <-- if seed is wanted
 N = 100
@@ -27,20 +28,21 @@ def regression_model(x,list):
 success=[]
 tid=[]
 epoch=[]
-for i in tqdm(range(50)):
+measures=[]
+for i in tqdm(range(1)):
     # Measure for slope (a) and intercept (b) of linear model
     a = pm.Measure(torch.linspace(0, 8, M), torch.ones(M) / M)
     b = pm.Measure(torch.linspace(-4, 4, M), torch.ones(M) / M)
     c= pm.Measure(torch.linspace(-2, 6, M), torch.ones(M) / M)
 
 
-    measures = [a,b,c]
+    measure = [a,b,c]
 
     y = (torch.randn(N)+4)*x**2+(torch.randn(N)+-0.5) * x + (2+torch.randn(N))
     # Instance of optimizer
-    opt = pm.Optimizer(measures, "KDEnll", lr = 0.1)
+    opt = pm.Optimizer(measure, "KDEnll", lr = 0.1)
     # Call to minimizer
-    new_mes,time,iteration=opt.minimize([x,y],regression_model,max_epochs=3000,verbose = False, print_freq=100, smallest_lr=1e-10)
+    new_mes,time,iteration=opt.minimize([x,y],regression_model,max_epochs=3000,verbose = False, print_freq=100, smallest_lr=1e-10,test=True)
     # Visualize measures and gradient
     new_mes[0].visualize()
     #plt.show()
@@ -55,13 +57,15 @@ for i in tqdm(range(50)):
     success.append(l<=miss and miss<=u)
     tid.append(time)
     epoch.append(iteration)
-    measures.append([new_mes[0].locations.tolist(),new_mes[0].weights.tolist()])
+    for i in range(len(new_mes)):
+          print(new_mes[i].locations)
+          measures.append([new_mes[i].locations.tolist(),new_mes[i].weights.tolist()])
 
-data=[measures,sum(tid)/len(tid),sum(epoch)/(len(epoch)),sum(success)/len(success)]
-with open(f"Sergey1M:{M}.json", "w") as outfile:
+data=[measures,sum(tid)/len(tid),sum(epoch)/len(epoch),sum(success)/len(success)]
+with open(f"Sergey3M:{N}.json", "w") as outfile:
     outfile.write(json.dumps(data))
 
-print(sum(success))
-print(sum(success)/50)
+
+print(sum(success)/len(success))
 print(sum(tid)/len(tid))
-print(sum(epoch)/(len(epoch)))
+print(sum(epoch)/len(epoch))
