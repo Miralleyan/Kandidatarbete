@@ -15,7 +15,7 @@ dev = 'cpu'
 
 
 def regression_model(x,list):
-    return list[0]
+    return list[0]+x
 
 
 success=[]
@@ -24,7 +24,7 @@ epoch=[]
 measures=[]
 for i in tqdm(range(50)):
     x = torch.linspace(0, 10, M)
-    data = torch.randn(M).to(dev)-2
+    data = (torch.randn(M).to(dev)-2)+x
     w = torch.rand(N,dtype=torch.float).to(dev)
     w = torch.nn.parameter.Parameter(w/w.sum())
     l = torch.linspace(amin, amax, N, requires_grad=False).to(dev)

@@ -35,11 +35,13 @@ for length in [1000]:
      measures=[]
      for i in tqdm(range(50)):
           data=np.load(f'../Finalized/test_data/data_{length}_y_lin_{i}.npy')
-          print(data)
-          x=torch.from_numpy(data[0][:length])
-          print(x)
-          y=torch.from_numpy(data.reshape(1,-2)[0][length:])
-          x,y=torch.tensor(x.tolist()),torch.tensor(y.tolist())
+
+          y=torch.from_numpy(data)
+          
+          y=y
+          #print(y)
+          #y=torch.tensor(y.tolist())
+          x = torch.linspace(-5, 5, len(y))
 
           M=length #Amount of datapoints
 
@@ -52,8 +54,8 @@ for length in [1000]:
           Na=2*(aU-aL)+1
           N=max(Nb,Na)
 
-          a = pm.Measure(torch.linspace(aL, aU, Na), torch.ones(Na) / Na)
-          b = pm.Measure(torch.linspace(bL, bU, Nb), torch.ones(Nb) / Nb)
+          a = pm.Measure(torch.linspace(aL, aU, Na), torch.ones(Na).double() / Na)
+          b = pm.Measure(torch.linspace(bL, bU, Nb), torch.ones(Nb).double() / Nb)
 
 
           measure= [a,b]

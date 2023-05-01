@@ -19,20 +19,19 @@ verbose = True
 
 
 def regression_model(x,list):
-    return list
+    return list[0]
 
 param=np.load(f'../Finalized/test_data/params.npy')
 
-for length in [100,500,1000]:
+for length in [1000]:
     success=[]
     tid=[]
     epoch=[]
     measures=[]
     for i in tqdm(range(50)):
         data=np.load(f'../Finalized/test_data/data_{length}_y_{i}.npy')
-        x=torch.from_numpy(data.reshape(1,-2)[0][:length])
-        y=torch.from_numpy(data.reshape(1,-2)[0][length:])
-        x,y=torch.tensor(x.tolist()),torch.tensor(y.tolist())
+        y=torch.from_numpy(data)
+        x = torch.linspace(-5, 5, length)
 
         M=length #Amount of datapoints
 
@@ -44,19 +43,19 @@ for length in [100,500,1000]:
  
         #x = torch.linspace(0, 10, M)
         #data = torch.randn(M).to(dev)
-        measure = pm.Measure(torch.linspace(aL, aU, N), torch.ones(N) / N)
+        measure = pm.Measure(torch.linspace(aL, aU, N), torch.ones(N).double() / N)
         #w = torch.rand(N,dtype=torch.float).to(dev)
         #w = torch.nn.parameter.Parameter(w/w.sum())
         #l = torch.linspace(-2, 3, N, requires_grad=False).to(dev)
 
         #measure = pm.Measure(locations=l, weights=w, device=dev)
 
-        opt_NLL = pm.Optimizer([measure],"KDEnll" ,lr=1e-1)
-        new_mes,time,iteration=opt_NLL.minimize([x,y], regression_model,verbose=False,adaptive=False,max_epochs=2000,test=True)
+        opt = pm.Optimizer([measure],"KDEnll" ,lr=1e-1)
+        new_mes,time,iteration=opt.minimize([x,y], regression_model,verbose=False,adaptive=False,max_epochs=3000,test=True)
 
         new_mes[0].visualize()
         plt.show()
-        check=pm.Check(opt_NLL,regression_model,x,y,normal=True,Return=True)
+        check=pm.Check(opt,regression_model,x,y,normal=False,Return=True)
         l,u,miss=check.check()
         #check.check()
         success.append(l<miss and miss<u)
@@ -68,8 +67,7 @@ for length in [100,500,1000]:
     with open(f"Sergey1M:{M}.json", "w") as outfile:
         outfile.write(json.dumps(data))
 
-print(sum(success))
-print(sum(success)/50)
+print(sum(success)/len(success))
 print(sum(tid)/len(tid))
 print(sum(epoch)/(len(epoch)))
 
