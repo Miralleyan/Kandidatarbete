@@ -23,7 +23,7 @@ def regression_model(x,list):
 
 param=np.load(f'../Finalized/test_data/params.npy')
 
-for length in [1000]:
+for length in [100,500,1000]:
     success=[]
     tid=[]
     epoch=[]
@@ -33,6 +33,7 @@ for length in [1000]:
         y=torch.from_numpy(data)
         x = torch.linspace(-5, 5, length)
 
+        #y=(torch.randn(length)*param[1][3*i]+param[0][3*i]).double()
         M=length #Amount of datapoints
 
         s=2
@@ -57,7 +58,7 @@ for length in [1000]:
         plt.show()
         check=pm.Check(opt,regression_model,x,y,normal=False,Return=True)
         l,u,miss=check.check()
-        #check.check()
+
         success.append(l<miss and miss<u)
         tid.append(time)
         epoch.append(iteration)
