@@ -7,9 +7,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy as sp
 import time
+import linear_combination_optimizer as lco
 
 #torch.manual_seed(30) # <-- if seed is wanted
-N = 1000
+N = 400
 x = torch.linspace(-3, 5, N)
 
 
@@ -24,8 +25,8 @@ M = 20
 def regression_model(x,list):
      return list[0]*x**2+list[1]*x+list[2]
 
-runs = 20
-maxepochs = 1000
+runs = 2
+maxepochs = 400
 alpha = torch.randn(runs)
 beta = torch.randn(runs)
 gamma = torch.randn(runs)
@@ -116,20 +117,95 @@ for i in range(runs):
     h = [h_1, h_2, h_3]
 
     #- Theoretical solution -
-    h_1_data = h_1(x)
-    h_2_data = h_2(x)
-    h_3_data = h_3(x)
-    h_all = torch.transpose(torch.stack([h_1_data, h_2_data, h_3_data], 0), 0, 1)
-
-    mu = torch.tensor([0., 0., 0.], dtype=float, requires_grad=True)
-    sigma = torch.tensor([1., 1., 1.], dtype=float, requires_grad=True)
-
-    t1 = time.time()
-    mu, sigma = runTheoretical(x,y,h_all,mu,sigma,maxepochs)
-    t2 = time.time()
-    print(f'Time: {t2-t1}')
+    opt = lco.Optimizer(x,y,order=3)
+    mu, sigma, conv_epoch, conv_time = opt.optimize(epochs = 500, test = True)
     l, u, miss = misses(x,y,mu,sigma)
     success.append(l<=miss and miss<=u)
 
 print(f'{sum(success)} successes')
 print(f'Linear combination method succeeds {100*sum(success)/runs}% of the time')
+
+
+# Polynomial nn method
+def eval_powers_of_x(x, n):
+    return x.pow(torch.arange(n))
+
+class NormalPolynomialModel(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+        
+        self.mean = None
+        self.std = None
+        
+        self.N_mean = 3 # constant, linear, quadratic, ... terms
+        self.N_var = 2 * self.N_mean - 1
+
+        self.poly_multipliers_mean = torch.nn.parameter.Parameter(torch.rand(self.N_mean))
+        self.poly_multipliers_var = torch.nn.parameter.Parameter(torch.rand(self.N_var))
+        self.var_shift = torch.nn.parameter.Parameter(torch.tensor(0.1))
+
+        self.mean_layer = torch.nn.Linear(self.N_mean, 1)
+        self.var_layer = torch.nn.Sequential(
+            torch.nn.Linear(self.N_var, 1),
+            torch.nn.ReLU()
+        )
+    
+    def forward(self, x):
+        self.mean = self.mean_layer(self.poly_multipliers_mean * eval_powers_of_x(x, self.N_mean))
+        self.var = self.var_layer(self.poly_multipliers_var * eval_powers_of_x(x, self.N_var)) + self.var_shift ** 2
+        return self.mean, self.var
+    
+def log_k_with_var(mean, var, y):
+    return -0.5*torch.log(var) - (y - mean)**2 / (2 * var)
+
+def check_within_two_stddeviations(x, y):
+    y_pred, y_std = model(x)
+    # want 95.4% inside 
+    a = (y - y_pred).abs() / y_std
+    hits = (a <= 2).sum()
+    return hits / len(x)
+
+success=[]
+M = []
+S = []
+for i in range(runs):
+    # Polynomial nn method
+    x_unsq = x.view(-1, 1)
+    y = (torch.normal(1,0.2,(1, N))+alpha[i]) * x**2 + (beta[i]+torch.randn(N)*x + gamma[i]+torch.randn(N))
+    y = y.view(-1, 1)
+    model = NormalPolynomialModel()
+    opt = torch.optim.Adam(model.parameters())
+
+    max_epoch = 30000
+    for epoch in range(max_epoch):
+        opt.zero_grad()
+
+        # if we want to use a little bit of randomness in our decent
+        # (could possibly avoid local minimums?),
+        # index x and y by sample below
+        if epoch % 10 == 0 and max_epoch - epoch > 50:
+            sample = torch.randint(N, (1, 250)).squeeze()
+        elif max_epoch - epoch == 100:
+            sample = torch.arange(0, N)
+
+        mean, var = model(x_unsq)
+        log_likelyhood = log_k_with_var(mean, var, y).sum()
+        loss = -log_likelyhood
+        loss.backward()
+        opt.step()
+
+        if epoch % 1000 == 0:
+            print(f'{epoch}:: Loss = {loss.item()}')
+
+    m, var = model(x_unsq)
+    s = var.sqrt()
+    M.append(m)
+    S.append(s)
+
+    l,u,miss=misses(x,y,m,s)
+    success.append(l<=miss and miss<=u)
+
+print(f'{sum(success)} successes')
+print(f'Polynomial nn method succeeds {100*sum(success)/runs}% of the time')
+
+    
