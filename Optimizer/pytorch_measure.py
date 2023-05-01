@@ -4,6 +4,7 @@ import copy
 import scipy 
 import itertools
 import numpy as np
+import time
 
 
 class Measure:
@@ -224,7 +225,7 @@ class Optimizer:
         return loss_fn(old_measure) < loss_fn(measure)
 
     def minimize(self, data, model, h = 0, alpha = 0.001, max_epochs=2000, smallest_lr=1e-6, verbose=False,
-                 tol_supp=1e-6, tol_const=1e-2,  print_freq=100, adaptive=False):
+                 tol_supp=1e-6, tol_const=1e-2,  print_freq=100, adaptive=False,test=False):
         """
         :param data: list of tensors of data points. If x and y, then data should be on the form [x_tensor,y_tensor].
         If only one series of data points, just this tensor is needed
@@ -246,6 +247,11 @@ class Optimizer:
             data = [data, data]
 
         perms, prep = self.prep_step(data, model, h, alpha)
+        
+        if test:
+            tid=[]
+            LossNotChanged=0
+            t1=time.time()
 
         for epoch in range(max_epochs):
             # Backup current measures and reset grad
@@ -261,11 +267,22 @@ class Optimizer:
             if self.stop_criterion(tol_supp, tol_const, adaptive):
                 print(f'\nOptimum is attained. Loss: {loss_old}. Epochs: {epoch} epochs.')
                 self.is_optim = True
-                return self.measures
+                if test:
+                    t2=time.time()
+                    return self.measures,t2-t1,epoch
+                else: 
+                    return self.measures
             
             if min(lr) < smallest_lr:
                 print(f'The step size is too small: {lr}')
-                return self.measures
+                if test:
+                    t2=time.time()
+                    if LossNotChanged<5:
+                        return self.measures,t2-t1,epoch
+                    else:
+                        return self.measures, tid[0][0],tid[0][1]
+                else: 
+                    return self.measures
 
             # Step
             maxima = []
@@ -289,10 +306,17 @@ class Optimizer:
                 if verbose:
                     print(f'Epoch: {epoch:<10} Lr was reduced to: {lr}')
             elif loss_old == loss_new and verbose:
+                if test and LossNotChanged<5:
+                    LossNotChanged+=1
+                    t2=time.time()
+                    tid.append([t2-t1,epoch])
                 print(f'Epoch: {epoch:<10} Loss did not change ({loss_new})')
 
             # successful step
             else:
+                if test and LossNotChanged<5:
+                    LossNotChanged=0
+                    tid=[]
                 if epoch % print_freq == 0:
                     if verbose:
                         print(f'Epoch: {epoch:<10} Loss: {loss_new:<10.9f} LR: {lr}')
@@ -301,7 +325,14 @@ class Optimizer:
 
 
         print('Max epochs reached')
-        return self.measures
+        if test:
+            t2=time.time()
+            if LossNotChanged<5:
+                return self.measures,t2-t1,epoch
+            else:
+                return self.measures, tid[0][0],tid[0][1]
+        else: 
+            return self.measures
 
     def visualize(self):
         """
