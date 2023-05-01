@@ -2,6 +2,7 @@ import torch
 import pytorch_measure as pm
 import numpy as np
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 #torch.manual_seed(30) # <-- if seed is wanted
 N = 1000
@@ -22,7 +23,9 @@ def regression_model(x,list):
 
 
 success=[]
-for i in range(100):
+tid=[]
+epoch=[]
+for i in tqdm(range(50)):
 
      # Measure for slope (a) and intercept (b) of linear model
      a = pm.Measure(torch.linspace(-4, 4, M), torch.ones(M) / M)
@@ -34,7 +37,7 @@ for i in range(100):
      # Instance of optimizer
      opt = pm.Optimizer(measures, "KDEnll", lr = 0.1)
      # Call to minimizer
-     new_mes=opt.minimize([x,y],regression_model,max_epochs=1000,verbose = True, print_freq=100, smallest_lr=1e-10)
+     new_mes,time,iteration=opt.minimize([x,y],regression_model,max_epochs=2000,verbose = False, print_freq=100, smallest_lr=1e-10)
      # Visualize measures and gradient
      new_mes[0].visualize()
      #plt.show()
@@ -45,5 +48,15 @@ for i in range(100):
      l,u,miss=check.check()
      #check.check()
      success.append(l<=miss and miss<=u)
+     tid.append(time)
+     epoch.append(iteration)
+     measures.append([new_mes[0].locations.tolist(),new_mes[0].weights.tolist()])
+
+data=[measures,sum(tid)/len(tid),sum(epoch)/(len(epoch)),sum(success)/len(success)]
+with open(f"Sergey1M:{M}.json", "w") as outfile:
+    outfile.write(json.dumps(data))
 
 print(sum(success))
+print(sum(success)/50)
+print(sum(tid)/len(tid))
+print(sum(epoch)/(len(epoch)))
