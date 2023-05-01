@@ -8,7 +8,7 @@ stds = np.array([])
 
 for i in range(tests):
     mean = np.random.normal(0,1,3)
-    std = np.abs(np.random.normal(0,1,3))
+    std = np.abs(np.random.normal(1,0.1,3))
     means = np.append(means, mean)
     stds = np.append(stds, std)
     for N in [100, 500, 1000]:
