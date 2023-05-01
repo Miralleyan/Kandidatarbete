@@ -34,7 +34,7 @@ for i in range(tests):
             name = file + '_' + str(N) + '_' + k + '_' + str(i) + '.' + ext
 
             with open(name, 'wb') as f:
-                np.save(f, np.array([x, v]).reshape(-1, 2))
+                np.save(f, np.array(v))
 
 params = np.array([means,stds])
 # Saves means and stds in npy file in format: [[means],[stds]]
