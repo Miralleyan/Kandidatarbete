@@ -1,9 +1,11 @@
 import numpy as np
 
-blubb=np.load('../Finalized/test_data/data_100_y_lin.npy')
-print(blubb.reshape(1,-2)[0][:100])
-print(blubb.reshape(1,-2)[0][100:])
-      
+blubb=np.load(f'../Finalized/test/data_1000_y_lin_{1}.npy')
+print(blubb[0])
+#print(blubb)
+
+data=np.load(f'../Finalized/test/params.npy')
+print(data[0][3])
 '''
 data = {
     'y': 0,

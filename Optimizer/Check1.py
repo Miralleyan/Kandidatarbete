@@ -4,6 +4,7 @@ import pytorch_measure as pm
 import numpy as np
 from tqdm import tqdm
 import json 
+import math
 dev = 'cpu'
 
 
@@ -18,10 +19,10 @@ verbose = True
 
 
 def regression_model(x,list):
-    return list[0]
+    return list
 
 param=np.load(f'../Finalized/test_data/params.npy')
-print(param)
+
 for length in [100,500,1000]:
     success=[]
     tid=[]
@@ -34,17 +35,21 @@ for length in [100,500,1000]:
         x,y=torch.tensor(x.tolist()),torch.tensor(y.tolist())
 
         M=length #Amount of datapoints
-        N=21
 
-
+        s=2
+        aU=math.ceil(param[0][3*i]+s*param[1][3*i])
+        aL=math.floor(param[0][3*i]-s*param[1][3*i])
+        N=2*(aU-aL)+1
+        
  
         #x = torch.linspace(0, 10, M)
         #data = torch.randn(M).to(dev)
-        w = torch.rand(N,dtype=torch.float).to(dev)
-        w = torch.nn.parameter.Parameter(w/w.sum())
-        l = torch.linspace(-2, 3, N, requires_grad=False).to(dev)
+        measure = pm.Measure(torch.linspace(aL, aU, N), torch.ones(N) / N)
+        #w = torch.rand(N,dtype=torch.float).to(dev)
+        #w = torch.nn.parameter.Parameter(w/w.sum())
+        #l = torch.linspace(-2, 3, N, requires_grad=False).to(dev)
 
-        measure = pm.Measure(locations=l, weights=w, device=dev)
+        #measure = pm.Measure(locations=l, weights=w, device=dev)
 
         opt_NLL = pm.Optimizer([measure],"KDEnll" ,lr=1e-1)
         new_mes,time,iteration=opt_NLL.minimize([x,y], regression_model,verbose=False,adaptive=False,max_epochs=2000,test=True)

@@ -3,15 +3,16 @@ import pytorch_measure as pm
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+import json
 
 #torch.manual_seed(30) # <-- if seed is wanted
 N = 1000
-x = torch.linspace(-3, 5, N)
+x = torch.linspace(-5, 5, N)
 
 
 # Plot the data points
 #plt.scatter(x, y)
-plt.show()
+
 
 # Number of locations of measure
 M = 17
@@ -34,15 +35,20 @@ for i in tqdm(range(50)):
 
      measures = [a,b]
      y = (torch.randn(N)+-0.5) * x + (2+torch.randn(N))
+     print(type(y))
+     print(y.size())
+     print(type(x))
+     print(x.size())
+     #print(x,y)
      # Instance of optimizer
      opt = pm.Optimizer(measures, "KDEnll", lr = 0.1)
      # Call to minimizer
-     new_mes,time,iteration=opt.minimize([x,y],regression_model,max_epochs=2000,verbose = False, print_freq=100, smallest_lr=1e-10)
+     new_mes,time,iteration=opt.minimize([x,y],regression_model,max_epochs=2000,verbose = False, print_freq=100, smallest_lr=1e-10,test=True)
      # Visualize measures and gradient
      new_mes[0].visualize()
-     #plt.show()
+     plt.show()
      new_mes[1].visualize()
-     #plt.show()
+     plt.show()
 
      check=pm.Check(opt,regression_model,x,y,normal=True,Return=True)
      l,u,miss=check.check()

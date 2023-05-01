@@ -24,7 +24,7 @@ epoch=[]
 measures=[]
 for i in tqdm(range(50)):
     x = torch.linspace(0, 10, M)
-    data = (torch.randn(M).to(dev) - 2)*x+1
+    data = torch.randn(M).to(dev)-2
     w = torch.rand(N,dtype=torch.float).to(dev)
     w = torch.nn.parameter.Parameter(w/w.sum())
     l = torch.linspace(amin, amax, N, requires_grad=False).to(dev)
@@ -35,7 +35,7 @@ for i in tqdm(range(50)):
     new_mes,time,iteration=opt_NLL.minimize([x,data], regression_model,verbose=False,adaptive=False,max_epochs=2000,test=True)
 
     new_mes[0].visualize()
-    #plt.show()
+    plt.show()
     check=pm.Check(opt_NLL,regression_model,x,data,normal=True,Return=True)
     l,u,miss=check.check()
     #check.check()
