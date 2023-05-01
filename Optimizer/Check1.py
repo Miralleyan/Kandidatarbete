@@ -20,22 +20,24 @@ verbose = True
 def regression_model(x,list):
     return list[0]
 
+param=np.load(f'../Finalized/test_data/params.npy')
+print(param)
 for length in [100,500,1000]:
-
-    data=np.load(f'../Finalized/test_data/data_{length}_y.npy')
-    x=torch.from_numpy(data.reshape(1,-2)[0][:length])
-    y=torch.from_numpy(data.reshape(1,-2)[0][length:])
-    x,y=torch.tensor(x.tolist()),torch.tensor(y.tolist())
-
-    M=length #Amount of datapoints
-    N=21
-
-
     success=[]
     tid=[]
     epoch=[]
     measures=[]
-    for i in tqdm(range(1)):
+    for i in tqdm(range(50)):
+        data=np.load(f'../Finalized/test_data/data_{length}_y_{i}.npy')
+        x=torch.from_numpy(data.reshape(1,-2)[0][:length])
+        y=torch.from_numpy(data.reshape(1,-2)[0][length:])
+        x,y=torch.tensor(x.tolist()),torch.tensor(y.tolist())
+
+        M=length #Amount of datapoints
+        N=21
+
+
+ 
         #x = torch.linspace(0, 10, M)
         #data = torch.randn(M).to(dev)
         w = torch.rand(N,dtype=torch.float).to(dev)
