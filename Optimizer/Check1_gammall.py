@@ -11,9 +11,6 @@ N = 2*(amax-amin)+1 # number of atoms
 M = 1000 # Number of datapoints
 verbose = True
 dev = 'cpu'
-
-
-
 def regression_model(x,list):
     return list[0]+x
 
@@ -24,11 +21,10 @@ epoch=[]
 measures=[]
 for i in tqdm(range(50)):
     x = torch.linspace(0, 10, M)
-    data = (torch.randn(M).to(dev)-2)+x
+    data = (torch.randn(M).to(dev) - 2)+x
     w = torch.rand(N,dtype=torch.float).to(dev)
     w = torch.nn.parameter.Parameter(w/w.sum())
     l = torch.linspace(amin, amax, N, requires_grad=False).to(dev)
-
     measure = pm.Measure(locations=l, weights=w, device=dev)
 
     opt_NLL = pm.Optimizer([measure],"KDEnll" ,lr=1e-1)
@@ -52,4 +48,3 @@ print(sum(success))
 print(sum(success)/50)
 print(sum(tid)/len(tid))
 print(sum(epoch)/(len(epoch)))
-

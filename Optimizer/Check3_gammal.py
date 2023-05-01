@@ -6,7 +6,7 @@ from tqdm import tqdm
 import json
 
 #torch.manual_seed(30) # <-- if seed is wanted
-N = 100
+N = 1000
 x = torch.linspace(-3, 5, N)
  
 
@@ -39,6 +39,10 @@ for i in tqdm(range(1)):
     measure = [a,b,c]
 
     y = (torch.randn(N)+4)*x**2+(torch.randn(N)+-0.5) * x + (2+torch.randn(N))
+    print(type(y))
+    print(y.size())
+    print(type(x))
+    print(x.size())
     # Instance of optimizer
     opt = pm.Optimizer(measure, "KDEnll", lr = 0.1)
     # Call to minimizer
