@@ -3,16 +3,18 @@ np.random.seed(0)
 tests = 50
 
 filename = 'data.npy'
-params = np.array([])
+means = np.array([])
+stds = np.array([])
 
 for i in range(tests):
     mean = np.random.normal(0,1,3)
     std = np.abs(np.random.normal(0,1,3))
-    np.append(params, [[mean],[std]])
+    means = np.append(means, mean)
+    stds = np.append(stds, std)
     for N in [100, 500, 1000]:
-        a = np.random.normal(1.2, 0.9, N)
-        b = np.random.normal(-0.9, 1.1, N)
-        c = np.random.normal(0.5, 0.5, N)
+        a = np.random.normal(mean[0], std[0], N)
+        b = np.random.normal(mean[1], std[1], N)
+        c = np.random.normal(mean[2], std[2], N)
 
         x = np.linspace(-5, 5, N)
         y = a
@@ -34,4 +36,6 @@ for i in range(tests):
             with open(name, 'wb') as f:
                 np.save(f, np.array([x, v]).reshape(-1, 2))
 
+params = np.array([means,stds])
+# Saves means and stds in npy file in format: [[means],[stds]]
 np.save('params.npy', params)

@@ -183,10 +183,10 @@ for i in range(runs):
         # if we want to use a little bit of randomness in our decent
         # (could possibly avoid local minimums?),
         # index x and y by sample below
-        if epoch % 10 == 0 and max_epoch - epoch > 50:
-            sample = torch.randint(N, (1, 250)).squeeze()
-        elif max_epoch - epoch == 100:
-            sample = torch.arange(0, N)
+        # if epoch % 10 == 0 and max_epoch - epoch > 50:
+        #     sample = torch.randint(N, (1, 250)).squeeze()
+        # elif max_epoch - epoch == 100:
+        #     sample = torch.arange(0, N)
 
         mean, var = model(x_unsq)
         log_likelyhood = log_k_with_var(mean, var, y).sum()
