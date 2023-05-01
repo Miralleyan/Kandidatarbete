@@ -35,7 +35,8 @@ for length in [1000]:
      measures=[]
      for i in tqdm(range(50)):
           data=np.load(f'../Finalized/test_data/data_{length}_y_lin_{i}.npy')
-          x=torch.from_numpy(data.reshape(1,-2)[0][:length])
+          print(data)
+          x=torch.from_numpy(data[0][:length])
           print(x)
           y=torch.from_numpy(data.reshape(1,-2)[0][length:])
           x,y=torch.tensor(x.tolist()),torch.tensor(y.tolist())
