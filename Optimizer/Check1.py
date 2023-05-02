@@ -67,7 +67,7 @@ for length in [100,500,1000]:
         measures.append([new_mes[0].locations.tolist(),new_mes[0].weights.tolist()])
 
     data=[measures,sum(tid)/len(tid),sum(epoch)/(len(epoch)),sum(success)/len(success)]
-    with open(f"Sergey1_{M}.json", "w") as outfile:
+    with open(f"Sergey1M_{M}.json", "w") as outfile:
         outfile.write(json.dumps(data))
 
 print(sum(success)/len(success))
