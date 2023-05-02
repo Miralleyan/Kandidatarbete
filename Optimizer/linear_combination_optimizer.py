@@ -26,6 +26,7 @@ class Optimizer():
         old_loss = float('inf')
         cur_epoch = epochs
         t1 = time.time()
+        t2 = float('inf')     # In case optimization doesnt terminate before max epochs are reached
         for epoch in range(epochs):
             optimizer.zero_grad()
             loss = self.log_lik(self.y, self.beta, self.h_all)
@@ -33,7 +34,7 @@ class Optimizer():
             optimizer.step()
             if epoch%print_frequency==0:
                 print(epoch, "mu:", self.mu.detach().numpy(), "sigma:", self.sigma.detach().numpy(), "loss:", loss)
-            if torch.abs(loss-old_loss) < 1e-10:
+            if torch.abs(loss-old_loss) < 1e-15:
                 t2 = time.time()
                 cur_epoch = epoch
                 break
@@ -42,9 +43,9 @@ class Optimizer():
         self.sigma_optim = self.beta[1].detach().numpy()
         print(epoch, "mu:", self.mu_optim, "sigma:", self.sigma_optim)
         if test == False:
-            return [self.m(self.mu, self.h_all[i,:]).detach().numpy() for i in range(self.x.size(dim=0))], [(self.sigma_2(self.sigma, self.h_all[i,:])**0.5).detach().numpy() for i in range(self.x.size(dim=0))]
+            return [self.m(self.mu, self.h_all[i,:]).detach().numpy().tolist() for i in range(self.x.size(dim=0))], [(self.sigma_2(self.sigma, self.h_all[i,:])**0.5).detach().numpy().tolist() for i in range(self.x.size(dim=0))]
         else:
-            return [self.m(self.mu, self.h_all[i,:]).detach().numpy() for i in range(self.x.size(dim=0))], [(self.sigma_2(self.sigma, self.h_all[i,:])**0.5).detach().numpy() for i in range(self.x.size(dim=0))], cur_epoch, t2-t1
+            return [self.m(self.mu, self.h_all[i,:]).detach().numpy().tolist() for i in range(self.x.size(dim=0))], [(self.sigma_2(self.sigma, self.h_all[i,:])**0.5).detach().numpy().tolist() for i in range(self.x.size(dim=0))], cur_epoch, t2-t1
 
     def m(self, mu, h_x):
         return (mu * h_x).sum()
