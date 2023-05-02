@@ -23,7 +23,7 @@ def regression_model(x,list):
 
 param=np.load(f'../Finalized/test_data/params.npy')
 
-for length in [100,500,1000]:
+for length in [1000,500,1000]:
     success=[]
     tid=[]
     epoch=[]
@@ -32,6 +32,8 @@ for length in [100,500,1000]:
         data=np.load(f'../Finalized/test_data/data_{length}_y_{i}.npy')
         y=torch.from_numpy(data)
         x = torch.linspace(-5, 5, length)
+        #plt.scatter(x,y)
+        #plt.show()
 
         #y=(torch.randn(length)*param[1][3*i]+param[0][3*i]).double()
         M=length #Amount of datapoints
@@ -55,7 +57,7 @@ for length in [100,500,1000]:
         new_mes,time,iteration=opt.minimize([x,y], regression_model,verbose=False,adaptive=False,max_epochs=3000,test=True)
 
         new_mes[0].visualize()
-        plt.show()
+        #plt.show()
         check=pm.Check(opt,regression_model,x,y,normal=False,Return=True)
         l,u,miss=check.check()
 
@@ -65,8 +67,8 @@ for length in [100,500,1000]:
         measures.append([new_mes[0].locations.tolist(),new_mes[0].weights.tolist()])
 
     data=[measures,sum(tid)/len(tid),sum(epoch)/(len(epoch)),sum(success)/len(success)]
-    with open(f"Sergey1M:{M}.json", "w") as outfile:
-        outfile.write(json.dumps(data))
+    #with open(f"Sergey1M:{M}.json", "w") as outfile:
+    #    outfile.write(json.dumps(data))
 
 print(sum(success)/len(success))
 print(sum(tid)/len(tid))

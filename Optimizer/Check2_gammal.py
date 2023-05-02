@@ -26,6 +26,7 @@ def regression_model(x,list):
 success=[]
 tid=[]
 epoch=[]
+measures=[]
 for i in tqdm(range(50)):
 
      # Measure for slope (a) and intercept (b) of linear model
@@ -33,22 +34,19 @@ for i in tqdm(range(50)):
      b = pm.Measure(torch.linspace(-2, 6, M), torch.ones(M) / M)
 
 
-     measures = [a,b]
+     measure = [a,b]
      y = (torch.randn(N)+-0.5) * x + (2+torch.randn(N))
-     print(type(y))
-     print(y.size())
-     print(type(x))
-     print(x.size())
+
      #print(x,y)
      # Instance of optimizer
-     opt = pm.Optimizer(measures, "KDEnll", lr = 0.1)
+     opt = pm.Optimizer(measure, "KDEnll", lr = 0.1)
      # Call to minimizer
      new_mes,time,iteration=opt.minimize([x,y],regression_model,max_epochs=2000,verbose = False, print_freq=100, smallest_lr=1e-10,test=True)
      # Visualize measures and gradient
      new_mes[0].visualize()
-     plt.show()
+     #plt.show()
      new_mes[1].visualize()
-     plt.show()
+     #plt.show()
 
      check=pm.Check(opt,regression_model,x,y,normal=True,Return=True)
      l,u,miss=check.check()
@@ -59,7 +57,7 @@ for i in tqdm(range(50)):
      measures.append([new_mes[0].locations.tolist(),new_mes[0].weights.tolist()])
 
 data=[measures,sum(tid)/len(tid),sum(epoch)/(len(epoch)),sum(success)/len(success)]
-with open(f"Sergey1M:{M}.json", "w") as outfile:
+with open(f"Sergey2Mtest:{N}.json", "w") as outfile:
     outfile.write(json.dumps(data))
 
 print(sum(success))

@@ -39,7 +39,8 @@ for length in [100,500,1000]:
           x = torch.linspace(-5, 5, length)
           #y=((torch.randn(length)*param[1][3*i+1]+param[0][3*i+1])*x+torch.randn(length)*param[1][3*i]+param[0][3*i]).double()
           
-
+          plt.scatter(x,y)
+          plt.show()
           M=length #Amount of datapoints
 
           s=2

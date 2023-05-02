@@ -27,7 +27,7 @@ def regression_model(x,list):
 
 
 param=np.load(f'../Finalized/test_data/params.npy')
-for length in [100,500,1000]:
+for length in [1000,500,1000]:
     success=[]
     tid=[]
     epoch=[]
@@ -37,6 +37,8 @@ for length in [100,500,1000]:
         y=torch.from_numpy(data)
         x = torch.linspace(-5, 5, length)
 
+        #plt.scatter(x,y)
+        #plt.show()
         M=length #Amount of datapoints
 
         s=2
