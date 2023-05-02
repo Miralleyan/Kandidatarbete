@@ -17,17 +17,17 @@ for i in range(tests):
         c = np.random.normal(mean[2], std[2], N)
 
         x = np.linspace(-5, 5, N)
-        # y = a
-        # y_lin = a + x * b
-        # y_sqr = a + x * b + x**2 * c
-        # y_nonNorm = np.concatenate((a[0:N//2], b[0:N//2]))
+        y = a
+        y_lin = a + x * b
+        y_sqr = a + x * b + x**2 * c
+        y_nonNorm = np.concatenate((a[0:N//2], b[0:N//2]))
         y_ax = a * x
 
         data = {
-            # 'y': y,
-            # 'y_lin': y_lin,
-            # 'y_sqr': y_sqr,
-            # 'y_nonNorm': y_nonNorm
+            'y': y,
+            'y_lin': y_lin,
+            'y_sqr': y_sqr,
+            'y_nonNorm': y_nonNorm,
             'y_ax': y_ax
         }
 
