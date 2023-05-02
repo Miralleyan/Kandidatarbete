@@ -35,7 +35,7 @@ class NormalPolynomialModel(torch.nn.Module):
         self.mean = None
         self.std = None
         
-        self.N_mean = 2 # constant, linear, quadratic, ... terms
+        self.N_mean = 1 # constant, linear, quadratic, ... terms
         self.N_var = 2 * self.N_mean - 1
 
         self.poly_multipliers_mean = torch.nn.parameter.Parameter(torch.rand(self.N_mean))
@@ -65,7 +65,7 @@ for length in [100, 500, 1000]:
     std=[]
     for i in range(50):
         x = torch.linspace(-5, 5, length)
-        y = np.load(f'../Finalized/test_data/data_{length}_y_lin_{i}.npy')
+        y = np.load(f'../Finalized/test_data/data_{length}_y_{i}.npy')
         y = torch.tensor(y)
         x_unsq = x.view(-1, 1)
         y = y.view(-1, 1)
@@ -107,5 +107,5 @@ for length in [100, 500, 1000]:
         std.append(s.tolist())
     
     results = [means, std, sum(tid)/len(tid), sum(end_epoch)/(len(end_epoch)), float(100*sum(success)/len(success))]
-    with open(f"Poly_results/poly_results_{length}_y_lin.json", "w") as outfile:
+    with open(f"Poly_results/poly_results_{length}_y.json", "w") as outfile:
         outfile.write(json.dumps(results))

@@ -84,7 +84,7 @@ for length in [100, 500, 1000]:
             loss = -log_likelyhood
             loss.backward()
             opt.step()
-            if torch.abs(old_loss-loss) < 1e-10:
+            if torch.abs(old_loss-loss) < 1e-4:
                 t2 = time.time()
                 conv_time = t2-t1
                 conv_epoch = epoch
@@ -101,7 +101,8 @@ for length in [100, 500, 1000]:
 
         l, u, miss = misses(x,torch.tensor(y),m,s)
         success.append(l<=miss and miss<=u)
-        tid.append(conv_time)
+        if conv_time != float('inf'):
+            tid.append(conv_time)
         end_epoch.append(conv_epoch)
         means.append(m.tolist())
         std.append(s.tolist())
