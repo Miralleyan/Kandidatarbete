@@ -22,6 +22,8 @@ measures=[]
 for i in tqdm(range(50)):
     x = torch.linspace(0, 10, M)
     data = (torch.randn(M).to(dev) - 2)
+    plt.scatter(x,data)
+    plt.show()
     w = torch.rand(N,dtype=torch.float).to(dev)
     w = torch.nn.parameter.Parameter(w/w.sum())
     l = torch.linspace(amin, amax, N, requires_grad=False).to(dev)
@@ -31,7 +33,7 @@ for i in tqdm(range(50)):
     new_mes,time,iteration=opt_NLL.minimize([x,data], regression_model,verbose=False,adaptive=False,max_epochs=2000,test=True)
 
     new_mes[0].visualize()
-    #plt.show()
+    plt.show()
     check=pm.Check(opt_NLL,regression_model,x,data,normal=True,Return=True)
     l,u,miss=check.check()
     #check.check()
@@ -41,8 +43,8 @@ for i in tqdm(range(50)):
     measures.append([new_mes[0].locations.tolist(),new_mes[0].weights.tolist()])
 
 data=[measures,sum(tid)/len(tid),sum(epoch)/(len(epoch)),sum(success)/len(success)]
-with open(f"Sergey1Mtest:{M}.json", "w") as outfile:
-    outfile.write(json.dumps(data))
+#with open(f"Sergey1Mtest:{M}.json", "w") as outfile:
+#    outfile.write(json.dumps(data))
 
 print(sum(success))
 print(sum(success)/50)
