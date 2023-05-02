@@ -26,8 +26,8 @@ def regression_model(x,list):
 
 
 
-param=np.load(f'../Finalized/test_data/params.npy')
-for length in [100,500,1000]:
+param=np.load('../Finalized/test_data/params.npy')
+for length in [100]:
     success=[]
     tid=[]
     epoch=[]
@@ -37,6 +37,8 @@ for length in [100,500,1000]:
         y=torch.from_numpy(data)
         x = torch.linspace(-5, 5, length)
 
+        #plt.scatter(x,y)
+        #plt.show()
         M=length #Amount of datapoints
 
         s=2
@@ -64,7 +66,7 @@ for length in [100,500,1000]:
         opt = pm.Optimizer(measure, "KDEnll", lr = 0.1)
         # Call to minimizer
 
-        new_mes,time,iteration=opt.minimize([x,y],regression_model,max_epochs=3000,verbose = False, print_freq=100, smallest_lr=1e-10,test=True)
+        new_mes,time,iteration=opt.minimize([x,y],regression_model,max_epochs=4000,verbose = False, print_freq=100, smallest_lr=1e-10,test=True)
         # Visualize measures and gradient
         new_mes[0].visualize()
         #plt.show()
@@ -82,7 +84,7 @@ for length in [100,500,1000]:
             measures.append([new_mes[i].locations.tolist(),new_mes[i].weights.tolist()])
 
     data=[measures,sum(tid)/len(tid),sum(epoch)/len(epoch),sum(success)/len(success)]
-    with open(f"Sergey3M:{M}.json", "w") as outfile:
+    with open(f"Sergey3M_{M}.json", "w") as outfile:
         outfile.write(json.dumps(data))
 
 

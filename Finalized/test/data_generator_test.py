@@ -1,6 +1,7 @@
 import numpy as np
 np.random.seed(0)
-tests = 3
+import matplotlib.pyplot as plt
+tests = 50
 
 filename = 'data.npy'
 means = np.array([])
@@ -11,10 +12,6 @@ for i in range(tests):
     std = np.abs(np.random.normal(1,0.1,3))
     means = np.append(means, mean)
     stds = np.append(stds, std)
-    print(mean)
-    print(std)
-    print(means)
-    print(stds)
     for N in [100, 500, 1000]:
         a = np.random.normal(mean[0], std[0], N)
         b = np.random.normal(mean[1], std[1], N)
@@ -26,9 +23,11 @@ for i in range(tests):
         y_sqr = a + x * b + x**2 * c
         y_nonNorm = np.concatenate((a[0:N//2], b[0:N//2]))
 
+        plt.scatter(x,y_sqr)
+        plt.show()
         data = {
             'y': y,
-            'y_lin': y,
+            'y_lin': y_lin,
             'y_sqr': y_sqr,
             'y_nonNorm': y_nonNorm
         }
@@ -38,7 +37,7 @@ for i in range(tests):
             name = file + '_' + str(N) + '_' + k + '_' + str(i) + '.' + ext
 
             with open(name, 'wb') as f:
-                np.save(f, np.array([x, v]))
+                np.save(f, np.array(v))
 
 params = np.array([means,stds])
 # Saves means and stds in npy file in format: [[means],[stds]]
