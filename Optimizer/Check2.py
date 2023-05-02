@@ -62,9 +62,9 @@ for length in [100,500,1000]:
           new_mes,time,iteration=opt.minimize([x,y],regression_model,max_epochs=3000,verbose = False, print_freq=100, smallest_lr=1e-10,test=True)
           # Visualize measures and gradient
           new_mes[0].visualize()
-          plt.show()
+          #plt.show()
           new_mes[1].visualize()
-          plt.show()
+          #plt.show()
 
           check=pm.Check(opt,regression_model,x,y,normal=True,Return=True)
           l,u,miss=check.check()
