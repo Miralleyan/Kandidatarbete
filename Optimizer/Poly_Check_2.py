@@ -71,7 +71,7 @@ for length in [100, 500, 1000]:
         model = NormalPolynomialModel()
         opt = torch.optim.Adam(model.parameters())
 
-        max_epoch = 50000
+        max_epoch = 300000
         conv_epoch = max_epoch
         conv_time = float('inf')
         old_loss = float('inf')
@@ -92,7 +92,6 @@ for length in [100, 500, 1000]:
 
             if epoch % 1000 == 0:
                 print(f'{epoch}:: Loss = {loss.item()}')
-        conv_time = t2-t1
         m, var = model(x_unsq)
         s = var.sqrt()
         m = m.detach().numpy()
@@ -102,8 +101,8 @@ for length in [100, 500, 1000]:
         success.append(l<=miss and miss<=u)
         time.append(conv_time)
         epoch.append(conv_epoch)
-        means.append(m)
-        std.append(s)
+        means.append(m.tolist())
+        std.append(s.tolist())
     
     results = [means, std, sum(time)/len(time), sum(epoch)/(len(epoch)), float(100*sum(success)/len(success))]
     with open(f"Poly_results/poly_results_{length}_y_lin.json", "w") as outfile:
