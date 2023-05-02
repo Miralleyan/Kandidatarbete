@@ -258,6 +258,7 @@ class Optimizer:
             old_measures = copy.deepcopy(self.measures)
             for m in self.measures:
                 m.zero_grad()
+            
 
             # Compute loss and grad
             loss_old = loss_fn(perms, *prep)
@@ -323,7 +324,7 @@ class Optimizer:
                     else:
                         print('.')
 
-
+        
         print('Max epochs reached')
         if test:
             t2=time.time()

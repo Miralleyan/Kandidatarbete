@@ -4,6 +4,7 @@ import pytorch_measure as pm
 import numpy as np
 from tqdm import tqdm
 import json 
+import math
 dev = 'cpu'
 
 
@@ -21,7 +22,7 @@ def regression_model(x,list):
     return list[0]
 
 param=np.load(f'../Finalized/test_data/params.npy')
-print(param)
+
 for length in [100,500,1000]:
     success=[]
     tid=[]
@@ -29,31 +30,35 @@ for length in [100,500,1000]:
     measures=[]
     for i in tqdm(range(50)):
         data=np.load(f'../Finalized/test_data/data_{length}_y_{i}.npy')
-        x=torch.from_numpy(data.reshape(1,-2)[0][:length])
-        y=torch.from_numpy(data.reshape(1,-2)[0][length:])
-        x,y=torch.tensor(x.tolist()),torch.tensor(y.tolist())
+        y=torch.from_numpy(data)
+        x = torch.linspace(-5, 5, length)
 
+        #y=(torch.randn(length)*param[1][3*i]+param[0][3*i]).double()
         M=length #Amount of datapoints
-        N=21
 
-
+        s=2
+        aU=math.ceil(param[0][3*i]+s*param[1][3*i])
+        aL=math.floor(param[0][3*i]-s*param[1][3*i])
+        N=2*(aU-aL)+1
+        
  
         #x = torch.linspace(0, 10, M)
         #data = torch.randn(M).to(dev)
-        w = torch.rand(N,dtype=torch.float).to(dev)
-        w = torch.nn.parameter.Parameter(w/w.sum())
-        l = torch.linspace(-2, 3, N, requires_grad=False).to(dev)
+        measure = pm.Measure(torch.linspace(aL, aU, N), torch.ones(N).double() / N)
+        #w = torch.rand(N,dtype=torch.float).to(dev)
+        #w = torch.nn.parameter.Parameter(w/w.sum())
+        #l = torch.linspace(-2, 3, N, requires_grad=False).to(dev)
 
-        measure = pm.Measure(locations=l, weights=w, device=dev)
+        #measure = pm.Measure(locations=l, weights=w, device=dev)
 
-        opt_NLL = pm.Optimizer([measure],"KDEnll" ,lr=1e-1)
-        new_mes,time,iteration=opt_NLL.minimize([x,y], regression_model,verbose=False,adaptive=False,max_epochs=2000,test=True)
+        opt = pm.Optimizer([measure],"KDEnll" ,lr=1e-1)
+        new_mes,time,iteration=opt.minimize([x,y], regression_model,verbose=False,adaptive=False,max_epochs=3000,test=True)
 
         new_mes[0].visualize()
         plt.show()
-        check=pm.Check(opt_NLL,regression_model,x,y,normal=True,Return=True)
+        check=pm.Check(opt,regression_model,x,y,normal=False,Return=True)
         l,u,miss=check.check()
-        #check.check()
+
         success.append(l<miss and miss<u)
         tid.append(time)
         epoch.append(iteration)
@@ -63,8 +68,7 @@ for length in [100,500,1000]:
     with open(f"Sergey1M:{M}.json", "w") as outfile:
         outfile.write(json.dumps(data))
 
-print(sum(success))
-print(sum(success)/50)
+print(sum(success)/len(success))
 print(sum(tid)/len(tid))
 print(sum(epoch)/(len(epoch)))
 
