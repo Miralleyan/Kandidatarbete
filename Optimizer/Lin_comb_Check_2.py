@@ -41,7 +41,8 @@ for length in [100, 500, 1000]:
 
         l, u, miss = misses(x,torch.tensor(y),mu,sigma)
         success.append(l<=miss and miss<=u)
-        time.append(conv_time)
+        if conv_time != None:
+            time.append(conv_time)
         epoch.append(conv_epoch)
         means.append(mu)
         std.append(sigma)
