@@ -33,8 +33,8 @@ for length in [100,500,1000]:
         print(data[2])
         y=torch.from_numpy(data)
         x = torch.linspace(-5, 5, length)
-        plt.scatter(x,y)
-        plt.show()
+        # plt.scatter(x,y)
+        # plt.show()
 
         #y=(torch.randn(length)*param[1][3*i]+param[0][3*i]).double()
         M=length #Amount of datapoints
@@ -57,8 +57,8 @@ for length in [100,500,1000]:
         opt = pm.Optimizer([measure],"KDEnll" ,lr=1e-1)
         new_mes,time,iteration=opt.minimize([x,y], regression_model,verbose=False,adaptive=False,max_epochs=4000,test=True)
 
-        new_mes[0].visualize()
-        plt.show()
+        # new_mes[0].visualize()
+        # plt.show()
         check=pm.Check(opt,regression_model,x,y,normal=True,Return=True)
         l,u,miss=check.check()
 
