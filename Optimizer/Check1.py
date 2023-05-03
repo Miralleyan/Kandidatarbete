@@ -23,7 +23,7 @@ def regression_model(x,list):
 
 param=np.load(f'../Finalized/test_data/params.npy')
 
-for length in [1000]:
+for length in [100]:
     success=[]
     tid=[]
     epoch=[]
