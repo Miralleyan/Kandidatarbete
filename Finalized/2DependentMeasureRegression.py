@@ -1,3 +1,5 @@
+# Not working currently
+
 import torch
 import pytorch_measure as pm
 import matplotlib.pyplot as plt
@@ -27,7 +29,7 @@ def loss_fn(measures):
     return torch.dot(errors, measures[0].weights)
 
 opt = pm.Optimizer(measure, lr = 1.0)
-opt.minimize(loss_fn, verbose = True)
+opt.minimize([x,y], regre, verbose = True)
 
 maxi = opt.measures[0].locations[torch.argmax(opt.measures[0].weights)]
 print(maxi)
