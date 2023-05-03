@@ -27,7 +27,7 @@ def regression_model(x,list):
 
 
 param=np.load('../Finalized/test_data/params.npy')
-for length in [100]:
+for length in [100,500,1000]:
     success=[]
     tid=[]
     epoch=[]
@@ -84,7 +84,7 @@ for length in [100]:
             measures.append([new_mes[i].locations.tolist(),new_mes[i].weights.tolist()])
 
     data=[measures,sum(tid)/len(tid),sum(epoch)/len(epoch),sum(success)/len(success)]
-    with open(f"Sergey3M_{M}.json", "w") as outfile:
+    with open(f"resultat_samuel/Sergey3M_{M}.json", "w") as outfile:
         outfile.write(json.dumps(data))
 
 
