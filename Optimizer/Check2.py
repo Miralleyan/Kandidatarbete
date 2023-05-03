@@ -69,7 +69,7 @@ for length in [100,500,1000]:
           a=(new_mes[0].locations*new_mes[0].weights).sum()
           b=(new_mes[1].locations*new_mes[1].weights).sum()
           plt.plot(x.detach().numpy(),(b+a*x).detach().numpy())
-          
+
           a=param[0][3*i+1]
           b=param[0][3*i]
 
@@ -86,8 +86,8 @@ for length in [100,500,1000]:
                measures.append([new_mes[i].locations.tolist(),new_mes[i].weights.tolist()])
 
      data=[measures,sum(tid)/len(tid),sum(epoch)/len(epoch),sum(success)/len(success)]
-     #with open(f"resultat_sergey/Sergey2M_{M}.json", "w") as outfile:
-     #     outfile.write(json.dumps(data))
+     with open(f"resultat_samuel/Sergey2M_{M}.json", "w") as outfile:
+          outfile.write(json.dumps(data))
 
 
 print(sum(success)/len(success))
