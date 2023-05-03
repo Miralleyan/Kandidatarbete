@@ -51,8 +51,8 @@ measure = pm.Measure(locations=l, weights=w, device=dev)
 opt_NLL = pm.Optimizer([measure], lr=1e-1)
 new_mes = opt_NLL.minimize(NLLLoss, verbose=verbose, print_freq=100, max_epochs=1000, tol_const=1e-2, adaptive=True)
 
-opt_KDE = pm.Optimizer([measure], lr=1e-1)
-new_mesKDE = opt_KDE.minimize(KDENLLLoss, verbose=verbose, print_freq=100, max_epochs=1000, tol_const=1e-2, adaptive=True)
+opt_KDE = pm.Optimizer([measure], lr=1e-1, loss='KDEnll')
+new_mesKDE = opt_KDE.minimize([x,y], regression_model, verbose=verbose, print_freq=100, max_epochs=1000, tol_const=1e-2, adaptive=True)
 
  #Create true values
 xs = torch.linspace(amin, amax, 500)

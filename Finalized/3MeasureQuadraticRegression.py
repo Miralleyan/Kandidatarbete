@@ -83,9 +83,9 @@ def chi_squared(measures: list[pm.Measure]):
     return sum(probs**2/bins_freq)
 
 # Instance of optimizer
-opt = pm.Optimizer([a, b, c], lr = 0.05)
+opt = pm.Optimizer([a, b, c], lr = 0.05, loss='KDEnll')
 # Call to minimizer
-measures = opt.minimize(KDElog_loss, max_epochs=600, verbose = True, print_freq=1, smallest_lr=1e-7)
+measures = opt.minimize([x,y], regression_model, max_epochs=600, verbose = True, print_freq=1, smallest_lr=1e-7)
 a,b,c = measures[0],measures[1],measures[2]
 # Visualize measures and gradient
 opt.visualize()

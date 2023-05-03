@@ -48,7 +48,11 @@ class Optimizer():
         if test == False:
             return [self.m(self.mu, self.h_all[i,:]).detach().numpy().tolist() for i in range(self.x.size(dim=0))], [(self.sigma_2(self.sigma, self.h_all[i,:])**0.5).detach().numpy().tolist() for i in range(self.x.size(dim=0))]
         else:
-            return [self.m(self.mu, self.h_all[i,:]).detach().numpy().tolist() for i in range(self.x.size(dim=0))], [(self.sigma_2(self.sigma, self.h_all[i,:])**0.5).detach().numpy().tolist() for i in range(self.x.size(dim=0))], cur_epoch, t2-t1
+            if t2 != float('inf'):
+                return [self.m(self.mu, self.h_all[i,:]).detach().numpy().tolist() for i in range(self.x.size(dim=0))], [(self.sigma_2(self.sigma, self.h_all[i,:])**0.5).detach().numpy().tolist() for i in range(self.x.size(dim=0))], cur_epoch, t2-t1
+            else:
+                return [self.m(self.mu, self.h_all[i,:]).detach().numpy().tolist() for i in range(self.x.size(dim=0))], [(self.sigma_2(self.sigma, self.h_all[i,:])**0.5).detach().numpy().tolist() for i in range(self.x.size(dim=0))], cur_epoch, None
+
 
     def m(self, mu, h_x):
         return (mu * h_x).sum()
