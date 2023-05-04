@@ -3,14 +3,16 @@ import pytorch_measure as pm
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy as sp
+from scipy import stats
 import time
 import linear_combination_optimizer as lco
-from tqdm import tqdm
 import json
 
 # Polynomial nn method
 def eval_powers_of_x(x, n):
     return x.pow(torch.arange(n))
+def eval_even_powers_of_x(x, n):
+    return x.pow(2 * torch.arange(n))
 
 # Confidence intervals
 def misses(x, y, mu, sigma):
@@ -36,7 +38,7 @@ class NormalPolynomialModel(torch.nn.Module):
         self.std = None
         
         self.N_mean = 3 # constant, linear, quadratic, ... terms
-        self.N_var = 2 * self.N_mean - 1
+        self.N_var = 3
 
         self.poly_multipliers_mean = torch.nn.parameter.Parameter(torch.rand(self.N_mean))
         self.poly_multipliers_var = torch.nn.parameter.Parameter(torch.rand(self.N_var))
@@ -50,7 +52,7 @@ class NormalPolynomialModel(torch.nn.Module):
     
     def forward(self, x):
         self.mean = self.mean_layer(self.poly_multipliers_mean * eval_powers_of_x(x, self.N_mean))
-        self.var = self.var_layer(self.poly_multipliers_var * eval_powers_of_x(x, self.N_var)) + self.var_shift ** 2
+        self.var = self.var_layer(self.poly_multipliers_var * eval_even_powers_of_x(x, self.N_var)) + self.var_shift ** 2
         return self.mean, self.var
     
 def log_k_with_var(mean, var, y):

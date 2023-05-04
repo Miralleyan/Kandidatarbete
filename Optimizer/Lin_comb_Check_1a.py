@@ -35,18 +35,17 @@ for length in [100, 500, 1000]:
     std=[]
     for i in range(50):
         x = torch.linspace(-5, 5, length)
-        y = np.load(f'../Finalized/test_data/data_{length}_y_lin_{i}.npy')
-        opt = lco.Optimizer(x, y, order=2)
+        y = np.load(f'../Finalized/test_data/data_{length}_y_ax_{i}.npy')
+        opt = lco.Optimizer(x, y, order=1, ax = True)
         mu, sigma, conv_epoch, conv_time = opt.optimize(epochs = 3000, test = True)
 
         l, u, miss = misses(x,torch.tensor(y),mu,sigma)
         success.append(l<=miss and miss<=u)
-        if conv_time != None:
-            time.append(conv_time)
+        time.append(conv_time)
         epoch.append(conv_epoch)
         means.append(mu)
         std.append(sigma)
     
     results = [means, std, sum(time)/len(time), sum(epoch)/(len(epoch)), float(100*sum(success)/len(success))]
-    with open(f"Lin_comb_results/lin_comb_results_{length}_y_lin.json", "w") as outfile:
+    with open(f"Lin_comb_results/lin_comb_results_{length}_y_ax.json", "w") as outfile:
         outfile.write(json.dumps(results))

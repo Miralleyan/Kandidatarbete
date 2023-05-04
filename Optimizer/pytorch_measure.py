@@ -429,10 +429,9 @@ class Optimizer:
             prep.append(torch.tensor(loc_idx))
         elif self.loss == self.KDEnll:
             if h == 0:
-                h = 1.06*len(data[0])**(-1/5)
-            sigma=torch.std(data[0])
-            A=min(sigma,(torch.quantile(data[0],0.75)-torch.quantile(data[0],0.25))/1.35)
-            h=0.9*A*len(data[0])**(-1/5)
+                sigma=torch.std(data[0])
+                A=min(sigma,(torch.quantile(data[0],0.75)-torch.quantile(data[0],0.25))/1.35)
+                h=0.9*A*len(data[0])**(-1/5)
             kde_mat = 1/np.sqrt(2*np.pi)*np.exp(-((data[1].view(-1,1) - model(data[0].view(-1,1), locs.transpose(0,1))) / h)**2/2)
             prep.append(kde_mat)
             prep.append(h)
@@ -450,7 +449,19 @@ class Optimizer:
 
 
 class Check():
-    def __init__(self, opt: Optimizer, model, x:torch.tensor,y:torch.tensor, alpha=0.05,normal=False,Return=False):
+    def __init__(self, opt: Optimizer, model, x: torch.tensor,y: torch.tensor, alpha=0.05,normal=False,Return=False):
+        """
+        A class that will check how close a fitted measure is to the orginal by creating a confidence intervall att each x-value and checking to see if the corresponding
+        y-value is insiede the confidence interval.
+
+        :param opt: An instance of the class Optimizer
+        :param model: A function with input: a list of x-values and a list of lists containing weights from measures
+        :param x: The x-values used in the model
+        :param y: The y-values from the original distribution that we use to fitt the measure
+        :param alpha: The amount of confidence we want for our donfidence intervals, standard is 0.05 which corresponds to a 95% CI
+        :param normal: Set to true if you know that the distribution is normal
+        :param Return: Set to true if you wish the class to return the amount of misses and the bounds for the 95% CI
+        """
         self.opt=opt
         self.model=model
         self.data=[x,y]
@@ -466,7 +477,7 @@ class Check():
         the boundaries of a 95% confidence intervall (if no value is given to
         the variable alpha) and then calculates the probability of
         that amount of misses
-
+        
         '''
         bounds=[]
         for x in self.data[0]:
@@ -511,6 +522,9 @@ class Check():
         '''
         Calculates the amount of values in y that are not within the 
         corresponding boundary in bounds
+
+        :param y: The data which we will se if it is in the corresponding confidence interval
+        :param bounds: list containing the pairs of bounds for each x
         '''
         miss=0
         for i in range(len(y)):

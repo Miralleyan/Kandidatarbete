@@ -10,7 +10,7 @@ import json
 
 # Polynomial nn method
 def eval_powers_of_x(x, n):
-    return x.pow(torch.arange(n))
+    return x
 def eval_even_powers_of_x(x, n):
     return x.pow(2 * torch.arange(n))
 
@@ -37,8 +37,8 @@ class NormalPolynomialModel(torch.nn.Module):
         self.mean = None
         self.std = None
         
-        self.N_mean = 2 # constant, linear, quadratic, ... terms
-        self.N_var = 2
+        self.N_mean = 1 # constant, linear, quadratic, ... terms
+        self.N_var = 1
 
         self.poly_multipliers_mean = torch.nn.parameter.Parameter(torch.rand(self.N_mean))
         self.poly_multipliers_var = torch.nn.parameter.Parameter(torch.rand(self.N_var))
@@ -51,8 +51,8 @@ class NormalPolynomialModel(torch.nn.Module):
         )
     
     def forward(self, x):
-        self.mean = self.mean_layer(self.poly_multipliers_mean * eval_powers_of_x(x, self.N_mean))
-        self.var = self.var_layer(self.poly_multipliers_var * eval_even_powers_of_x(x, self.N_var)) + self.var_shift ** 2
+        self.mean = self.mean_layer(self.poly_multipliers_mean * x)
+        self.var = self.var_layer(self.poly_multipliers_var * x**2) + self.var_shift ** 2
         return self.mean, self.var
     
 def log_k_with_var(mean, var, y):
@@ -67,7 +67,7 @@ for length in [100, 500, 1000]:
     std=[]
     for i in range(50):
         x = torch.linspace(-5, 5, length)
-        y = np.load(f'../Finalized/test_data/data_{length}_y_lin_{i}.npy')
+        y = np.load(f'../Finalized/test_data/data_{length}_y_ax_{i}.npy')
         y = torch.tensor(y)
         x_unsq = x.view(-1, 1)
         y = y.view(-1, 1)
@@ -100,8 +100,9 @@ for length in [100, 500, 1000]:
         m = m.detach().numpy()
         s = s.detach().numpy()
 
-        l, u, miss = misses(x,torch.tensor(y),m,s)
-        success.append(l<=miss and miss<=u)
+        if sum([np.isnan(m[i]) for i in range(len(m))]) == 0 and sum([np.isnan(s[i]) for i in range(len(s))]) == 0:
+            l, u, miss = misses(x,torch.tensor(y),m,s)
+            success.append(l<=miss and miss<=u)
         if conv_time != float('inf'):
             tid.append(conv_time)
         end_epoch.append(conv_epoch)
@@ -109,5 +110,5 @@ for length in [100, 500, 1000]:
         std.append(s.tolist())
     
     results = [means, std, sum(tid)/len(tid), sum(end_epoch)/(len(end_epoch)), float(100*sum(success)/len(success))]
-    with open(f"Poly_results/poly_results_{length}_y_lin.json", "w") as outfile:
+    with open(f"Poly_results/poly_results_{length}_y_ax.json", "w") as outfile:
         outfile.write(json.dumps(results))

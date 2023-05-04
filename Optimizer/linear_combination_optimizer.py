@@ -4,12 +4,15 @@ import matplotlib.pyplot as plt
 import time
 
 class Optimizer():
-    def __init__(self, x, y, order=3, n=3):
+    def __init__(self, x, y, order=3, n=3, ax = False):
         self.order = order
         self.n = n
         self.x = x
         self.y = y
-        self.h = [self.create_lambda(i) for i in range(self.order)] 
+        if ax == False:
+            self.h = [self.create_lambda(i) for i in range(self.order)]
+        else:
+            self.h = [self.create_lambda(1)]
         h_all_data = [h(x) for h in self.h]
         self.h_all = torch.transpose(torch.stack(h_all_data, 0), 0, 1)
         self.mu = torch.tensor([0. for _ in range(order)], dtype=float, requires_grad=True)
@@ -45,7 +48,11 @@ class Optimizer():
         if test == False:
             return [self.m(self.mu, self.h_all[i,:]).detach().numpy().tolist() for i in range(self.x.size(dim=0))], [(self.sigma_2(self.sigma, self.h_all[i,:])**0.5).detach().numpy().tolist() for i in range(self.x.size(dim=0))]
         else:
-            return [self.m(self.mu, self.h_all[i,:]).detach().numpy().tolist() for i in range(self.x.size(dim=0))], [(self.sigma_2(self.sigma, self.h_all[i,:])**0.5).detach().numpy().tolist() for i in range(self.x.size(dim=0))], cur_epoch, t2-t1
+            if t2 != float('inf'):
+                return [self.m(self.mu, self.h_all[i,:]).detach().numpy().tolist() for i in range(self.x.size(dim=0))], [(self.sigma_2(self.sigma, self.h_all[i,:])**0.5).detach().numpy().tolist() for i in range(self.x.size(dim=0))], cur_epoch, t2-t1
+            else:
+                return [self.m(self.mu, self.h_all[i,:]).detach().numpy().tolist() for i in range(self.x.size(dim=0))], [(self.sigma_2(self.sigma, self.h_all[i,:])**0.5).detach().numpy().tolist() for i in range(self.x.size(dim=0))], cur_epoch, None
+
 
     def m(self, mu, h_x):
         return (mu * h_x).sum()
