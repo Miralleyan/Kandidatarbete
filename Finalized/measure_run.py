@@ -4,7 +4,7 @@ import PyTorchMeasure as pm
 import numpy as np
 
 ######## Setup #########
-N = 31  # number of atoms
+N = 17  # number of atoms
 M = 2000  # Number of datapoints
 data_mean = -2.
 data_std = 1.
@@ -67,4 +67,7 @@ plt.plot(xs.detach(), y_mes.detach(), label='NLLLoss')
 plt.plot(xs.detach(), y, zorder=2, label="True distribution")
 plt.legend()
 
+plt.show()
+
+new_mesKDE[0].visualize()
 plt.show()

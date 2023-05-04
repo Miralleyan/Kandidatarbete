@@ -62,9 +62,9 @@ for length in [100,500,1000]:
           # Call to minimizer
           new_mes,time,iteration=opt.minimize([x,y],regression_model,max_epochs=4000,verbose = False, print_freq=100, smallest_lr=1e-10,test=True)
           # Visualize measures and gradient
-          #new_mes[0].visualize()
+          new_mes[0].visualize()
           #plt.show()
-          #new_mes[1].visualize()
+          new_mes[1].visualize()
           #plt.show()
           a=(new_mes[0].locations*new_mes[0].weights).sum()
           b=(new_mes[1].locations*new_mes[1].weights).sum()
@@ -75,9 +75,9 @@ for length in [100,500,1000]:
 
           plt.plot(x.detach().numpy(),(b+a*x).detach().numpy())
           plt.scatter(x.detach().numpy(),y.detach().numpy())
-          # plt.show()
+          #plt.show()
 
-          check=pm.Check(opt,regression_model,x,y,normal=True,Return=True)
+          check=pm.Check(opt,regression_model,x,y,normal=False,Return=True)
           l,u,miss=check.check()
           success.append(l<=miss and miss<=u)
           tid.append(time)
@@ -86,8 +86,8 @@ for length in [100,500,1000]:
                measures.append([new_mes[i].locations.tolist(),new_mes[i].weights.tolist()])
 
      data=[measures,sum(tid)/len(tid),sum(epoch)/len(epoch),sum(success)/len(success)]
-     with open(f"resultat_samuel/Sergey2M_{M}.json", "w") as outfile:
-          outfile.write(json.dumps(data))
+     #with open(f"resultat_samuel/Sergey2M_{M}.json", "w") as outfile:
+     #     outfile.write(json.dumps(data))
 
 
 print(sum(success)/len(success))

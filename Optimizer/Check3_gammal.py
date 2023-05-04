@@ -38,7 +38,7 @@ for i in tqdm(range(50)):
 
     measure = [a,b,c]
 
-    y = (torch.randn(N)+4)*x**2+(torch.randn(N)+-0.5) * x + (2+torch.randn(N))
+    y = (torch.randn(N)*1.1+4)*x**2+(torch.randn(N)*0.7+-0.5) * x + (2+torch.randn(N)*1.2)
 
     # Instance of optimizer
     opt = pm.Optimizer(measure, "KDEnll", lr = 0.1)
@@ -62,8 +62,8 @@ for i in tqdm(range(50)):
           measures.append([new_mes[i].locations.tolist(),new_mes[i].weights.tolist()])
 
 data=[measures,sum(tid)/len(tid),sum(epoch)/len(epoch),sum(success)/len(success)]
-with open(f"Sergey3Mtest:{N}.json", "w") as outfile:
-    outfile.write(json.dumps(data))
+#with open(f"Sergey3Mtest:{N}.json", "w") as outfile:
+#    outfile.write(json.dumps(data))
 
 
 print(sum(success)/len(success))

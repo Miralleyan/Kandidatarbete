@@ -429,10 +429,9 @@ class Optimizer:
             prep.append(torch.tensor(loc_idx))
         elif self.loss == self.KDEnll:
             if h == 0:
-                h = 1.06*len(data[0])**(-1/5)
-            sigma=torch.std(data[0])
-            A=min(sigma,(torch.quantile(data[0],0.75)-torch.quantile(data[0],0.25))/1.35)
-            h=0.9*A*len(data[0])**(-1/5)
+                sigma=torch.std(data[0])
+                A=min(sigma,(torch.quantile(data[0],0.75)-torch.quantile(data[0],0.25))/1.35)
+                h=0.9*A*len(data[0])**(-1/5)
             kde_mat = 1/np.sqrt(2*np.pi)*np.exp(-((data[1].view(-1,1) - model(data[0].view(-1,1), locs.transpose(0,1))) / h)**2/2)
             prep.append(kde_mat)
             prep.append(h)
@@ -450,7 +449,7 @@ class Optimizer:
 
 
 class Check():
-    def __init__(self, opt: Optimizer, model, x: torch.tensor,y: torch.tensor, alpha=0.05,normal=False,Return=False):
+    def __init__(self, opt: Optimizer, model, x: torch.tensor,y: torch.tensor, alpha=0.05,normal=False,Return=False,sample_size=2000):
         """
         A class that will check how close a fitted measure is to the orginal by creating a confidence intervall att each x-value and checking to see if the corresponding
         y-value is insiede the confidence interval.
@@ -470,6 +469,7 @@ class Check():
         self.alpha=alpha
         self.normal=normal
         self.Return=Return
+        self.sample_size=sample_size
 
 
     def check(self):
@@ -484,7 +484,7 @@ class Check():
         for x in self.data[0]:
             input=[]
             for meas in self.opt.measures:
-                input.append(meas.sample(self.N))
+                input.append(meas.sample(self.sample_size))
             bounds.append(self.CI(self.model(x,input)))
         miss=self.misses(self.data[1],bounds)
 
@@ -521,8 +521,8 @@ class Check():
             cih=mean-q*std
             bounds=[cil,cih]
         else:
-            edge=int(self.alpha/2*self.N)
-            idx_sorted_cropped=torch.argsort(data)[edge:self.N-edge]
+            edge=int(self.alpha/2*self.sample_size)
+            idx_sorted_cropped=torch.argsort(data)[edge:self.sample_size-edge]
             bounds=data[idx_sorted_cropped[[0,-1]]]
         return bounds
     
