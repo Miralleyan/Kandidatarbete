@@ -23,7 +23,7 @@ def regression_model(x,list):
 
 param=np.load(f'../Finalized/test_data/params.npy')
 
-for length in [1000,500,1000]:
+for length in [100,500,1000]:
     success=[]
     tid=[]
     epoch=[]
@@ -58,14 +58,16 @@ for length in [1000,500,1000]:
 
         new_mes[0].visualize()
         #plt.show()
-        check=pm.Check(opt,regression_model,x,y,normal=True,Return=True)
+        check=pm.Check(opt,regression_model,x,y,normal=False,Return=True)
         l,u,miss=check.check()
 
         success.append(l<miss and miss<u)
         tid.append(time)
         epoch.append(iteration)
         measures.append([new_mes[0].locations.tolist(),new_mes[0].weights.tolist()])
-
+    print(sum(success)/len(success))
+    print(sum(tid)/len(tid))
+    print(sum(epoch)/(len(epoch)))
     data=[measures,sum(tid)/len(tid),sum(epoch)/(len(epoch)),sum(success)/len(success)]
     with open(f"resultat_samuel/Sergey1a_{M}.json", "w") as outfile:
         outfile.write(json.dumps(data))

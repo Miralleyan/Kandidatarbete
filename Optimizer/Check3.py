@@ -75,7 +75,7 @@ for length in [100,500,1000]:
         new_mes[2].visualize() 
         #plt.show()
 
-        check=pm.Check(opt,regression_model,x,y,normal=True,Return=True)
+        check=pm.Check(opt,regression_model,x,y,normal=False,Return=True)
         l,u,miss=check.check()
         success.append(l<=miss and miss<=u)
         tid.append(time)
