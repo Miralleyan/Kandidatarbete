@@ -449,7 +449,7 @@ class Optimizer:
 
 
 class Check():
-    def __init__(self, opt: Optimizer, model, x: torch.tensor,y: torch.tensor, alpha=0.05,normal=False,Return=False):
+    def __init__(self, opt: Optimizer, model, x: torch.tensor,y: torch.tensor, alpha=0.05,normal=False,Return=False,sample_size=2000):
         """
         A class that will check how close a fitted measure is to the orginal by creating a confidence intervall att each x-value and checking to see if the corresponding
         y-value is insiede the confidence interval.
@@ -469,6 +469,7 @@ class Check():
         self.alpha=alpha
         self.normal=normal
         self.Return=Return
+        self.sample_size=sample_size
 
 
     def check(self):
@@ -483,7 +484,7 @@ class Check():
         for x in self.data[0]:
             input=[]
             for meas in self.opt.measures:
-                input.append(meas.sample(self.N))
+                input.append(meas.sample(self.sample_size))
             bounds.append(self.CI(self.model(x,input)))
         miss=self.misses(self.data[1],bounds)
 
@@ -513,7 +514,7 @@ class Check():
             bounds=[cil,cih]
         else:
             edge=int(self.alpha/2*self.N)
-            idx_sorted_cropped=torch.argsort(data)[edge:self.N-edge]
+            idx_sorted_cropped=torch.argsort(data)[edge:self.sample_size-edge]
             bounds=data[idx_sorted_cropped[[0,-1]]]
         return bounds
     
