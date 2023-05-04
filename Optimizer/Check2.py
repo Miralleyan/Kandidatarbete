@@ -28,7 +28,7 @@ def regression_model(x,list):
 
 
 param=np.load(f'../Finalized/test_data/params.npy')
-for length in [1000,500,1000]:
+for length in [100,500,1000]:
      success=[]
      tid=[]
      epoch=[]
@@ -63,9 +63,9 @@ for length in [1000,500,1000]:
           new_mes,time,iteration=opt.minimize([x,y],regression_model,max_epochs=4000,verbose = False, print_freq=100, smallest_lr=1e-10,test=True)
           # Visualize measures and gradient
           new_mes[0].visualize()
-          plt.show()
+          #plt.show()
           new_mes[1].visualize()
-          plt.show()
+          #plt.show()
           a=(new_mes[0].locations*new_mes[0].weights).sum()
           b=(new_mes[1].locations*new_mes[1].weights).sum()
           plt.plot(x.detach().numpy(),(b+a*x).detach().numpy())
@@ -77,7 +77,7 @@ for length in [1000,500,1000]:
           plt.scatter(x.detach().numpy(),y.detach().numpy())
           plt.show()
 
-          check=pm.Check(opt,regression_model,x,y,normal=True,Return=True)
+          check=pm.Check(opt,regression_model,x,y,normal=False,Return=True)
           l,u,miss=check.check()
           success.append(l<=miss and miss<=u)
           tid.append(time)

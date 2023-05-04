@@ -513,7 +513,7 @@ class Check():
             cih=mean-q*std
             bounds=[cil,cih]
         else:
-            edge=int(self.alpha/2*self.N)
+            edge=int(self.alpha/2*self.sample_size)
             idx_sorted_cropped=torch.argsort(data)[edge:self.sample_size-edge]
             bounds=data[idx_sorted_cropped[[0,-1]]]
         return bounds

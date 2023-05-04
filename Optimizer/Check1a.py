@@ -57,7 +57,7 @@ for length in [1000,500,1000]:
         new_mes,time,iteration=opt.minimize([x,y], regression_model,verbose=False,adaptive=False,max_epochs=4000,test=True)
 
         new_mes[0].visualize()
-        plt.show()
+        #plt.show()
         check=pm.Check(opt,regression_model,x,y,normal=True,Return=True)
         l,u,miss=check.check()
 
