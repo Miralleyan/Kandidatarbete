@@ -429,10 +429,9 @@ class Optimizer:
             prep.append(torch.tensor(loc_idx))
         elif self.loss == self.KDEnll:
             if h == 0:
-                h = 1.06*len(data[0])**(-1/5)
-            sigma=torch.std(data[0])
-            A=min(sigma,(torch.quantile(data[0],0.75)-torch.quantile(data[0],0.25))/1.35)
-            h=0.9*A*len(data[0])**(-1/5)
+                sigma=torch.std(data[0])
+                A=min(sigma,(torch.quantile(data[0],0.75)-torch.quantile(data[0],0.25))/1.35)
+                h=0.9*A*len(data[0])**(-1/5)
             kde_mat = 1/np.sqrt(2*np.pi)*np.exp(-((data[1].view(-1,1) - model(data[0].view(-1,1), locs.transpose(0,1))) / h)**2/2)
             prep.append(kde_mat)
             prep.append(h)
