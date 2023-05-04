@@ -75,7 +75,7 @@ for length in [100,500,1000]:
         new_mes[2].visualize() 
         #plt.show()
 
-        check=pm.Check(opt,regression_model,x,y,normal=True,Return=True)
+        check=pm.Check(opt,regression_model,x,y,normal=False,Return=True)
         l,u,miss=check.check()
         success.append(l<=miss and miss<=u)
         tid.append(time)
@@ -84,8 +84,8 @@ for length in [100,500,1000]:
             measures.append([new_mes[i].locations.tolist(),new_mes[i].weights.tolist()])
 
     data=[measures,sum(tid)/len(tid),sum(epoch)/len(epoch),sum(success)/len(success)]
-    #with open(f"resultat_samuel/Sergey3M_{M}.json", "w") as outfile:
-    #    outfile.write(json.dumps(data))
+    with open(f"resultat_samuel/Sergey3M_{M}.json", "w") as outfile:
+        outfile.write(json.dumps(data))
 
 
 print(sum(success)/len(success))
