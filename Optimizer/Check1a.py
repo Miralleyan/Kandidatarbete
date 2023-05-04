@@ -23,7 +23,7 @@ def regression_model(x,list):
 
 param=np.load(f'../Finalized/test_data/params.npy')
 
-for length in [100,500,1000]:
+for length in [1000,500,1000]:
     success=[]
     tid=[]
     epoch=[]
@@ -41,7 +41,7 @@ for length in [100,500,1000]:
         s=2
         aU=math.ceil(param[0][3*i]+s*param[1][3*i])
         aL=math.floor(param[0][3*i]-s*param[1][3*i])
-        N=2*(aU-aL)+1
+        N=2*(aU-aL)+10
         
  
         #x = torch.linspace(0, 10, M)
@@ -57,7 +57,7 @@ for length in [100,500,1000]:
         new_mes,time,iteration=opt.minimize([x,y], regression_model,verbose=False,adaptive=False,max_epochs=4000,test=True)
 
         new_mes[0].visualize()
-        #plt.show()
+        plt.show()
         check=pm.Check(opt,regression_model,x,y,normal=True,Return=True)
         l,u,miss=check.check()
 
