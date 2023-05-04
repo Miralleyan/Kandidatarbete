@@ -88,7 +88,7 @@ class Measure:
             assert ValueError("You can't have negative weights in a probability measure!")
 
         sample_idx = torch.multinomial(self.weights, size, replacement=True)
-        sample = self.locations[sample_idx]
+        sample = self.locations[sample_idx] + torch.randn(size)*(self.locations[1]-self.locations[0])/2
         return sample
 
     def copy(self):
@@ -487,6 +487,14 @@ class Check():
                 input.append(meas.sample(self.sample_size))
             bounds.append(self.CI(self.model(x,input)))
         miss=self.misses(self.data[1],bounds)
+
+
+        # b_lower = [b[0].item() for b in bounds]
+        # b_upper = [b[1].item() for b in bounds]
+        # plt.scatter(self.data[0], self.data[1], sizes=[20]*len(self.data[0]))
+        # plt.plot(self.data[0], b_lower, 'r--')
+        # plt.plot(self.data[0], b_upper, 'r--')
+        # plt.show()
 
         lci=scipy.stats.binom.ppf(self.alpha/2,self.N,self.alpha)
         hci=scipy.stats.binom.ppf(1-self.alpha/2,self.N,self.alpha)
