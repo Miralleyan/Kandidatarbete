@@ -488,6 +488,14 @@ class Check():
             bounds.append(self.CI(self.model(x,input)))
         miss=self.misses(self.data[1],bounds)
 
+
+        # b_lower = [b[0].item() for b in bounds]
+        # b_upper = [b[1].item() for b in bounds]
+        # plt.scatter(self.data[0], self.data[1], sizes=[20]*len(self.data[0]))
+        # plt.plot(self.data[0], b_lower, 'r--')
+        # plt.plot(self.data[0], b_upper, 'r--')
+        # plt.show()
+
         lci=scipy.stats.binom.ppf(self.alpha/2,self.N,self.alpha)
         hci=scipy.stats.binom.ppf(1-self.alpha/2,self.N,self.alpha)
         if (miss >= lci) and (miss <= hci):
