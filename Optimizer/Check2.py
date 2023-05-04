@@ -75,7 +75,7 @@ for length in [100,500,1000]:
 
           plt.plot(x.detach().numpy(),(b+a*x).detach().numpy())
           plt.scatter(x.detach().numpy(),y.detach().numpy())
-          plt.show()
+          #plt.show()
 
           check=pm.Check(opt,regression_model,x,y,normal=False,Return=True)
           l,u,miss=check.check()
