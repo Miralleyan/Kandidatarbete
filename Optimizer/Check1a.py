@@ -10,7 +10,7 @@ import math
 def regression_model(x,list):
     return list[0]*x
 
-#Load data of parameters
+#Load data of parameters from the file where you ran data_generator.py
 param=np.load(f'../Finalized/test_data/params.npy')
 
 for length in [100,500,1000]:
