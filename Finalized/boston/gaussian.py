@@ -35,14 +35,16 @@ class GaussianRegression(nn.Module):
 
 
 model = GaussianRegression(13)
-opt = optim.SGD(model.parameters(), lr=0.01)
+opt = optim.SGD(model.parameters(), lr=0.02)
 criterion = nn.GaussianNLLLoss(full=True)
 
-dataset = TensorDataset(x, y)
+train_set, val_set = torch.utils.data.random_split(x, [400, 106])
+
+dataset = TensorDataset(x[train_set.indices], y[train_set.indices])
 loader = DataLoader(dataset, batch_size=200, shuffle=True)
 
 
-for epoch in range(15000):
+for epoch in range(10000):
     for x_sample, y_sample in loader:
         opt.zero_grad()
 
@@ -55,12 +57,12 @@ for epoch in range(15000):
     if epoch % 100 == 99 or epoch < 10:
         print(f"{epoch + 1}: {loss.item()}")
 
-y_pred, var_pred = model(x)
+y_pred, var_pred = model(x[val_set.indices])
 print(f"mean prediction parameters: {list(model.pred_layer.parameters())}")
 print(f"variance prediction: {1 * model.std.pow(2)}")
 print(f"variance offset: {model.std_default ** 2}")
 
-y_np = y.squeeze().detach().numpy()
+y_np = y[val_set.indices].squeeze().detach().numpy()
 y_pred_np = y_pred.squeeze().detach().numpy()
 
 plt.scatter(y_np, y_pred_np)
@@ -69,6 +71,6 @@ plt.ylabel('predicted price')
 plt.xlabel('actual price')
 plt.show()
 
-hits = ((y - y_pred).abs().squeeze() < 1.96 * var_pred.sqrt()).sum()
-proportion = hits / 506
+hits = ((y[val_set.indices] - y_pred).abs().squeeze() < 1.96 * var_pred.sqrt()).sum()
+proportion = hits / 106
 print(f"proportion of points within 95% interval: {proportion}")
