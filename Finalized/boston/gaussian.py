@@ -17,12 +17,9 @@ y = data[:, -1]
 x = torch.tensor(x, dtype=torch.float32)
 y = torch.tensor(y, dtype=torch.float32).view(-1, 1)
 
+# normalize data to enable better prediction
 x -= x.mean(0)
 x /= x.std(0)
-
-# # normalize data
-# x -= x.mean(axis=0)
-# x[:, :-1] /= x[:, :-1].std(axis=0)
 
 class GaussianRegression(nn.Module):
     def __init__(self, input_features):
