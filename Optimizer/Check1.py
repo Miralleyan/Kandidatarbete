@@ -53,7 +53,7 @@ for length in [100,500,1000]:
 
         #measure = pm.Measure(locations=l, weights=w, device=dev)
 
-        opt = pm.Optimizer([measure],"KDEnll" ,lr=1e-2)
+        opt = pm.Optimizer([measure],"KDEnll" ,lr=1e-1)
         new_mes,time,iteration=opt.minimize([x,y], regression_model,verbose=False,adaptive=False,max_epochs=4000,test=True)
 
         new_mes[0].visualize()
