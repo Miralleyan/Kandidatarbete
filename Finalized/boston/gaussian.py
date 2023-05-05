@@ -28,13 +28,12 @@ class GaussianRegression(nn.Module):
     def __init__(self, input_features):
         super().__init__()
         self.pred_layer = nn.Linear(input_features, 1)
-        self.dist_std = nn.Parameter(torch.ones(input_features, requires_grad=True)) # want to force variance to be greater than zero.
+        self.std = nn.Parameter(torch.ones(input_features, requires_grad=True))
         self.std_default = nn.Parameter(torch.tensor(1., requires_grad=True))
-        #self.var_layer = nn.Linear(input_features, 1)
     
     def forward(self, x):
         y_pred = self.pred_layer(x)
-        var_pred = (x.pow(2) * self.dist_std.pow(2)).sum(1) + self.std_default.pow(2)
+        var_pred = (x.pow(2) * self.std.pow(2)).sum(1) + self.std_default.pow(2)
         return y_pred, var_pred
 
 
@@ -61,7 +60,7 @@ for epoch in range(15000):
 
 y_pred, var_pred = model(x)
 print(f"mean prediction parameters: {list(model.pred_layer.parameters())}")
-print(f"variance prediction: {1 * model.dist_std.pow(2)}")
+print(f"variance prediction: {1 * model.std.pow(2)}")
 print(f"variance offset: {model.std_default ** 2}")
 
 y_np = y.squeeze().detach().numpy()
