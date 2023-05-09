@@ -4,7 +4,7 @@ import math
 def CI(tau):
     bound=[]
     for t in tau:
-        a=1.96*math.sqrt(t*(t-1))/math.sqrt(50)
+        a=1.96*math.sqrt(t*(1-t))/math.sqrt(50)
         bound.append([t-a,t+a])
     return bound
 
