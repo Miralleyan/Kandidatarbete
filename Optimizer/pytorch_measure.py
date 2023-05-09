@@ -416,6 +416,7 @@ class Optimizer:
         :param h: bandwidth parameter for KDE
         :param aplha: label smoothing parameter for chi-squared loss function
         """
+        # permutations of all measures
         perms = torch.tensor([item for item in itertools.product(*[range(measure.weights.size(dim=0)) for measure in self.measures])])
         locs = torch.cat([self.measures[i].locations[perms[:, i]].unsqueeze(1) for i in range(len(self.measures))], 1)
         prep = []

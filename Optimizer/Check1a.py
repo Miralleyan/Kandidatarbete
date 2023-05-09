@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import torch
 import pytorch_measure as pm
 import numpy as np

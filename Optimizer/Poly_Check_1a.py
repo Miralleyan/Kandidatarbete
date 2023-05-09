@@ -14,22 +14,23 @@ def eval_powers_of_x(x, n):
 def eval_even_powers_of_x(x, n):
     return x.pow(2 * torch.arange(n))
 
-# Confidence intervals
+# Calculate confidence intervals and returns amount of misses
 def misses(x, y, mu, sigma):
     miss = 0
     S = 1000
     for i in range(x.size(dim=0)):
+        # Generate sample from model
         sample = torch.normal(mean = float(mu[i]), std = float(sigma[i]), size = (1,S)).squeeze(dim=0)
         sample = torch.sort(sample)[0]
         if y[i] < sample[int(np.floor(S*0.025))] or y[i] > sample[int(np.ceil(S*0.975))-1]:
             miss += 1
+    # Calculate confidence interval
     c1 = sp.stats.binom.ppf(0.025,y.size(dim=0),0.05)
-    c3 = sp.stats.binom.ppf(0.5,y.size(dim=0),0.05)
     c2 = sp.stats.binom.ppf(0.975,y.size(dim=0),0.05)
-    print(c1,c3,c2)
     print(f"CI: [{c1}, {c2}], Misses: {miss}, Within CI: {c1<=miss<=c2}")
     return c1, c2, miss
 
+# Polynomial nn method
 class NormalPolynomialModel(torch.nn.Module):
     def __init__(self):
         super().__init__()
@@ -55,16 +56,19 @@ class NormalPolynomialModel(torch.nn.Module):
         self.var = self.var_layer(self.poly_multipliers_var * x**2) + self.var_shift ** 2
         return self.mean, self.var
     
+# Loss function for nn
 def log_k_with_var(mean, var, y):
     return -0.5*torch.log(var) - (y - mean)**2 / (2 * var)
 
-
+# For each data size
 for length in [100, 500, 1000]:
+    # Lists for storing results
     success=[]
     tid=[]
     end_epoch=[]
     means=[]
     std=[]
+    # Run regressions 50 times
     for i in range(50):
         x = torch.linspace(-5, 5, length)
         y = np.load(f'../Finalized/test_data/data_{length}_y_ax_{i}.npy')
@@ -79,6 +83,7 @@ for length in [100, 500, 1000]:
         conv_time = float('inf')
         old_loss = float('inf')
         t1 = time.time()
+        # Main loop of regression
         for epoch in range(max_epoch):
             opt.zero_grad()
             mean, var = model(x_unsq)
@@ -95,6 +100,7 @@ for length in [100, 500, 1000]:
 
             if epoch % 1000 == 0:
                 print(f'{epoch}:: Loss = {loss.item()}')
+
         m, var = model(x_unsq)
         s = var.sqrt()
         m = m.detach().numpy()
@@ -109,6 +115,7 @@ for length in [100, 500, 1000]:
         means.append(m.tolist())
         std.append(s.tolist())
     
+    # Save results in a json file
     results = [means, std, sum(tid)/len(tid), sum(end_epoch)/(len(end_epoch)), float(100*sum(success)/len(success))]
     with open(f"Poly_results/poly_results_{length}_y_ax.json", "w") as outfile:
         outfile.write(json.dumps(results))
