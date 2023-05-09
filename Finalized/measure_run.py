@@ -17,7 +17,7 @@ dev = 'cpu'
 
 torch.manual_seed(1)
 #####################
-def regression_model(a, x):
+def regression_model(x, a):
     return a+x
 
 x = torch.linspace(0, 10, M).view(-1, 1)
@@ -48,26 +48,24 @@ def KDENLLLoss(m):
 
 measure = pm.Measure(locations=l, weights=w, device=dev)
 
-opt_NLL = pm.Optimizer([measure], lr=1e-1)
-new_mes = opt_NLL.minimize(NLLLoss, verbose=verbose, print_freq=100, max_epochs=1000, tol_const=1e-2, adaptive=True)
-
 opt_KDE = pm.Optimizer([measure], lr=1e-1, loss='KDEnll')
-new_mesKDE = opt_KDE.minimize([x,y], regression_model, verbose=verbose, print_freq=100, max_epochs=1000, tol_const=1e-2, adaptive=True)
+new_mesKDE = opt_KDE.minimize([x, data], regression_model, verbose=verbose, print_freq=100,
+                              max_epochs=4000, tol_const=1e-3, adaptive=True)
 
- #Create true values
-xs = torch.linspace(amin, amax, 500)
-y=1/(np.sqrt(2*np.pi)*data_std)*torch.exp(-(xs-data_mean)**2/(2*data_std**2))
+#Create true values
+#xs = torch.linspace(amin, amax, 500)
+#y=1/(np.sqrt(2*np.pi)*data_std)*torch.exp(-(xs-data_mean)**2/(2*data_std**2))
 
-y_mes = torch.matmul(K((xs.view(-1, 1) - l)/h), new_mes[0].weights.view(-1, 1)) / (h)
 y_mesKDE = torch.matmul(K((xs.view(-1, 1) - l)/h), new_mesKDE[0].weights.view(-1, 1)) / (h)
-#plt.bar(l - 0.05, new_mes[0].weights.tolist(), width = 0.1, label='NLLLoss')
 #plt.bar(l + 0.05, new_mesKDE[0].weights.tolist(), width = 0.1, label='KDELoss')
-plt.plot(xs.detach(), y_mesKDE.detach(), label='KDELoss')
-plt.plot(xs.detach(), y_mes.detach(), label='NLLLoss')
-plt.plot(xs.detach(), y, zorder=2, label="True distribution")
-plt.legend()
+#plt.plot(xs.detach(), y_mesKDE.detach(), label='KDELoss')
+#plt.plot(xs.detach(), y, zorder=2, label="True distribution")
+#plt.legend()
 
+
+samp = new_mesKDE[0].sample(1000)
+plt.hist(samp, bins=17)
 plt.show()
 
-new_mesKDE[0].visualize()
-plt.show()
+#new_mesKDE[0].visualize()
+#plt.show()

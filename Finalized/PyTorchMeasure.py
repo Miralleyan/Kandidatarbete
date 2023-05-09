@@ -88,7 +88,7 @@ class Measure:
             assert ValueError("You can't have negative weights in a probability measure!")
 
         sample_idx = torch.multinomial(self.weights, size, replacement=True)
-        sample = self.locations[sample_idx]
+        sample = self.locations[sample_idx] + torch.randn(size)*(self.locations[1]-self.locations[0])/2
         return sample
 
     def copy(self):
