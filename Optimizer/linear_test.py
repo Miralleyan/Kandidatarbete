@@ -18,6 +18,5 @@ plt.plot(x, mu, 'r', label='mean', zorder=5)
 plt.fill_between(x.squeeze(), (mu-sigma), (mu+sigma), alpha=0.5, label='1std', zorder=3)
 plt.fill_between(x.squeeze(), (mu-sigma*2), (mu+sigma*2), alpha=0.5, label='2std', zorder=2)
 plt.legend()
-plt.savefig('myplot.png', dpi=300)
+#plt.savefig('myplot.png', dpi=300)
 plt.show()
-
