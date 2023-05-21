@@ -20,3 +20,4 @@ plt.fill_between(x.squeeze(), (mu-sigma*2), (mu+sigma*2), alpha=0.5, label='2std
 plt.legend()
 #plt.savefig('myplot.png', dpi=300)
 plt.show()
+
