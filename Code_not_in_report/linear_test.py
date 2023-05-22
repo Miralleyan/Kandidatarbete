@@ -1,49 +1,23 @@
 import torch
-import pytorch_measure as pm
 import numpy as np
 import matplotlib.pyplot as plt
+import linear_combination_optimizer as lco
 
-N=41
-data=torch.randn(1000)
-#data=torch.from_numpy(np.random.beta(1,2,1000))
+length = 500
 
-
-
-w = torch.tensor([1/N]*N)#Weights
-l = torch.linspace(-4,4,N)
-w = torch.nn.parameter.Parameter(w)
-l = torch.nn.parameter.Parameter(l)
+x = torch.linspace(-5, 5, length)
+y = np.load(f'../Finalized/test_data/data_{length}_y_sqr_{24}.npy')
+opt = lco.Optimizer(x, y, order=3)
+mu, sigma = opt.optimize(epochs=300, test=False)
 
 
-mu=0 #Create true values
-sigma=1
-x=torch.linspace(-4,4,N)
-y=1/(np.sqrt(2*np.pi)*sigma)*torch.exp(-(x-mu)**2/(2*sigma**2))
-y/=sum(y) #Normalize
-
-index = torch.argmin(abs(l-data.view(-1,1)), dim=1)
-def loss_fn(w):
-    return -w[0].weights[index].log().sum()
-
-
-
-lr=1e-3
-measure = pm.Measure(l, w)
-opt=pm.Optimizer(measure,lr=lr)
-
-
-#opt.minimize(loss_fn,verbose=True)
-opt.minimize(loss_fn,verbose=True)
-
-
-plt.scatter(x,y,zorder=2)
-opt.visualize()
+mu = np.array(mu)
+sigma = np.array(sigma)
+plt.scatter(x, y, marker='.', label='data', zorder=0)
+plt.plot(x, mu, 'r', label='mean', zorder=5)
+plt.fill_between(x.squeeze(), (mu-sigma), (mu+sigma), alpha=0.5, label='1std', zorder=3)
+plt.fill_between(x.squeeze(), (mu-sigma*2), (mu+sigma*2), alpha=0.5, label='2std', zorder=2)
+plt.legend()
+#plt.savefig('myplot.png', dpi=300)
 plt.show()
 
-
-'''
-plt.hist(measure.sample(10000),bins=50, density=True, range=[-4,4])
-plt.hist(torch.randn(10000),bins=50, density=True, range=[-4,4], alpha=0.5)
-plt.legend(['Model','True data'])
-plt.show()
-'''
