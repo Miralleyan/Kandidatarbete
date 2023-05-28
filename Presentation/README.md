@@ -12,6 +12,9 @@ conda install pytorch torchvision torchaudio cpuonly -c pytorch
 To run code use with low quality (fast, good for testing) use
 ```
 manim -pql KDEScene.py KDEScene
+manim -pql OFDM_alg.py OFDM_alg
+manim -pql Softmax.py Softmax
+manim -pql Samuel.py Samuel
 ```
 and for high quality (slow) use
 ```
